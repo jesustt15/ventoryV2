@@ -19,7 +19,8 @@ model ModeloDispositivo {
   nombre        String    // Nombre del modelo, ej: Latitude 5400, iPhone 13, ThinkPad T480
   marcaId       String
   marca         Marca     @relation(fields: [marcaId], references: [id])
-  tipo          String    // Ej: "Laptop", "Desktop", "Monitor", "Teléfono IP", "Impresora", "Switch"
+  tipo          String
+  img            String?    // Ej: "Laptop", "Desktop", "Monitor", "Teléfono IP", "Impresora", "Switch"
   // Puedes añadir más campos específicos del modelo aquí si es necesario,
   // como especificaciones base, año de lanzamiento, etc.
 
@@ -69,12 +70,8 @@ model Computador {
   usuario        Usuario?        @relation(fields: [usuarioId], references: [id])
   departamentoId String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
-  img            String?         // URL o ruta de la imagen
-  // 'tipo' aquí podría ser redundante si 'ModeloDispositivo.tipo' es suficiente,
-  // o podría usarse para un estado más específico del computador (ej: "Portátil de Gerencia")
-  // Por ahora lo comento para simplificar, asumiendo que el tipo viene del ModeloDispositivo.
-  // tipo           String
-  // 'marca' y 'modelo' como strings se eliminan, ahora vienen de la relación con ModeloDispositivo
+  nsap String?
+ 
 }
 
 // Renombrado de Equipos a Dispositivo para mayor claridad y evitar colisión de nombres
@@ -88,11 +85,11 @@ model Dispositivo {
   usuario        Usuario?        @relation(fields: [usuarioId], references: [id])
   departamentoId String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
-  img            String?         // URL o ruta de la imagen
   // 'tipo' aquí podría ser redundante si 'ModeloDispositivo.tipo' es suficiente.
   // tipo           String
   // 'marca' y 'modelo' como strings se eliminan
   lineas         LineaTelefonica[]
+  nsap String?
 }
 
 model LineaTelefonica {

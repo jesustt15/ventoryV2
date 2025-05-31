@@ -14,19 +14,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import {
-  ArrowUpDown,
-  CheckCircle2Icon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ColumnsIcon,
-  FilterIcon,
   ImageIcon,
   MoreHorizontalIcon,
   PlusIcon,
-  ServerIcon,
-  UploadIcon,
-  WrenchIcon,
-  XCircleIcon,
 } from "lucide-react"
 import { z } from "zod"
 
@@ -42,34 +35,67 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { toast } from "sonner"
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-  SelectItem
-} from "@/components/ui/select"
-import ReactSelect from 'react-select';
-import CreatableSelect from 'react-select/creatable';
-import EquipoFormDialog from './EquipoForm';
+import ModeloForm from "./ModeloForm"
 
-export const dispositivoSchema = z.object({
-  id: z.string(),
-  serial: z.string(),
-  estado: z.string(),
-  modeloId: z.string(),
-  usuarioId: z.string().nullable(),
-  departamentoId: z.string().nullable(),
+export const modeloSchema = z.object({
+  nombre: z.string().min(1, "El nombre es requerido"),
+  marca: z.string().min(1, "La Marca es Requerida"),
+  tipo: z.string().min(1, "El tipo de dispositivo es requerido"),
   img: z.string().nullable(),
 })
 
-export type Dispositivo = z.infer<typeof dispositivoSchema>
+export type ModeloFormData = z.infer<typeof modeloSchema>
 
-export const columns: ColumnDef<Dispositivo>[] = [
+// Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
+export interface Modelo {
+  id: string; // Or number, depending on your API
+  nombre: string;
+  marca: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
+  tipo: string;
+  img: string | null;
+  // Add any other fields that come from your API
+}
+
+interface FormSubmitData {
+  nombre: string;
+  marca: string;
+  tipo: string;
+  img: File | null;
+}
+
+
+export interface ModeloFormProps {
+  onCreateModel: (data: ModeloFormData) => void;
+  marcas: { id: string; nombre: string }[];
+  initialData?: {
+    nombre: string;
+    marca: string;
+    tipo: string;
+    img: string | null;
+  };
+}
+
+
+interface EquiposTableProps {
+  data: Modelo[]
+}
+
+export function ModelosTable({ data }: EquiposTableProps) {
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [editingModelo, setEditingModelo] = React.useState<Modelo | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [modelos, setModelos] = React.useState<Modelo[]>([]);
+  const [marcas, setMarcas] = React.useState<{ id: string; nombre: string }[]>([]);
+
+const columns: ColumnDef<Modelo>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -90,41 +116,36 @@ export const columns: ColumnDef<Dispositivo>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "nombre",
+    header: "Nombre",
   },
   {
-    accessorKey: "serial",
-    header: "Serial",
-    cell: ({ row }) => <div>{row.getValue("serial")}</div>,
+    accessorKey: "marca.nombre",
+    header: "Marca",
   },
   {
-    accessorKey: "estado",
-    header: "Estado",
-    cell: ({ row }) => {
-      const estado = row.getValue("estado") as string
-
-      return (
-        <div className="flex items-center gap-2">
-          {estado === "Activo" ? (
-            <CheckCircle2Icon className="h-4 w-4 text-green-500" />
-          ) : estado === "Resguardo" ? (
-            <WrenchIcon className="h-4 w-4 text-amber-500" />
-          ) : (
-            <XCircleIcon className="h-4 w-4 text-destructive" />
-          )}
-          <span>{estado}</span>
+    accessorKey: "tipo",
+    header: "Tipo",
+  },
+  {
+    accessorKey: "img",
+    header: "Imagen",
+    cell: ({ row }) => (
+      <div className="grid grid-cols-4 items-center gap-4">
+                <Avatar className="col-span-3 w-24 h-24">
+                  <AvatarImage src={row.getValue("img")} alt="Imagen Modelo" />
+                  <AvatarFallback>
+                    <ImageIcon className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
         </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    ),
   },
   {
     id: "actions",
+    header: "Acciones",
     cell: ({ row }) => {
-      const equipo = row.original
+      const modelo = row.original
 
       return (
         <DropdownMenu>
@@ -135,13 +156,11 @@ export const columns: ColumnDef<Dispositivo>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(equipo.serial.toString())}>
-              Copiar Serial
-            </DropdownMenuItem>
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-            <DropdownMenuItem>Editar equipo</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleOpenEditModal(modelo)}
+              >Editar modelo</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">Eliminar modelo</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -149,20 +168,9 @@ export const columns: ColumnDef<Dispositivo>[] = [
   },
 ]
 
-interface EquiposTableProps {
-  data: Dispositivo[]
-}
-
-export function EquiposTable({ data }: EquiposTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [estadoFilter, setEstadoFilter] = React.useState<string[]>(["Activo", "Mantenimiento", "Inactivo"])
-  const [searchQuery, setSearchQuery] = React.useState("")
 
   const table = useReactTable({
-    data,
+    data: modelos,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -180,17 +188,100 @@ export function EquiposTable({ data }: EquiposTableProps) {
     },
   });
 
-  // Aplicar filtro de estado
+  const fetchAllData = async () => {
+    try {
+      const modelosResponse = await fetch('/api/modelos');
+      const marcasResponse = await fetch('/api/marcas');
+
+      if (!modelosResponse.ok) {
+        throw new Error(`Error fetching modelos: ${modelosResponse.status}`);
+      }
+
+      if (!marcasResponse.ok) {
+        throw new Error(`Error fetching marcas: ${marcasResponse.status}`);
+      }
+
+      const modelosData: Modelo[] = await modelosResponse.json();
+      const marcasData: { id: string; nombre: string }[] = await marcasResponse.json();
+
+      setModelos(modelosData);
+      setMarcas(marcasData);
+    } catch (error: any) {
+      toast.error(`Failed to fetch data: ${error.message}`);
+    }
+  };
+
   React.useEffect(() => {
-    table.getColumn("estado")?.setFilterValue(estadoFilter)
-  }, [table, estadoFilter])
+    fetchAllData();
+  }, []);
+
+  const handleOpenEditModal = (modelo: Modelo) => {
+    setEditingModelo(modelo);
+    setIsEditModalOpen(true);
+  };
+
+    const handleCreateModel = async (formData: ModeloFormData) => {
+    try {
+      const response = await fetch('/api/modelos', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(errorData.message || `Error creando modelo: ${response.statusText}`);
+      }
+      toast.success("Modelo creado correctamente 👍");
+      setIsCreateModalOpen(false);
+      fetchAllData();
+    } catch (error: any) {
+      toast.error(`No se pudo crear el modelo: ${error.message}`);
+    }
+  };
+
+  // No se usa
+     const handleUpdateModel = async (formData: FormSubmitData) => {
+    if (!editingModelo) return;
+
+    try {
+      // 1. Crea un objeto FormData
+      const data = new FormData();
+      data.append('nombre', formData.nombre);
+      data.append('marcaId', formData.marca); // Tu API espera 'marcaId'
+      data.append('tipo', formData.tipo);
+      if (formData.img) {
+        data.append('img', formData.img);
+      }
+      
+      // 2. Realiza la petición fetch
+      const response = await fetch(`/api/modelos/${editingModelo.id}`, {
+        method: 'PUT',
+        // 3. ¡IMPORTANTE! No establezcas el header 'Content-Type'.
+        //    El navegador lo configurará automáticamente a 'multipart/form-data' con el 'boundary' correcto.
+        body: data, // 4. Envía el objeto FormData directamente
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(errorData.message || `Error actualizando modelo: ${response.statusText}`);
+      }
+
+      toast.success("Modelo actualizado correctamente ✨");
+      setIsEditModalOpen(false);
+      setEditingModelo(null);
+      await fetchAllData();
+    } catch (error: any) {
+      toast.error(`No se pudo actualizar el modelo: ${error.message}`);
+    }
+  };
+
+  
 
   // Aplicar filtro de búsqueda
   React.useEffect(() => {
     if (searchQuery) {
-      table.getColumn("serial")?.setFilterValue(searchQuery)
+      table.getColumn("nombre")?.setFilterValue(searchQuery)
     } else {
-      table.getColumn("serial")?.setFilterValue("")
+      table.getColumn("nombre")?.setFilterValue("")
     }
   }, [table, searchQuery])
 
@@ -198,90 +289,15 @@ export function EquiposTable({ data }: EquiposTableProps) {
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-2xl font-bold">Equipos</CardTitle>
+          <CardTitle className="text-2xl font-bold">Modelos</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Buscar equipos..."
+                placeholder="Buscar modelos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="max-w-sm border-primary/20"
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto flex gap-1">
-                    <FilterIcon className="h-4 w-4" />
-                    <span>Filtros</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem className="font-medium">Estado</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <div className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="activo"
-                        checked={estadoFilter.includes("Activo")}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setEstadoFilter([...estadoFilter, "Activo"])
-                          } else {
-                            setEstadoFilter(estadoFilter.filter((f) => f !== "Activo"))
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="activo"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Activo
-                      </label>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="mantenimiento"
-                        checked={estadoFilter.includes("Mantenimiento")}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setEstadoFilter([...estadoFilter, "Mantenimiento"])
-                          } else {
-                            setEstadoFilter(estadoFilter.filter((f) => f !== "Mantenimiento"))
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="mantenimiento"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Mantenimiento
-                      </label>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="inactivo"
-                        checked={estadoFilter.includes("Inactivo")}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setEstadoFilter([...estadoFilter, "Inactivo"])
-                          } else {
-                            setEstadoFilter(estadoFilter.filter((f) => f !== "Inactivo"))
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="inactivo"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Inactivo
-                      </label>
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="ml-auto">
@@ -301,9 +317,7 @@ export function EquiposTable({ data }: EquiposTableProps) {
                           checked={column.getIsVisible()}
                           onCheckedChange={(value) => column.toggleVisibility(!!value)}
                         >
-                          {column.id === "serial"
-                            ? "Serial"
-                            : column.id === "tipo"
+                          {column.id === "tipo"
                               ? "Tipo"
                               : column.id === "estado"
                                 ? "Estado"
@@ -321,7 +335,10 @@ export function EquiposTable({ data }: EquiposTableProps) {
               </DropdownMenu>
             </div>
 
-            <EquipoFormDialog />
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+                          <PlusIcon className="mr-2 h-4 w-4" />
+                          Agregar Modelo
+                        </Button>
           </div>
         </div>
       </CardHeader>
@@ -380,6 +397,30 @@ export function EquiposTable({ data }: EquiposTableProps) {
           </div>
         </div>
       </CardContent>
+      <ModeloForm
+              isOpen={isCreateModalOpen}
+              onClose={() => setIsCreateModalOpen(false)}
+              onSubmit={handleCreateModel}
+              marcas={marcas}
+            />
+
+            {/* Edit Modal */}
+            <ModeloForm
+              isOpen={isEditModalOpen}
+              onClose={() => {
+                setIsEditModalOpen(false);
+                setEditingModelo(null);
+              }}
+              onSubmit={handleUpdateModel} // Usamos el handler de actualización
+              initialData={editingModelo ? { // Mapeamos los datos del modelo a editar
+                nombre: editingModelo.nombre,
+                marca: editingModelo.marca.id, // Pasamos solo el ID de la marca
+                tipo: editingModelo.tipo,
+                img: editingModelo.img,
+              } : null}
+              marcas={marcas}
+              key={editingModelo?.id || 'create'} // La key es crucial para que React reinicie el form
+            />
     </Card>
   )
 }

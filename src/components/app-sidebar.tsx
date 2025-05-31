@@ -56,6 +56,11 @@ const data = {
       icon: Printer,
     },
     {
+      title: "Modelos",
+      url: "/modelos",
+      icon: Printer,
+    },
+    {
       title: "Computadores",
       url: "/computadores",
       icon: Laptop,

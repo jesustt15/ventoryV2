@@ -1,0 +1,82 @@
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import path from 'path';
+import { stat, mkdir, writeFile } from 'fs/promises';
+
+export async function POST(request: Request) {
+    try {
+        const formData = await request.formData();
+        const nombre = formData.get('nombre') as string;
+        const marcaId = formData.get('marcaId') as string;
+        const tipo = formData.get('tipo') as string;
+
+        // Validaciones...
+        if (!nombre || !marcaId || !tipo) {
+            return NextResponse.json({ message: 'Nombre, Marca y Tipo son requeridos' }, { status: 400 });
+        }
+
+   const imagenFile = formData.get('img') as File | null;
+       let imageUrl: string | undefined = undefined;
+       const uploadDir = path.join(process.cwd(), 'public/uploads/modelos');
+   
+       if (imagenFile && imagenFile.size > 0) {
+         // Asegurar que el directorio de subida exista
+         try {
+           await stat(uploadDir); // Comprueba si el directorio existe
+         } catch (e: any) {
+           if (e.code === 'ENOENT') { // Si no existe (Error NO ENTry)
+             console.log(`Creando directorio: ${uploadDir}`);
+             await mkdir(uploadDir, { recursive: true }); // Créealo recursivamente
+           } else {
+             console.error("Error al comprobar el directorio:", e);
+             throw e; // Relanzar otros errores
+           }
+         }
+   
+
+         const bytes = await imagenFile.arrayBuffer();
+         const buffer = Buffer.from(bytes);
+   
+         // Crear un nombre de archivo único (ej: timestamp + nombre original)
+         // Sanitizar el nombre del archivo para evitar problemas de ruta
+         const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+         const filename = `${Date.now()}-${safeOriginalName}`;
+         const imagePath = path.join(uploadDir, filename);
+   
+         await writeFile(imagePath, buffer);
+         imageUrl = `/uploads/modelos/${filename}`; // Ruta pública relativa
+       } else if (imagenFile && imagenFile.size === 0) {
+         console.log("Se recibió un archivo de imagen vacío, se omitirá.");
+       }
+
+        const nuevoModelo = await prisma.modeloDispositivo.create({
+            data: {
+                nombre,
+                marcaId,
+                tipo,
+                img: imageUrl, // Guardar la ruta de la imagen
+            },
+        });
+
+        return NextResponse.json(nuevoModelo, { status: 201 });
+
+    } catch (error) {
+     console.error("Error en POST /api/modelos:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido al crear el equipo';
+    return NextResponse.json({ message: errorMessage }, { status: 500 });        
+    }
+}
+
+export async function GET() {
+  try {
+    const modelos = await prisma.modeloDispositivo.findMany({
+      include: {
+        marca: true,
+      },
+    });
+    return NextResponse.json(modelos, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: 'Error al obtener modelos' }, { status: 500 });
+  }
+}
