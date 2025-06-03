@@ -18,11 +18,13 @@ export async function POST(request: Request) {
    const imagenFile = formData.get('img') as File | null;
        let imageUrl: string | undefined = undefined;
        const uploadDir = path.join(process.cwd(), 'public/uploads/modelos');
+       console.log(`Intentando procesar imagen. Archivo recibido: ${imagenFile ? imagenFile.name : 'Ninguno'}`);
    
        if (imagenFile && imagenFile.size > 0) {
-         // Asegurar que el directorio de subida exista
+         console.log(`Tamaño del archivo de imagen: ${imagenFile.size} bytes`);
          try {
            await stat(uploadDir); // Comprueba si el directorio existe
+           console.log(`Directorio de subida existe: ${uploadDir}`)
          } catch (e: any) {
            if (e.code === 'ENOENT') { // Si no existe (Error NO ENTry)
              console.log(`Creando directorio: ${uploadDir}`);
@@ -42,8 +44,9 @@ export async function POST(request: Request) {
          const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
          const filename = `${Date.now()}-${safeOriginalName}`;
          const imagePath = path.join(uploadDir, filename);
-   
+         console.log(`Intentando escribir archivo en: ${imagePath}`);
          await writeFile(imagePath, buffer);
+         console.log(`Archivo escrito exitosamente: ${filename}`);
          imageUrl = `/uploads/modelos/${filename}`; // Ruta pública relativa
        } else if (imagenFile && imagenFile.size === 0) {
          console.log("Se recibió un archivo de imagen vacío, se omitirá.");

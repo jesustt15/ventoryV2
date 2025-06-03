@@ -6,7 +6,11 @@ import { stat, mkdir, writeFile } from 'fs/promises';
 
 export async function GET() {
   try {
-    const equipos = await prisma.dispositivo.findMany();
+    const equipos = await prisma.dispositivo.findMany({
+      include: {
+        modelo: true,
+      }
+    });
     return NextResponse.json(equipos, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -21,7 +25,7 @@ export async function POST(request: Request) {
     const { modeloId, serial, nsap, estado } = body;
 
     // Validación
-    if (!modeloId || !serial || !nsap || !estado) {
+    if (!modeloId || !serial  || !estado) {
         return NextResponse.json({ message: 'Todos los campos son requeridos' }, { status: 400 });
     }
 

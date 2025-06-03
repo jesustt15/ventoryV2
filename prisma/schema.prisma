@@ -85,9 +85,6 @@ model Dispositivo {
   usuario        Usuario?        @relation(fields: [usuarioId], references: [id])
   departamentoId String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
-  // 'tipo' aquí podría ser redundante si 'ModeloDispositivo.tipo' es suficiente.
-  // tipo           String
-  // 'marca' y 'modelo' como strings se eliminan
   lineas         LineaTelefonica[]
   nsap String?
 }

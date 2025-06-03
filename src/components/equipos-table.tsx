@@ -1,75 +1,64 @@
 "use client"
 
-import * as React from "react"
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-import {
-  ArrowUpDown,
-  CheckCircle2Icon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ColumnsIcon,
-  FilterIcon,
-  ImageIcon,
-  MoreHorizontalIcon,
-  PlusIcon,
-  ServerIcon,
-  UploadIcon,
-  WrenchIcon,
-  XCircleIcon,
-} from "lucide-react"
-import { z } from "zod"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
-import { toast } from "sonner"
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-  SelectItem
-} from "@/components/ui/select"
-import ReactSelect from 'react-select';
-import CreatableSelect from 'react-select/creatable';
-import EquipoFormDialog from './EquipoForm';
+import { Checkbox } from "@radix-ui/react-checkbox";
+import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
+import React from "react";
+import {z} from "zod";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "./ui/button";
+import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
+import { showToast } from "nextjs-toast-notify";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import EquipoFormDialog from "./EquipoForm";
+import EquipoForm from "./EquipoForm";
+import DispositivoForm from "./EquipoForm";
 
 export const dispositivoSchema = z.object({
-  id: z.string(),
-  serial: z.string(),
-  estado: z.string(),
-  modeloId: z.string(),
-  usuarioId: z.string().nullable(),
-  departamentoId: z.string().nullable(),
-  img: z.string().nullable(),
+  serial: z.string().min(1, "El nombre es requerido"),
+  modeloId: z.string().min(1, "La Marca es Requerida"),
+  estado: z.string().min(1, "El tipo de dispositivo es requerido"),
+  nsap: z.string().nullable()
 })
 
-export type Dispositivo = z.infer<typeof dispositivoSchema>
+export type DispositivoFormData = z.infer<typeof dispositivoSchema>
 
-export const columns: ColumnDef<Dispositivo>[] = [
+// Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
+export interface Dispositivo {
+  id: string; // Or number, depending on your API
+  serial: string;
+  estado: string;
+  nsap?: string;
+  modelo: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
+}
+
+export interface DispositivoFormProps {
+  onCreateModel: (data: DispositivoFormData) => void;
+  modelo: { id: string; nombre: string }[];
+  initialData?: {
+    serial: string;
+    estado: string;
+    nsap: string | null;
+  };
+}
+
+interface DispositivoTableProps {
+  data: Dispositivo[]
+}
+
+export function DispositivoTable({}: DispositivoTableProps) {
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [editingDispositivo, setEditingDispositivo] = React.useState<Dispositivo | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [dispositivos, setDispositivos] = React.useState<Dispositivo[]>([]);
+
+const columns: ColumnDef<Dispositivo>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -106,11 +95,16 @@ export const columns: ColumnDef<Dispositivo>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          {estado === "Activo" ? (
-            <CheckCircle2Icon className="h-4 w-4 text-green-500" />
-          ) : estado === "Resguardo" ? (
+          {estado === "Resguardo" ? (
+            <ArchiveRestore className="h-4 w-4 text-cian-500" />
+          ) : estado === "En reparación" ? (
             <WrenchIcon className="h-4 w-4 text-amber-500" />
-          ) : (
+          ) : estado === "Asignado" ?
+          (
+            <User2Icon className="h-4 w-4 text-green-500" />
+          )
+          :
+          (
             <XCircleIcon className="h-4 w-4 text-destructive" />
           )}
           <span>{estado}</span>
@@ -124,7 +118,7 @@ export const columns: ColumnDef<Dispositivo>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const equipo = row.original
+      const dispositivo = row.original
 
       return (
         <DropdownMenu>
@@ -135,11 +129,13 @@ export const columns: ColumnDef<Dispositivo>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(equipo.serial.toString())}>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(dispositivo.serial.toString())}>
               Copiar Serial
             </DropdownMenuItem>
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-            <DropdownMenuItem>Editar equipo</DropdownMenuItem>
+            <DropdownMenuItem
+            onClick={() => handleOpenEditModal(dispositivo)}
+            >Editar equipo</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
           </DropdownMenuContent>
@@ -149,20 +145,8 @@ export const columns: ColumnDef<Dispositivo>[] = [
   },
 ]
 
-interface EquiposTableProps {
-  data: Dispositivo[]
-}
-
-export function EquiposTable({ data }: EquiposTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [estadoFilter, setEstadoFilter] = React.useState<string[]>(["Activo", "Mantenimiento", "Inactivo"])
-  const [searchQuery, setSearchQuery] = React.useState("")
-
   const table = useReactTable({
-    data,
+    data: dispositivos,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -180,13 +164,124 @@ export function EquiposTable({ data }: EquiposTableProps) {
     },
   });
 
-  // Aplicar filtro de estado
-  React.useEffect(() => {
-    table.getColumn("estado")?.setFilterValue(estadoFilter)
-  }, [table, estadoFilter])
+    const fetchAllData = async () => {
+      try {
+        const dispositivosResponse = await fetch('/api/dispositivos');
 
-  // Aplicar filtro de búsqueda
-  React.useEffect(() => {
+  
+        if (!dispositivosResponse.ok) {
+          throw new Error(`Error fetching dispositivos: ${dispositivosResponse.status}`);
+        }
+  
+        const disposistivosData: Dispositivo[] = await dispositivosResponse.json();
+        
+        setDispositivos(disposistivosData);
+
+      } catch (error: any) {
+        showToast.error("¡Error en Cargar!"+ (error.message), {
+            duration: 4000,
+            progress: false,
+            position: "top-right",
+            transition: "popUp",
+            icon: '',
+            sound: true,
+        });
+      }
+    };
+  
+    React.useEffect(() => {
+      fetchAllData();
+    }, []);
+  
+    const handleOpenEditModal = (dispositivos: Dispositivo) => {
+    setEditingDispositivo(dispositivos);
+    setIsEditModalOpen(true);
+  };
+
+    const handleCreateDispositivo = async (data: DispositivoFormData) => {
+    try {
+        const formData = new FormData();
+        if (data.serial) formData.append('serial', data.serial);
+        if (data.modeloId) formData.append('modeloId', data.modeloId);
+        if (data.estado) formData.append('estado', data.estado);
+        if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
+        // Agrega otros campos según sea necesario
+
+        const response = await fetch('/api/dispositivos', {
+            method: 'POST',
+            body: formData,
+        });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
+      throw new Error(errorData.message || `Error creando dispositivo: ${response.statusText}`);
+    }
+
+      showToast.success("Dispositivo creado correctamente 👍",{
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "popUp",
+        icon: '',
+        sound: false,  
+      })
+      setIsCreateModalOpen(false);
+      fetchAllData();
+    } catch (error: any) {
+       showToast.error("Error en Guardar el Equipo:" + (error.message), {
+          duration: 4000,
+          progress: false,
+          position: "top-right",
+          transition: "popUp",
+          icon: '',
+          sound: false,
+      });
+    }
+  };
+     const handleUpdateDispositivo = async (data: Partial<DispositivoFormData>) => {
+    if (!editingDispositivo) return;
+
+    try {
+      const formData = new FormData();
+      if (data.serial) formData.append('serial', data.serial);
+      if (data.modeloId) formData.append('modeloId', data.modeloId);
+      if (data.estado) formData.append('estado', data.estado);
+      if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
+      // Agrega otros campos según sea necesario
+
+      const response = await fetch(`/api/dispositivos/${editingDispositivo.id}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(errorData.message || `Error actualizando dispositivo: ${response.statusText}`);
+      }
+      showToast.success("Dispositivo actualizado correctamente ✨",{
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "popUp",
+        icon: '',
+        sound: false,  
+      })
+      setIsEditModalOpen(false);
+      setEditingDispositivo(null);
+      await fetchAllData();
+    } catch (error: any) {
+     showToast.error("Error en Guardar el Dispositivo:" + (error.message), {
+          duration: 4000,
+          progress: false,
+          position: "top-right",
+          transition: "popUp",
+          icon: '',
+          sound: false,
+      });
+    }
+  };
+
+React.useEffect(() => {
     if (searchQuery) {
       table.getColumn("serial")?.setFilterValue(searchQuery)
     } else {
@@ -194,94 +289,19 @@ export function EquiposTable({ data }: EquiposTableProps) {
     }
   }, [table, searchQuery])
 
-  return (
+return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-2xl font-bold">Equipos</CardTitle>
+          <CardTitle className="text-2xl font-bold">Dispositivos</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Buscar equipos..."
+                placeholder="Buscar por serial..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="max-w-sm border-primary/20"
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto flex gap-1">
-                    <FilterIcon className="h-4 w-4" />
-                    <span>Filtros</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem className="font-medium">Estado</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <div className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="activo"
-                        checked={estadoFilter.includes("Activo")}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setEstadoFilter([...estadoFilter, "Activo"])
-                          } else {
-                            setEstadoFilter(estadoFilter.filter((f) => f !== "Activo"))
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="activo"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Activo
-                      </label>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="mantenimiento"
-                        checked={estadoFilter.includes("Mantenimiento")}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setEstadoFilter([...estadoFilter, "Mantenimiento"])
-                          } else {
-                            setEstadoFilter(estadoFilter.filter((f) => f !== "Mantenimiento"))
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="mantenimiento"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Mantenimiento
-                      </label>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="inactivo"
-                        checked={estadoFilter.includes("Inactivo")}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setEstadoFilter([...estadoFilter, "Inactivo"])
-                          } else {
-                            setEstadoFilter(estadoFilter.filter((f) => f !== "Inactivo"))
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="inactivo"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Inactivo
-                      </label>
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="ml-auto">
@@ -302,17 +322,11 @@ export function EquiposTable({ data }: EquiposTableProps) {
                           onCheckedChange={(value) => column.toggleVisibility(!!value)}
                         >
                           {column.id === "serial"
-                            ? "Serial"
-                            : column.id === "tipo"
-                              ? "Tipo"
+                              ? "Serial"
                               : column.id === "estado"
                                 ? "Estado"
                                 : column.id === "Modelo"
                                   ? "Modelo"
-                                  : column.id === "marca"
-                                    ? "Marca"
-                                    : column.id === "usuario"
-                                      ? "Usuario"
                                       : column.id}
                         </DropdownMenuCheckboxItem>
                       )
@@ -321,7 +335,10 @@ export function EquiposTable({ data }: EquiposTableProps) {
               </DropdownMenu>
             </div>
 
-            <EquipoFormDialog />
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+                          <PlusIcon className="mr-2 h-4 w-4" />
+                          Agregar Dispositivo
+                        </Button>
           </div>
         </div>
       </CardHeader>
@@ -380,6 +397,29 @@ export function EquiposTable({ data }: EquiposTableProps) {
           </div>
         </div>
       </CardContent>
+      <DispositivoForm
+              isOpen={isCreateModalOpen}
+              onClose={() => setIsCreateModalOpen(false)}
+              onSubmit={handleCreateDispositivo}
+            />
+
+            {/* Edit Modal */}
+            <DispositivoForm
+              isOpen={isEditModalOpen}
+              onClose={() => {
+                setIsEditModalOpen(false);
+                setEditingDispositivo(null);
+              }}
+              onSubmit={handleUpdateDispositivo} // Usamos el handler de actualización
+              initialData={editingDispositivo ? { // Mapeamos los datos del modelo a editar
+                serial: editingDispositivo.serial,
+                modeloId: editingDispositivo.modelo.id, // Pasamos solo el ID del modelo
+                estado: editingDispositivo.estado,
+                nsap: typeof editingDispositivo.nsap === "string" ? editingDispositivo.nsap : undefined,
+              } : null}
+              key={editingDispositivo?.id || 'create'} // La key es crucial para que React reinicie el form
+            />
     </Card>
   )
+
 }

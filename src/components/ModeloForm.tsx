@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import CreatableSelect from 'react-select/creatable';
 import { ImageIcon, UploadIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { toast } from "sonner";
+import { showToast } from "nextjs-toast-notify";
 import {
     Select as ShadcnSelect,
     SelectContent,
@@ -86,8 +86,8 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
    const [nombre, setNombre] = useState('');
  const [selectedMarca, setSelectedMarca] = useState<OptionType | null>(null);
  const [selectedTipo, setSelectedTipo] = useState<string>('');
- const [selectedImage, setSelectedImage] = useState<File | null>(null);
- const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
+ const [selectedImage, setSelectedImage] = useState<File | null>(null); // This holds the actual File
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null); // This holds the blob URL for preview
 
   // 3. Determina si estamos en modo edición basado en initialData
   const isEditing = !!initialData;
@@ -124,21 +124,28 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
   event.preventDefault();
 
   if (!selectedMarca || !selectedTipo || !nombre) {
-   toast.error("Por favor, complete todos los campos requeridos.");
+   showToast.warning("Por Favor Complete los Campos", {
+                duration: 4000,
+                progress: false,
+                position: "top-right",
+                transition: "popUp",
+                icon: '',
+                sound: false,
+            });
    return;
   }
 
-    // Crea el objeto de datos para enviar
-  const finalData: ModeloFormData = {
-   nombre,
-   marca: selectedMarca.value,
-   tipo: selectedTipo,
-      // Mantenemos la imagen existente si no se selecciona una nueva
-   img: selectedImagePreview || null,
-  };
+        const formData = new FormData();
+        formData.append('nombre', nombre);
+        formData.append('marcaId', selectedMarca.value); // Use 'marcaId' as per your backend
+        formData.append('tipo', selectedTipo);
 
-    // Llama al callback onSubmit del padre (sea para crear o editar)
-  onSubmit(finalData);
+        if (selectedImage) {
+            formData.append('img', selectedImage); // Append the actual File object here!
+        } else if (selectedImagePreview) {
+           
+        }
+        await onSubmit(formData);
  };
 
   return (
@@ -167,6 +174,7 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
               <Input
                 type="file"
                 id="img"
+                name="img"
                 onChange={handleImageChange}
                 className="col-span-3"
               />

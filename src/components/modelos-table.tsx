@@ -37,7 +37,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
-import { toast } from "sonner"
+import { showToast } from "nextjs-toast-notify";
 import ModeloForm from "./ModeloForm"
 
 export const modeloSchema = z.object({
@@ -55,15 +55,8 @@ export interface Modelo {
   nombre: string;
   marca: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
   tipo: string;
-  img: string | null;
+  img?: File | null;
   // Add any other fields that come from your API
-}
-
-interface FormSubmitData {
-  nombre: string;
-  marca: string;
-  tipo: string;
-  img: File | null;
 }
 
 
@@ -83,7 +76,7 @@ interface EquiposTableProps {
   data: Modelo[]
 }
 
-export function ModelosTable({ data }: EquiposTableProps) {
+export function ModelosTable({}: EquiposTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -207,7 +200,14 @@ const columns: ColumnDef<Modelo>[] = [
       setModelos(modelosData);
       setMarcas(marcasData);
     } catch (error: any) {
-      toast.error(`Failed to fetch data: ${error.message}`);
+      showToast.error("¡Error en Cargar!"+ (error.message), {
+          duration: 4000,
+          progress: false,
+          position: "top-right",
+          transition: "popUp",
+          icon: '',
+          sound: true,
+      });
     }
   };
 
@@ -220,38 +220,45 @@ const columns: ColumnDef<Modelo>[] = [
     setIsEditModalOpen(true);
   };
 
-    const handleCreateModel = async (formData: ModeloFormData) => {
+    const handleCreateModel = async (data: FormData) => {
     try {
-      const response = await fetch('/api/modelos', {
-        method: 'POST',
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(errorData.message || `Error creando modelo: ${response.statusText}`);
-      }
-      toast.success("Modelo creado correctamente 👍");
+        const response = await fetch('/api/modelos', {
+            method: 'POST',
+            body: data, // <--- THIS IS THE ONLY BODY THAT SHOULD BE SENT
+        });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
+      throw new Error(errorData.message || `Error creando modelo: ${response.statusText}`);
+    }
+
+      showToast.success("Modelo creado correctamente 👍",{
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "popUp",
+        icon: '',
+        sound: false,  
+      })
       setIsCreateModalOpen(false);
       fetchAllData();
     } catch (error: any) {
-      toast.error(`No se pudo crear el modelo: ${error.message}`);
+       showToast.error("Error en Guardar el Equipo:" + (error.message), {
+          duration: 4000,
+          progress: false,
+          position: "top-right",
+          transition: "popUp",
+          icon: '',
+          sound: false,
+      });
     }
   };
 
   // No se usa
-     const handleUpdateModel = async (formData: FormSubmitData) => {
+     const handleUpdateModel = async (data: FormData) => {
     if (!editingModelo) return;
 
     try {
-      // 1. Crea un objeto FormData
-      const data = new FormData();
-      data.append('nombre', formData.nombre);
-      data.append('marcaId', formData.marca); // Tu API espera 'marcaId'
-      data.append('tipo', formData.tipo);
-      if (formData.img) {
-        data.append('img', formData.img);
-      }
-      
       // 2. Realiza la petición fetch
       const response = await fetch(`/api/modelos/${editingModelo.id}`, {
         method: 'PUT',
@@ -264,13 +271,26 @@ const columns: ColumnDef<Modelo>[] = [
         const errorData = await response.json().catch(() => ({ message: response.statusText }));
         throw new Error(errorData.message || `Error actualizando modelo: ${response.statusText}`);
       }
-
-      toast.success("Modelo actualizado correctamente ✨");
+      showToast.success("Modelo actualizado correctamente ✨",{
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "popUp",
+        icon: '',
+        sound: false,  
+      })
       setIsEditModalOpen(false);
       setEditingModelo(null);
       await fetchAllData();
     } catch (error: any) {
-      toast.error(`No se pudo actualizar el modelo: ${error.message}`);
+     showToast.error("Error en Guardar el Modelo:" + (error.message), {
+          duration: 4000,
+          progress: false,
+          position: "top-right",
+          transition: "popUp",
+          icon: '',
+          sound: false,
+      });
     }
   };
 
@@ -416,7 +436,7 @@ const columns: ColumnDef<Modelo>[] = [
                 nombre: editingModelo.nombre,
                 marca: editingModelo.marca.id, // Pasamos solo el ID de la marca
                 tipo: editingModelo.tipo,
-                img: editingModelo.img,
+                img: typeof editingModelo.img === "string" ? editingModelo.img : null,
               } : null}
               marcas={marcas}
               key={editingModelo?.id || 'create'} // La key es crucial para que React reinicie el form

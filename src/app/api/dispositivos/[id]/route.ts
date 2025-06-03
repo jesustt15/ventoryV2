@@ -61,60 +61,68 @@ export async function GET(request: Request, { params }: Params) {
     }
 }
 
-// --- PUT (Actualizar un equipo por ID) ---
 export async function PUT(request: Request, { params }: Params) {
     const { id } = params;
     try {
-        const formData = await request.formData();
         const equipoExistente = await prisma.dispositivo.findUnique({ where: { id } });
 
         if (!equipoExistente) {
             return NextResponse.json({ message: 'Equipo no encontrado para actualizar' }, { status: 404 });
         }
 
-        const dataToUpdate: { [key: string]: any } = {};
-        let newImageUrl: string | undefined = equipoExistente.img || undefined; // Mantener la imagen actual por defecto
-        let oldImageToDelete: string | null = null;
+        const data = await request.formData();
+        const serial = data.get('serial') as string;
+        const nsap = data.get('nsap') as string || null;
+        const estado = data.get('estado') as string;
 
-        // Iterar sobre los datos del formulario
-        for (const [key, value] of formData.entries()) {
-            if (key === 'imagenEquipo') {
-                const imagenFile = value as File | null;
-                if (imagenFile && imagenFile.size > 0) {
-                    // Hay una nueva imagen para subir
-                    oldImageToDelete = equipoExistente.img; // Marcar la imagen anterior para eliminar
+        // Código para borrar imagen
+        // const dataToUpdate: { [key: string]: any } = {};
+        // let newImageUrl: string | undefined = equipoExistente.img || undefined; // Mantener la imagen actual por defecto
+        // let oldImageToDelete: string | null = null;
 
-                    const uploadDir = path.join(process.cwd(), 'public/uploads/equipos');
-                    await ensureDirExists(uploadDir);
+        // // Iterar sobre los datos del formulario
+        // for (const [key, value] of formData.entries()) {
+        //     if (key === 'imagenEquipo') {
+        //         const imagenFile = value as File | null;
+        //         if (imagenFile && imagenFile.size > 0) {
+        //             // Hay una nueva imagen para subir
+        //             oldImageToDelete = equipoExistente.img; // Marcar la imagen anterior para eliminar
 
-                    const bytes = await imagenFile.arrayBuffer();
-                    const buffer = Buffer.from(bytes);
-                    const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                    const filename = `${Date.now()}-${safeOriginalName}`;
-                    const imagePath = path.join(uploadDir, filename);
+        //             const uploadDir = path.join(process.cwd(), 'public/uploads/equipos');
+        //             await ensureDirExists(uploadDir);
 
-                    await writeFile(imagePath, buffer);
-                    newImageUrl = `/uploads/equipos/${filename}`;
-                } else if (formData.has(key) && imagenFile && imagenFile.size === 0 && equipoExistente.img) {
-                    // Si se envía 'imagenEquipo' pero está vacío, podría interpretarse como "eliminar imagen actual"
-                }
-            } else if (typeof value === 'string') {
-                // Aquí también, convierte a números, booleanos, etc., si es necesario
-                // Ejemplo: if (key === 'cantidad') dataToUpdate[key] = parseInt(value, 10);
-                dataToUpdate[key] = value;
-            }
-        }
+        //             const bytes = await imagenFile.arrayBuffer();
+        //             const buffer = Buffer.from(bytes);
+        //             const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        //             const filename = `${Date.now()}-${safeOriginalName}`;
+        //             const imagePath = path.join(uploadDir, filename);
+
+        //             await writeFile(imagePath, buffer);
+        //             newImageUrl = `/uploads/equipos/${filename}`;
+        //         } else if (formData.has(key) && imagenFile && imagenFile.size === 0 && equipoExistente.img) {
+        //             // Si se envía 'imagenEquipo' pero está vacío, podría interpretarse como "eliminar imagen actual"
+        //         }
+        //     } else if (typeof value === 'string') {
+        //         // Aquí también, convierte a números, booleanos, etc., si es necesario
+        //         // Ejemplo: if (key === 'cantidad') dataToUpdate[key] = parseInt(value, 10);
+        //         dataToUpdate[key] = value;
+        //     }
+        // }
         
-        dataToUpdate.imageUrl = newImageUrl; // Asignar la nueva URL o la antigua si no cambió
+        // dataToUpdate.imageUrl = newImageUrl; // Asignar la nueva URL o la antigua si no cambió
 
-        // Si la imagen cambió y había una anterior, eliminar la antigua DESPUÉS de subir la nueva
-        if (newImageUrl !== equipoExistente.img && oldImageToDelete) {
-             await deletePreviousImage(oldImageToDelete);
-        }
+        // // Si la imagen cambió y había una anterior, eliminar la antigua DESPUÉS de subir la nueva
+        // if (newImageUrl !== equipoExistente.img && oldImageToDelete) {
+        //      await deletePreviousImage(oldImageToDelete);
+        // }
 
         const updatedEquipo = await prisma.dispositivo.update({
             where: { id },
-            data: dataToUpdate as any, // Cuidado con 'as any', valida y tipa los datos.
+            data: {
+                serial,
+                nsap,
+                estado
+            }, // Cuidado con 'as any', valida y tipa los datos.
         });
 
         return NextResponse.json(updatedEquipo, { status: 200 });
@@ -141,9 +149,9 @@ export async function DELETE(request: Request, { params }: Params) {
         }
 
         // 2. Eliminar la imagen del sistema de archivos (si existe)
-        if (equipoExistente.img) {
-            await deletePreviousImage(equipoExistente.img);
-        }
+        // if (equipoExistente.img) {
+        //     await deletePreviousImage(equipoExistente.img);
+        // }
 
         // 3. Eliminar el registro de la base de datos
         const deletedEquipo = await prisma.dispositivo.delete({

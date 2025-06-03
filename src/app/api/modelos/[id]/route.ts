@@ -47,7 +47,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const data = await request.formData();
     const nombre = data.get('nombre') as string;
     const marcaId = data.get('marcaId') as string;
+    const tipo = data.get('tipo') as string;
     const image = data.get('img') as File | null;
+
+    if (!nombre|| typeof nombre !== 'string') {
+      return NextResponse.json({ message: "El campo 'nombre' es obligatorio" }, { status: 400 });
+    }
 
     let imageUrl = existingModelo.img; // Keep the existing image URL by default
 
@@ -74,13 +79,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-    // Update the modelo in the database
     const updatedModelo = await prisma.modeloDispositivo.update({
       where: {
         id: id,
       },
       data: {
-        nombre: nombre,
+        id,
+        nombre,
+        tipo,
         marcaId: marcaId,
         img: imageUrl,
       },
