@@ -1,238 +1,265 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import CreatableSelect from 'react-select/creatable';
-import { ImageIcon, UploadIcon } from 'lucide-react';
+import { ImageIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { showToast } from "nextjs-toast-notify";
+import { showToast } from 'nextjs-toast-notify';
 import {
     Select as ShadcnSelect,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { ModeloFormData } from "./modelos-table";
+} from '@/components/ui/select';
+import { ModeloFormData } from './modelos-table';
 
-interface ModeloFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void; // Un solo callback para crear y editar
-  marcas: { id: string; nombre: string }[];
-  initialData?: ModeloFormData | null;
-}
+// Interfaces
 interface Marca {
-  id: string;
-  nombre: string;
+    id: string;
+    nombre: string;
 }
 
 interface OptionType {
-  value: string;
-  label: string;
+    value: string;
+    label:string;
+    __isNew__?: boolean; // Flag for newly created options
 }
 
+interface ModeloFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: FormData) => void;
+    marcas: Marca[];
+    initialData?: ModeloFormData | null;
+}
+
+// Styles (unchanged)
 const reactSelectStyles = {
-  control: (base: any, state: { isFocused: boolean }) => ({
-      ...base,
-      minHeight: '40px',
-      background: 'hsl(var(--background))',
-      borderColor: state.isFocused ? 'hsl(var(--ring))' : 'hsl(var(--input))',
-      borderWidth: '1px',
-      boxShadow: state.isFocused ? `0 0 0 1px hsl(var(--ring))` : 'none',
-      '&:hover': {
-          borderColor: 'hsl(var(--input))',
-      },
-  }),
-  valueContainer: (base: any) => ({ ...base, padding: '0 8px' }),
-  input: (base: any) => ({ ...base, color: 'hsl(var(--foreground))', margin: '0', padding: '0' }),
-  placeholder: (base: any) => ({ ...base, color: 'hsl(var(--muted-foreground))' }),
-  singleValue: (base: any) => ({ ...base, color: 'hsl(var(--foreground))' }),
-  menu: (base: any) => ({
-      ...base,
-      background: 'hsl(var(--popover))',
-      color: 'hsl(var(--popover-foreground))',
-      borderRadius: 'var(--radius)',
-      border: '1px solid hsl(var(--border))',
-      zIndex: 50,
-  }),
-  option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
-      ...base,
-      background: state.isSelected ? 'hsl(var(--accent))' : state.isFocused ? 'hsl(var(--accent))' : 'transparent',
-      color: 'hsl(var(--accent-foreground))',
-      cursor: 'pointer',
-  }),
+    control: (base: any, state: { isFocused: boolean }) => ({
+        ...base,
+        minHeight: '40px',
+        background: 'hsl(var(--background))',
+        borderColor: state.isFocused ? 'hsl(var(--ring))' : 'hsl(var(--input))',
+        borderWidth: '1px',
+        boxShadow: state.isFocused ? `0 0 0 1px hsl(var(--ring))` : 'none',
+        '&:hover': {
+            borderColor: 'hsl(var(--input))',
+        },
+    }),
+    valueContainer: (base: any) => ({ ...base, padding: '0 8px' }),
+    input: (base: any) => ({ ...base, color: 'hsl(var(--foreground))', margin: '0', padding: '0' }),
+    placeholder: (base: any) => ({ ...base, color: 'hsl(var(--muted-foreground))' }),
+    singleValue: (base: any) => ({ ...base, color: 'hsl(var(--foreground))' }),
+    menu: (base: any) => ({
+        ...base,
+        background: 'hsl(var(--popover))',
+        color: 'hsl(var(--popover-foreground))',
+        borderRadius: 'var(--radius)',
+        border: '1px solid hsl(var(--border))',
+        zIndex: 50,
+    }),
+    option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
+        ...base,
+        background: state.isSelected ? 'hsl(var(--accent))' : state.isFocused ? 'hsl(var(--accent))' : 'transparent',
+        color: state.isSelected ? 'hsl(var(--accent-foreground))' : 'hsl(var(--popover-foreground))',
+        cursor: 'pointer',
+        '&:hover': {
+            background: 'hsl(var(--accent))',
+            color: 'hsl(var(--accent-foreground))',
+        }
+    }),
 };
 
 const ModeloForm: React.FC<ModeloFormProps> = ({
-   isOpen,
-   onClose,
-   onSubmit,
-   marcas: marcasProps = [],
-   initialData,
+    isOpen,
+    onClose,
+    onSubmit,
+    marcas = [], // Default to empty array to prevent .map error
+    initialData,
 }) => {
-   const [nombre, setNombre] = useState('');
- const [selectedMarca, setSelectedMarca] = useState<OptionType | null>(null);
- const [selectedTipo, setSelectedTipo] = useState<string>('');
- const [selectedImage, setSelectedImage] = useState<File | null>(null); // This holds the actual File
-  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null); // This holds the blob URL for preview
+    // State management
+    const [nombre, setNombre] = useState('');
+    const [selectedMarca, setSelectedMarca] = useState<OptionType | null>(null);
+    const [selectedTipo, setSelectedTipo] = useState<string>('');
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
+    const [isCreatingMarca, setIsCreatingMarca] = useState(false);
 
-  // 3. Determina si estamos en modo edición basado en initialData
-  const isEditing = !!initialData;
+    const isEditing = !!initialData;
 
-  // 4. useEffect para rellenar el formulario cuando initialData cambie (¡ESTO ES CLAVE!)
-  useEffect(() => {
-    if (isEditing && initialData) {
-      setNombre(initialData.nombre);
-      const marcaInicial = marcasProps.find(m => m.id === initialData.marca);
-      setSelectedMarca(marcaInicial ? { value: marcaInicial.id, label: marcaInicial.nombre } : null);
-      setSelectedTipo(initialData.tipo);
-      setSelectedImagePreview(initialData.img);
-      setSelectedImage(null); // No podemos pre-cargar un archivo, solo su preview
-    } else {
-      // Limpiar el formulario para el modo creación
-      setNombre('');
-      setSelectedMarca(null);
-      setSelectedTipo('');
-      setSelectedImage(null);
-      setSelectedImagePreview(null);
-    }
-  }, [initialData, isEditing, marcasProps]);
+    // Effect to populate form for editing or reset for creation
+    useEffect(() => {
+        if (isOpen) {
+            if (isEditing && initialData) {
+                setNombre(initialData.nombre || '');
+                const marcaInicial = marcas.find(m => m.id === initialData.marca);
+                setSelectedMarca(marcaInicial ? { value: marcaInicial.id, label: marcaInicial.nombre } : null);
+                setSelectedTipo(initialData.tipo || '');
+                setSelectedImagePreview(initialData.img || null);
+                setSelectedImage(null);
+            } else {
+                // Reset form for creation
+                setNombre('');
+                setSelectedMarca(null);
+                setSelectedTipo('');
+                setSelectedImage(null);
+                setSelectedImagePreview(null);
+            }
+        }
+    }, [isOpen, initialData, isEditing, marcas]);
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setSelectedImage(file);
+            setSelectedImagePreview(URL.createObjectURL(file));
+        } else {
+            setSelectedImage(null);
+            setSelectedImagePreview(null);
+        }
+    };
 
- const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files[0]) {
-   const file = e.target.files[0];
-   setSelectedImage(file);
-   setSelectedImagePreview(URL.createObjectURL(file));
-  }
- };
+    // --- FIX 1: Handler for creating a new brand on the client-side ---
+    const handleCreateMarca = (inputValue: string) => {
+        setIsCreatingMarca(true);
+        // Create a temporary option for the user to see
+        const newMarcaOption: OptionType = {
+            value: inputValue, // For a new brand, value and label can be the same initially
+            label: inputValue,
+            __isNew__: true, // Flag it as a new brand
+        };
+        setSelectedMarca(newMarcaOption);
+        setIsCreatingMarca(false); // This is a quick operation, no need for long loading
+        showToast.success(`Marca "${inputValue}" lista para ser creada.`, { position: "top-right" });
+    };
 
- const handleSubmit = async (event: FormEvent) => {
-  event.preventDefault();
+    // --- FIX 2: Correctly prepare FormData in handleSubmit ---
+    const handleSubmit = async (event: FormEvent) => {
+        event.preventDefault();
 
-  if (!selectedMarca || !selectedTipo || !nombre) {
-   showToast.warning("Por Favor Complete los Campos", {
-                duration: 4000,
-                progress: false,
-                position: "top-right",
-                transition: "popUp",
-                icon: '',
-                sound: false,
-            });
-   return;
-  }
+        if (!selectedMarca || !selectedTipo || !nombre.trim()) {
+            showToast.warning("Por favor complete Marca, Nombre, y Tipo.", { position: "top-right" });
+            return;
+        }
 
-        const formData = new FormData();
-        formData.append('nombre', nombre);
-        formData.append('marcaId', selectedMarca.value); // Use 'marcaId' as per your backend
-        formData.append('tipo', selectedTipo);
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append('nombre', nombre.trim());
+        formDataToSubmit.append('tipo', selectedTipo);
+
+        // This is the crucial logic change
+        if (selectedMarca.__isNew__) {
+            // If it's a new brand, send the name for the backend to create
+            formDataToSubmit.append('marcaNombre', selectedMarca.label);
+        } else {
+            // If it's an existing brand, send its ID
+            formDataToSubmit.append('marcaId', selectedMarca.value);
+        }
 
         if (selectedImage) {
-            formData.append('img', selectedImage); // Append the actual File object here!
-        } else if (selectedImagePreview) {
-           
+            formDataToSubmit.append('img', selectedImage);
         }
-        await onSubmit(formData);
- };
+        
+        onSubmit(formDataToSubmit);
+    };
 
-  return (
-     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      
-      <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Editar Modelo" : "Crear Nuevo Modelo"}</DialogTitle>
-           <DialogDescription>
-              {isEditing ? "Modifique los detalles del modelo aquí." : "Complete los detalles para el nuevo modelo."}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="nombre" className="text-right">
-                Nombre
-              </Label>
-              <Input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="col-span-3" />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="img" className="text-right">
-                Imagen
-              </Label>
-              <Input
-                type="file"
-                id="img"
-                name="img"
-                onChange={handleImageChange}
-                className="col-span-3"
-              />
-            </div>
-            {selectedImagePreview && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Vista previa</Label>
-                <Avatar className="col-span-3 w-24 h-24">
-                  <AvatarImage src={selectedImagePreview} alt="Vista previa" />
-                  <AvatarFallback>
-                    <ImageIcon className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-            )}
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="marcaId" className="text-right">
-                Marca
-              </Label>
-               <CreatableSelect
-                    id="marca"
-                    className="col-span-3"
-                    isClearable
-                    placeholder="Seleccione o cree una marca"
-                    options={marcasProps.map(m => ({ value: m.id, label: m.nombre }))}
-                    value={selectedMarca}
-                    onChange={setSelectedMarca}
-                    styles={reactSelectStyles}
-                />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="tipo" className="text-right">Tipo de Equipo</Label>
-               <ShadcnSelect value={selectedTipo} onValueChange={setSelectedTipo}>
-                      <SelectTrigger id="tipo" className="col-span-3">
-                          <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="Telefono Ip">Teléfono IP</SelectItem>
-                          <SelectItem value="Switches">Switches</SelectItem>
-                          <SelectItem value="Mouse">Mouse</SelectItem>
-                          <SelectItem value="Teclado">Teclado</SelectItem>
-                          <SelectItem value="Impresoras">Impresoras</SelectItem>
-                          <SelectItem value="Laptop">Laptop</SelectItem>
-                          <SelectItem value="Desktop">Desktop</SelectItem>
-                          <SelectItem value="Monitor">Monitor</SelectItem>
-                      </SelectContent>
-                  </ShadcnSelect>
-              </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit">{isEditing ? "Guardar Cambios" : "Crear Modelo"}</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+    return (
+        <Dialog open={isOpen} onOpenChange={(openValue) => !openValue && onClose()}>
+            <DialogContent className="sm:max-w-[525px]">
+                <DialogHeader>
+                    <DialogTitle>{isEditing ? "Editar Modelo" : "Crear Nuevo Modelo"}</DialogTitle>
+                    <DialogDescription>
+                        {isEditing ? "Modifique los detalles del modelo aquí." : "Complete los detalles para el nuevo modelo."}
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit}>
+                    <div className="grid gap-4 py-4">
+                        {/* --- FIX 3: Add onCreateOption prop to CreatableSelect --- */}
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="marca-select" className="text-right">Marca</Label>
+                            <CreatableSelect
+                                inputId="marca-select"
+                                className="col-span-3"
+                                isClearable
+                                isLoading={isCreatingMarca}
+                                placeholder="Seleccione o cree una marca"
+                                options={marcas.map(m => ({ value: m.id, label: m.nombre }))}
+                                value={selectedMarca}
+                                onChange={(option) => setSelectedMarca(option as OptionType)}
+                                onCreateOption={handleCreateMarca}
+                                formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
+                                styles={reactSelectStyles}
+                            />
+                        </div>
+                        
+                        {/* Other form fields remain the same */}
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="nombre" className="text-right">Nombre</Label>
+                            <Input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="col-span-3" placeholder="Ej: LaserJet Pro M404dn"/>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="img" className="text-right">Imagen</Label>
+                            <Input
+                                type="file"
+                                id="img"
+                                name="img"
+                                accept="image/png, image/jpeg, image/webp"
+                                onChange={handleImageChange}
+                                className="col-span-3 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                            />
+                        </div>
+                        {selectedImagePreview && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">Vista previa</Label>
+                                <div className="col-span-3 flex items-center gap-2">
+                                    <Avatar className="w-24 h-24 rounded-md"><AvatarImage src={selectedImagePreview} alt="Vista previa" className="object-cover rounded-md"/><AvatarFallback className="rounded-md"><ImageIcon className="h-8 w-8 text-muted-foreground" /></AvatarFallback></Avatar>
+                                    <Button type="button" variant="ghost" size="sm" onClick={() => {
+                                        setSelectedImage(null); setSelectedImagePreview(null);
+                                        const fileInput = document.getElementById('img') as HTMLInputElement;
+                                        if (fileInput) fileInput.value = "";
+                                    }}>Quitar</Button>
+                                </div>
+                            </div>
+                        )}
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="tipo-select" className="text-right">Tipo de Equipo</Label>
+                            <ShadcnSelect value={selectedTipo} onValueChange={setSelectedTipo}>
+                                <SelectTrigger id="tipo-select" className="col-span-3"><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Telefono IP">Teléfono IP</SelectItem>
+                                    <SelectItem value="Switch">Switch</SelectItem>
+                                    <SelectItem value="Mouse">Mouse</SelectItem>
+                                    <SelectItem value="Teclado">Teclado</SelectItem>
+                                    <SelectItem value="Impresora">Impresora</SelectItem>
+                                    <SelectItem value="Laptop">Laptop</SelectItem>
+                                    <SelectItem value="Desktop">Desktop</SelectItem>
+                                    <SelectItem value="Monitor">Monitor</SelectItem>
+                                    <SelectItem value="Router">Router</SelectItem>
+                                    <SelectItem value="Access Point">Access Point</SelectItem>
+                                    <SelectItem value="Otro">Otro</SelectItem>
+                                </SelectContent>
+                            </ShadcnSelect>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+                        <Button type="submit" disabled={isCreatingMarca}>{isEditing ? "Guardar Cambios" : "Crear Modelo"}</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 };
 
 export default ModeloForm;

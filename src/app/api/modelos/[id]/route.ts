@@ -49,6 +49,31 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const marcaId = data.get('marcaId') as string;
     const tipo = data.get('tipo') as string;
     const image = data.get('img') as File | null;
+    const marcaNombre = data.get('marcaNombre') as string | null;
+
+     let finalMarcaId: string;
+    
+            if (marcaId) {
+                // An existing brand was selected. Use its ID.
+                finalMarcaId = marcaId;
+            } else if (marcaNombre) {
+                // A new brand name was provided. Find it or create it.
+                let existingMarca = await prisma.marca.findUnique({
+                    where: { nombre: marcaNombre },
+                });
+    
+                if (existingMarca) {
+                    finalMarcaId = existingMarca.id;
+                } else {
+                    const newMarca = await prisma.marca.create({
+                        data: { nombre: marcaNombre },
+                    });
+                    finalMarcaId = newMarca.id;
+                }
+            } else {
+                // No brand information was provided. Return an error.
+                return NextResponse.json({ message: "La marca es requerida." }, { status: 400 });
+            }
 
     if (!nombre|| typeof nombre !== 'string') {
       return NextResponse.json({ message: "El campo 'nombre' es obligatorio" }, { status: 400 });
@@ -87,7 +112,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         id,
         nombre,
         tipo,
-        marcaId: marcaId,
+        marcaId: finalMarcaId,
         img: imageUrl,
       },
     });

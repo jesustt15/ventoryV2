@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ModelosTable } from "@/components/modelos-table";
 import ModeloForm from "@/components/ModeloForm";
+import { Spinner } from "@/components/ui/spinner";
 
 async function fetchData() {
   try {
@@ -59,7 +60,7 @@ export default function ModeloPage() {
 
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner size="sm" className="bg-black dark:bg-white" />;
   }
 
   if (error) {

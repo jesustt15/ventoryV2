@@ -22,7 +22,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             disableTransitionOnChange
           >
             <SidebarProvider>
-              <div className="flex h-screen antialiased text-foreground">
+              <div className=" w-full flex h-screen antialiased text-foreground">
                 <AppSidebar className="flex-shrink-0 hidden md:block" />
                 <div className="flex-1 flex flex-col">
                   <SiteHeader />

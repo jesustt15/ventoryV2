@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { DispositivoTable } from "@/components/equipos-table";
 import DispositivoForm from "@/components/EquipoForm";
+import { Spinner } from "@/components/ui/spinner";
 
 async function fetchData() {
   try {
@@ -59,7 +60,7 @@ export default function DispositivoPage() {
 
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner size="sm" className="bg-black dark:bg-white" />;
   }
 
   if (error) {

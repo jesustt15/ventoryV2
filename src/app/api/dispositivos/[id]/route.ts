@@ -45,7 +45,7 @@ async function deletePreviousImage(imagePath: string | null | undefined) {
 
 // --- GET (Obtener un equipo por ID) ---
 export async function GET(request: Request, { params }: Params) {
-    const { id } = params;
+    const { id } =  await params;
     try {
         const equipo = await prisma.dispositivo.findUnique({
             where: { id },
@@ -62,7 +62,7 @@ export async function GET(request: Request, { params }: Params) {
 }
 
 export async function PUT(request: Request, { params }: Params) {
-    const { id } = params;
+    const { id } = await params;
     try {
         const equipoExistente = await prisma.dispositivo.findUnique({ where: { id } });
 
@@ -137,7 +137,7 @@ export async function PUT(request: Request, { params }: Params) {
 
 // --- DELETE (Eliminar un equipo por ID) ---
 export async function DELETE(request: Request, { params }: Params) {
-    const { id } = params;
+    const { id } = await params;
     try {
         // 1. Obtener el equipo para saber la ruta de su imagen (si tiene)
         const equipoExistente = await prisma.dispositivo.findUnique({

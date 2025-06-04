@@ -3,14 +3,14 @@ import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const { nombre } = await request.json();
-
+    const nombre = await request.json();
+    console.log(nombre);
     if (!nombre) {
       return NextResponse.json({ message: 'El nombre de la marca es requerido.' }, { status: 400 });
     }
 
     const newMarca = await prisma.marca.create({
-      data: { nombre },
+      data: nombre,
     });
 
     return NextResponse.json(newMarca, { status: 201 });

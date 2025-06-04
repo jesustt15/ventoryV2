@@ -7,19 +7,37 @@ export async function POST(request: Request) {
     try {
         const formData = await request.formData();
         const nombre = formData.get('nombre') as string;
-        const marcaId = formData.get('marcaId') as string;
         const tipo = formData.get('tipo') as string;
+      const marcaId = formData.get('marcaId') as string | null;
+      const marcaNombre = formData.get('marcaNombre') as string | null;
+        let finalMarcaId: string;
 
-        // Validaciones...
-        if (!nombre || !marcaId || !tipo) {
-            return NextResponse.json({ message: 'Nombre, Marca y Tipo son requeridos' }, { status: 400 });
+        if (marcaId) {
+            // An existing brand was selected. Use its ID.
+            finalMarcaId = marcaId;
+        } else if (marcaNombre) {
+            // A new brand name was provided. Find it or create it.
+            let existingMarca = await prisma.marca.findUnique({
+                where: { nombre: marcaNombre },
+            });
+
+            if (existingMarca) {
+                finalMarcaId = existingMarca.id;
+            } else {
+                const newMarca = await prisma.marca.create({
+                    data: { nombre: marcaNombre },
+                });
+                finalMarcaId = newMarca.id;
+            }
+        } else {
+            // No brand information was provided. Return an error.
+            return NextResponse.json({ message: "La marca es requerida." }, { status: 400 });
         }
-
-   const imagenFile = formData.get('img') as File | null;
-       let imageUrl: string | undefined = undefined;
-       const uploadDir = path.join(process.cwd(), 'public/uploads/modelos');
-       console.log(`Intentando procesar imagen. Archivo recibido: ${imagenFile ? imagenFile.name : 'Ninguno'}`);
-   
+      const imagenFile = formData.get('img') as File | null;
+          let imageUrl: string | undefined = undefined;
+          const uploadDir = path.join(process.cwd(), 'public/uploads/modelos');
+          console.log(`Intentando procesar imagen. Archivo recibido: ${imagenFile ? imagenFile.name : 'Ninguno'}`);
+      
        if (imagenFile && imagenFile.size > 0) {
          console.log(`Tamaño del archivo de imagen: ${imagenFile.size} bytes`);
          try {
@@ -55,7 +73,7 @@ export async function POST(request: Request) {
         const nuevoModelo = await prisma.modeloDispositivo.create({
             data: {
                 nombre,
-                marcaId,
+                marcaId: finalMarcaId,
                 tipo,
                 img: imageUrl, // Guardar la ruta de la imagen
             },

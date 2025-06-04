@@ -11,8 +11,6 @@ import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import EquipoFormDialog from "./EquipoForm";
-import EquipoForm from "./EquipoForm";
 import DispositivoForm from "./EquipoForm";
 
 export const dispositivoSchema = z.object({
@@ -96,7 +94,7 @@ const columns: ColumnDef<Dispositivo>[] = [
       return (
         <div className="flex items-center gap-2">
           {estado === "Resguardo" ? (
-            <ArchiveRestore className="h-4 w-4 text-cian-500" />
+            <ArchiveRestore className="h-4 w-4 text-blue-300" />
           ) : estado === "En reparación" ? (
             <WrenchIcon className="h-4 w-4 text-amber-500" />
           ) : estado === "Asignado" ?
