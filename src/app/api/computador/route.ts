@@ -3,7 +3,17 @@ import  prisma  from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const equipos = await prisma.computador.findMany();
+    const equipos = await prisma.computador.findMany({
+      include:{
+        modelo: {
+          include: {
+            marca: true, // Incluye la marca del modelo
+          }
+        },
+        usuario: true, // Incluye el usuario asignado al equipo
+        departamento: true, // Incluye el departamento al que pertenece el equipo
+      }
+    });
     return NextResponse.json(equipos, { status: 200 });
   } catch (error) {
     console.error(error);

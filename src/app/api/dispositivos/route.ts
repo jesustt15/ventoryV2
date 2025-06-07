@@ -8,7 +8,11 @@ export async function GET() {
   try {
     const equipos = await prisma.dispositivo.findMany({
       include: {
-        modelo: true,
+        modelo:{
+          include: {
+            marca: true, // Incluye la marca del modelo
+          }
+        },
       }
     });
     return NextResponse.json(equipos, { status: 200 });

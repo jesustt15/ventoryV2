@@ -14,55 +14,43 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export const computadorSchema = z.object({
-    serial: z.string().min(1, "El nombre es requerido"),
-    modeloId: z.string().min(1, "La Marca es Requerida"),
-    estado: z.string().min(1, "El Estado de dispositivo es requerido"),
-    nsap: z.string().nullable(),
-    host: z.string().nullable(),
-    sisOperativo: z.string().nullable(),
-    arquitectura: z.string().nullable(),
-    ram: z.string().nullable(),
-    almacenamiento: z.string().nullable(),
-    procesador: z.string().nullable(),
-    sapVersion: z.string().nullable(),
-    officeVersion: z.string().nullable(),
+export const usuarioSchema = z.object({
+    nombre: z.string().min(1, "El nombre es requerido"),
+    departamentoId: z.string().min(1, "La Marca es Requerida"),
+    apellido: z.string().min(1, "El Estado de dispositivo es requerido"),
+    cargo: z.string().nullable(),
+    ced: z.string().nullable(),
+    legajo: z.number().nullable(),
 })
 
-export type ComputadorFormData = z.infer<typeof computadorSchema>
+export type UsuarioFormData = z.infer<typeof usuarioSchema>
 
 // Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
-export interface Computador {
+export interface Usuario {
     id: string; // Or number, depending on your API
-    serial: string;
-    estado: string;
-    nsap?: string;
-    host?: string;
-    sisOperativo?: string;
-    arquitectura?: string;
-    ram?: string;
-    almacenamiento?: string;
-    procesador?: string;
-    sapVersion?: string;
-    officeVersion?: string;  
-   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Assuming 'marca' is an object in the fetched data
+    nombre: string;
+    apellido: string;
+    cargo: string;
+    ced: string;
+    legajo: number;
+    departamento: { id: string; nombre: string;  gerencia: { nombre?: string } }; // Assuming 'marca' is an object in the fetched data
 }
 
 
 
-interface ComputadorTableProps {
-  data: Computador[]
+interface UsuarioTableProps {
+  data: Usuario[]
 }
 
-export function ComputadorTable({}: ComputadorTableProps) {
+export function UsuarioTable({}: UsuarioTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [searchQuery, setSearchQuery] = React.useState("")
-  const [computadores, setComputadores] = React.useState<Computador[]>([]);
+  const [usuarios, setUsuarios] = React.useState<Usuario[]>([]);
 
-const columns: ColumnDef<Computador>[] = [
+const columns: ColumnDef<Usuario>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -83,66 +71,27 @@ const columns: ColumnDef<Computador>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "serial",
-    header: "Serial",
+    accessorKey: "nombre",
+    header: "Nombre",
     cell: ({ row }) => <div>{row.getValue("serial")}</div>,
   },  {
-      accessorFn: (row) => row.modelo?.marca?.nombre ?? "Sin marca",
-      id: "marcaNombre", // El ID único para la columna sigue siendo importante
-      header: "Marca",
+      accessorFn: (row) => row.departamento?.gerencia?.nombre ?? "Sin gerencia",
+      id: "gerenciaNombre", // El ID único para la columna sigue siendo importante
+      header: "Gerencia",
       // CORRECCIÓN: Usamos `row.original` dentro de la celda para una mayor fiabilidad
       cell: ({ row }) => {
           // `row.original` es el objeto `Dispositivo` completo para esta fila
-          const marcaNombre = row.original.modelo?.marca?.nombre;
-          return <div>{marcaNombre || "Sin marca"}</div>;
+          const gerenciaNombre = row.original.departamento?.gerencia?.nombre;
+          return <div>{gerenciaNombre || "Sin marca"}</div>;
       },
     },
     {
-      accessorKey: "modelo.nombre",
-      header: "Modelo",
-    },
-    {
-       id: "modelo.img",
-      header: "Imagen",
-      accessorFn: (row) => row.modelo?.img,
-      cell: ({ row }) => (
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Avatar className="col-span-3 w-24 h-24">
-            <AvatarImage src={row.getValue("modelo.img")} alt="Imagen Modelo" />
-            <AvatarFallback>
-              <ImageIcon className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      ),
+      accessorKey: "legajo",
+      header: "Legajo",
     },
   {
-    accessorKey: "estado",
-    header: "Estado",
-    cell: ({ row }) => {
-      const estado = row.getValue("estado") as string
-
-      return (
-        <div className="flex items-center gap-2">
-          {estado === "Resguardo" ? (
-            <ArchiveRestore className="h-4 w-4 text-blue-300" />
-          ) : estado === "En reparación" ? (
-            <WrenchIcon className="h-4 w-4 text-amber-500" />
-          ) : estado === "Asignado" ?
-          (
-            <User2Icon className="h-4 w-4 text-green-500" />
-          )
-          :
-          (
-            <XCircleIcon className="h-4 w-4 text-destructive" />
-          )}
-          <span>{estado}</span>
-        </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    accessorKey: "departamento.nombre",
+    header: "Departamento",
   },
   {
     id: "actions",
@@ -158,12 +107,12 @@ const columns: ColumnDef<Computador>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(computador.serial.toString())}>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(computador.legajo.toString())}>
               Copiar Serial
             </DropdownMenuItem>
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/computadores/${computador.id}/editar`}>
+              <Link href={`/usuarios/${computador.id}/editar`}>
                   Editar equipo
               </Link>
               </DropdownMenuItem>
@@ -177,7 +126,7 @@ const columns: ColumnDef<Computador>[] = [
 ]
 
   const table = useReactTable({
-    data: computadores,
+    data: usuarios,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -197,16 +146,16 @@ const columns: ColumnDef<Computador>[] = [
 
     const fetchAllData = async () => {
       try {
-        const computadoresResponse = await fetch('/api/computador');
+        const usuariosResponse = await fetch('/api/usuarios');
 
   
-        if (!computadoresResponse.ok) {
-          throw new Error(`Error fetching computadores: ${computadoresResponse.status}`);
+        if (!usuariosResponse.ok) {
+          throw new Error(`Error fetching usuarios: ${usuariosResponse.status}`);
         }
   
-        const computadoresData: Computador[] = await computadoresResponse.json();
+        const usuariosData: Usuario[] = await usuariosResponse.json();
         
-        setComputadores(computadoresData);
+        setUsuarios(usuariosData);
 
       } catch (error: any) {
         showToast.error("¡Error en Cargar!"+ (error.message), {
@@ -237,11 +186,11 @@ return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-2xl font-bold">Computadores</CardTitle>
+          <CardTitle className="text-2xl font-bold">Usuarios</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Buscar por serial..."
+                placeholder="Buscar por nombre..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="max-w-sm border-primary/20"
@@ -284,9 +233,9 @@ return (
             </div>
 
             <Button asChild>
-                <Link href="/computadores/new">
+                <Link href="/usuarios/new">
                       <PlusIcon className="mr-2 h-4 w-4" />
-                      Agregar Computador
+                      Agregar Usuario
                 </Link>
             </Button>
           </div>

@@ -1,0 +1,256 @@
+'use client';
+
+import { useState, useEffect, FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import Select from 'react-select'; // Usando react-select para modelos
+import { showToast } from "nextjs-toast-notify"; // Usando el componente de scroll de Shadcn
+import Link from 'next/link';
+import { RadioGroupItem, RadioGroup } from '@/components/ui/radio-group';
+
+
+interface Departamento {
+    id: string;
+    nombre: string;
+}
+
+export interface UsuarioFormData {
+    id?: string;
+    departamentoId: string;
+    nombre: string;
+    apellido: string;
+    ced: string;
+    legajo: number;
+    cargo: string;
+    
+}
+
+interface UsuarioFormProps {
+    onSubmit: (data: UsuarioFormData) => Promise<void>;
+    initialData?: UsuarioFormData | null;
+    isEditing?: boolean; // Añadido para manejar el modo de edición
+}
+
+interface OptionType {
+    value: string;
+    label: string;
+}
+
+// --- Estilos de react-select (sin cambios) ---
+const reactSelectStyles = {  control: (base: any, state: { isFocused: boolean }) => ({
+        ...base,
+        minHeight: '40px',
+        background: 'hsl(var(--background))',
+        borderColor: state.isFocused ? 'hsl(var(--ring))' : 'hsl(var(--input))',
+        borderWidth: '1px',
+        boxShadow: state.isFocused ? `0 0 0 1px hsl(var(--ring))` : 'none',
+        '&:hover': {
+            borderColor: 'hsl(var(--input))',
+        },
+    }),
+    valueContainer: (base: any) => ({ ...base, padding: '0 8px' }),
+    input: (base: any) => ({ ...base, color: 'hsl(var(--foreground))', margin: '0', padding: '0' }),
+    placeholder: (base: any) => ({ ...base, color: 'hsl(var(--muted-foreground))' }),
+    singleValue: (base: any) => ({ ...base, color: 'hsl(var(--foreground))' }),
+    menu: (base: any) => ({
+        ...base,
+        background: 'hsl(var(--popover))',
+        color: 'hsl(var(--popover-foreground))',
+        borderRadius: 'var(--radius)',
+        border: '1px solid hsl(var(--border))',
+        zIndex: 50,
+    }),
+    option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
+        ...base,
+        background: state.isSelected ? 'hsl(var(--accent))' : state.isFocused ? 'hsl(var(--accent))' : 'transparent',
+        color: 'hsl(var(--accent-foreground))',
+        cursor: 'pointer',
+    }), };
+
+// Estado inicial limpio para el formulario de creación
+const initialState: UsuarioFormData = {
+    departamentoId: '',
+    nombre: '',
+    apellido: '',
+    legajo: 0,
+    ced: '',
+    cargo: '',
+};
+
+const UsuarioForm: React.FC<UsuarioFormProps> = ({
+    isEditing = false, // Por defecto es false
+    onSubmit,
+    initialData,
+}) => {
+
+    const [formData, setFormData] = useState<UsuarioFormData>(initialState);
+    const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
+    const [isLoadingDepartamentos, setIsLoadingDepartamentos] = useState(false);
+
+    // --- useEffect CORREGIDO para manejar el estado del formulario ---
+        useEffect(() => {
+            const fetchDepartamentos = async () => {
+                setIsLoadingDepartamentos(true);
+                try {
+                    const response = await fetch('/api/departamentos');
+                    if (!response.ok) throw new Error('Error al cargar departamentos');
+                    const data: Departamento[] = await response.json();
+                    setDepartamentos(data);
+                } catch (error) {
+                    showToast.error("¡Error en Cargar Departamentos!", { position: "top-right" });
+                } finally {
+                    setIsLoadingDepartamentos(false);
+                }
+            };
+            fetchDepartamentos();
+    
+           if (initialData) {
+            setFormData(initialData);
+        }
+    }, [initialData]); // Dependencias correctas
+
+    // --- Handlers para los cambios en los inputs ---
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData(prev => ({ ...prev, [e.target.id]: e.target.value }));
+    };
+
+    const handleSelectChange = (option: OptionType | null) => {
+        setFormData(prev => ({ ...prev, modeloId: option?.value ?? '' }));
+    };
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!formData.departamentoId || !formData.serial || !formData.estado) {
+            showToast.warning("Modelo, Serial y Estado son obligatorios.", { position: "top-right" });
+            return;
+        }
+        await onSubmit(formData); // Llama a la función del padre para manejar la lógica de API
+    };
+    
+    // Preparar opciones para react-select
+    const modeloOptions = departamentos.map(departamento => ({ value: departamento.id, label: departamento.nombre }));
+    const selectedModelValue = modeloOptions.find(option => option.value === formData.departamentoId) || null;
+
+    return (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="py-4 grid gap-y-4 gap-x-6">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <div className="grid gap-2">
+                                <Label htmlFor="modeloId">Modelo</Label>
+                                    <Select
+                                        id="modeloId"
+                                        options={modeloOptions}
+                                        value={selectedModelValue}
+                                        onChange={handleSelectChange}
+                                        placeholder="Seleccionar modelo"
+                                        isSearchable
+                                        isLoading={isLoadingModelos}
+                                        styles={reactSelectStyles}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                     <Label htmlFor="serial">Serial <span className="text-destructive">*</span></Label>
+                                     <Input
+                                        id="serial"
+                                        value={formData.serial || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Serial del equipo"
+                                     />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="nsap">Ficha SAP (Opcional)</Label>
+                                    <Input id="nsap" value={formData.nsap || ''} onChange={handleInputChange} placeholder="N° de Ficha SAP"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="host">Host (Opcional)</Label>
+                                    <Input id="host" value={formData.host || ''} onChange={handleInputChange} placeholder="Ej: linfante-dsk"/>
+                                </div>
+                            </div>
+                            
+                            {/* Sección Especificaciones Técnicas */}
+                            <h3 className="text-lg font-medium mt-4 glow-text border-b pb-1">Especificaciones Técnicas</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                {/* ... Todos tus inputs para SO, Procesador, RAM, etc. van aquí, cableados igual que el de serial ... */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="sisOperativo">Sistema Operativo</Label>
+                                    <Input id="sisOperativo" value={formData.sisOperativo || ''} onChange={handleInputChange} placeholder="Windows 10 Pro"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="procesador">Procesador</Label>
+                                    <Input id="procesador" value={formData.procesador || ''} onChange={handleInputChange} placeholder="Intel Core i5-8250U"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="arquitectura">Arquitectura</Label>
+                                    <RadioGroup
+                                        id="arquitectura"
+                                        value={formData.arquitectura || ""}
+                                        onValueChange={(value) => setFormData(prev => ({ ...prev, arquitectura: value as "" | "32" | "64" }))}
+                                        className="flex gap-4"
+                                    >
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="32" id="arquitectura-32" />
+                                            <Label htmlFor="arquitectura-32">32 bits</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="64" id="arquitectura-64" />
+                                            <Label htmlFor="arquitectura-64">64 bits</Label>
+                                        </div>
+                                    </RadioGroup>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="ram">Memoria RAM</Label>
+                                    <Input id="ram" value={formData.ram || ''} onChange={handleInputChange} placeholder="Ej: 8GB DDR4"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="almacenamiento">Almacenamiento</Label>
+                                    <Input id="almacenamiento" value={formData.almacenamiento || ''} onChange={handleInputChange} placeholder="Ej: 256GB SSD NVMe"/>
+                                </div>
+                            </div>
+                            
+                            {/* Sección Software */}
+                            <h3 className="text-lg font-medium mt-4 glow-text border-b pb-1">Software</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="sapVersion">Versión de SAP GUI</Label>
+                                    <Input id="sapVersion" value={formData.sapVersion || ''} onChange={handleInputChange} placeholder="Ej: 7.70"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="officeVersion">Versión de Office</Label>
+                                    <Input id="officeVersion" value={formData.officeVersion || ''} onChange={handleInputChange} placeholder="Ej: Microsoft 365 Apps"/>
+                                </div>
+                            </div>
+
+                            {/* Sección Estado */}
+                            <h3 className="text-lg font-medium mt-4 glow-text border-b pb-1">Estado del Equipo</h3>
+                            <div className="grid grid-cols-1">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="estado">Estado <span className="text-destructive">*</span></Label>
+                                    <select
+                                        id="estado"
+                                        className="w-full h-10 border rounded-md px-2 bg-[hsl(var(--background))] border-[hsl(var(--input))] focus:ring-1 focus:ring-[hsl(var(--ring))] focus:outline-none"
+                                        value={formData.estado || ''}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="" disabled>Seleccionar estado...</option>
+                                        <option value="Resguardo">Resguardo</option>
+                                        <option value="Asignado">Asignado</option>
+                                        <option value="De Baja">De Baja</option>
+                                        <option value="En Reparación">En Reparación</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                   <div className="flex justify-end gap-4 pt-6">
+                        <Button type="button" variant="outline" asChild>
+                            <Link href="/computadores">Cancelar</Link>
+                        </Button>
+                        <Button type="submit" className="cyber-button text-black font-semibold">
+                            {isEditing ? 'GUARDAR CAMBIOS' : 'GUARDAR EQUIPO'}
+                        </Button>
+                    </div>
+                </form>
+    );
+}
+
+export default UsuarioForm;

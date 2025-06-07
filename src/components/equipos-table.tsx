@@ -6,12 +6,13 @@ import React from "react";
 import {z} from "zod";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
+import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DispositivoForm from "./EquipoForm";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const dispositivoSchema = z.object({
   serial: z.string().min(1, "El nombre es requerido"),
@@ -28,7 +29,7 @@ export interface Dispositivo {
   serial: string;
   estado: string;
   nsap?: string;
-  modelo: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
+  modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Added img and marca properties
 }
 
 export interface DispositivoFormProps {
@@ -77,13 +78,39 @@ const columns: ColumnDef<Dispositivo>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     accessorKey: "serial",
     header: "Serial",
     cell: ({ row }) => <div>{row.getValue("serial")}</div>,
+  },
+  {
+    accessorFn: (row) => row.modelo?.marca?.nombre ?? "Sin marca",
+    id: "marcaNombre", // El ID único para la columna sigue siendo importante
+    header: "Marca",
+    // CORRECCIÓN: Usamos `row.original` dentro de la celda para una mayor fiabilidad
+    cell: ({ row }) => {
+        // `row.original` es el objeto `Dispositivo` completo para esta fila
+        const marcaNombre = row.original.modelo?.marca?.nombre;
+        return <div>{marcaNombre || "Sin marca"}</div>;
+    },
+  },
+  {
+    accessorKey: "modelo.nombre",
+    header: "Modelo",
+  },
+  {
+     id: "modelo.img",
+    header: "Imagen",
+    accessorFn: (row) => row.modelo?.img,
+    cell: ({ row }) => (
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Avatar className="col-span-3 w-24 h-24">
+          <AvatarImage src={row.getValue("modelo.img")} alt="Imagen Modelo" />
+          <AvatarFallback>
+            <ImageIcon className="h-4 w-4" />
+          </AvatarFallback>
+        </Avatar>
+      </div>
+    ),
   },
   {
     accessorKey: "estado",
