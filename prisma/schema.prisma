@@ -71,7 +71,14 @@ model Computador {
   departamentoId String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   nsap String?
- 
+  host String?
+  sisOperativo String?
+  arquitectura String?
+  ram String?
+  almacenamiento String?
+  procesador String?
+  sapVersion String?
+  officeVersion String?
 }
 
 // Renombrado de Equipos a Dispositivo para mayor claridad y evitar colisión de nombres

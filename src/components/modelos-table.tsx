@@ -259,6 +259,8 @@ const columns: ColumnDef<Modelo>[] = [
     if (!editingModelo) return;
 
     try {
+      console.log("Datos del modelo a editar:", editingModelo);
+      console.log("Datos del formulario:", data);
       // 2. Realiza la petición fetch
       const response = await fetch(`/api/modelos/${editingModelo.id}`, {
         method: 'PUT',

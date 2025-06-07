@@ -11,52 +11,59 @@ import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import DispositivoForm from "./EquipoForm";
+import ComputadorForm from "./ComputadorForm";
+import Link from "next/link";
 
-export const dispositivoSchema = z.object({
-  serial: z.string().min(1, "El nombre es requerido"),
-  modeloId: z.string().min(1, "La Marca es Requerida"),
-  estado: z.string().min(1, "El tipo de dispositivo es requerido"),
-  nsap: z.string().nullable()
+export const computadorSchema = z.object({
+    serial: z.string().min(1, "El nombre es requerido"),
+    modeloId: z.string().min(1, "La Marca es Requerida"),
+    estado: z.string().min(1, "El Estado de dispositivo es requerido"),
+    nsap: z.string().nullable(),
+    host: z.string().nullable(),
+    sisOperativo: z.string().nullable(),
+    arquitectura: z.string().nullable(),
+    ram: z.string().nullable(),
+    almacenamiento: z.string().nullable(),
+    procesador: z.string().nullable(),
+    sapVersion: z.string().nullable(),
+    officeVersion: z.string().nullable(),
 })
 
-export type DispositivoFormData = z.infer<typeof dispositivoSchema>
+export type ComputadorFormData = z.infer<typeof computadorSchema>
 
 // Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
-export interface Dispositivo {
-  id: string; // Or number, depending on your API
-  serial: string;
-  estado: string;
-  nsap?: string;
-  modelo: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
-}
-
-export interface DispositivoFormProps {
-  onCreateModel: (data: DispositivoFormData) => void;
-  modelo: { id: string; nombre: string }[];
-  initialData?: {
+export interface Computador {
+    id: string; // Or number, depending on your API
     serial: string;
     estado: string;
-    nsap: string | null;
-  };
+    nsap?: string;
+    host?: string;
+    sisOperativo?: string;
+    arquitectura?: string;
+    ram?: string;
+    almacenamiento?: string;
+    procesador?: string;
+    sapVersion?: string;
+    officeVersion?: string;  
+    modelo: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
 }
 
-interface DispositivoTableProps {
-  data: Dispositivo[]
+
+
+interface ComputadorTableProps {
+  data: Computador[]
 }
 
-export function DispositivoTable({}: DispositivoTableProps) {
+export function ComputadorTable({}: ComputadorTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-  const [editingDispositivo, setEditingDispositivo] = React.useState<Dispositivo | null>(null);
+  const [editingComputador, setEditingComputador] = React.useState<Computador | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("")
-  const [dispositivos, setDispositivos] = React.useState<Dispositivo[]>([]);
+  const [computadores, setComputadores] = React.useState<Computador[]>([]);
 
-const columns: ColumnDef<Dispositivo>[] = [
+const columns: ColumnDef<Computador>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -75,10 +82,6 @@ const columns: ColumnDef<Dispositivo>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: "id",
-    header: "ID",
   },
   {
     accessorKey: "serial",
@@ -116,7 +119,7 @@ const columns: ColumnDef<Dispositivo>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const dispositivo = row.original
+      const computador = row.original
 
       return (
         <DropdownMenu>
@@ -127,13 +130,15 @@ const columns: ColumnDef<Dispositivo>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(dispositivo.serial.toString())}>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(computador.serial.toString())}>
               Copiar Serial
             </DropdownMenuItem>
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-            <DropdownMenuItem
-            onClick={() => handleOpenEditModal(dispositivo)}
-            >Editar equipo</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/computadores/${computador.id}/editar`}>
+                  Editar equipo
+              </Link>
+              </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
           </DropdownMenuContent>
@@ -144,7 +149,7 @@ const columns: ColumnDef<Dispositivo>[] = [
 ]
 
   const table = useReactTable({
-    data: dispositivos,
+    data: computadores,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -164,16 +169,16 @@ const columns: ColumnDef<Dispositivo>[] = [
 
     const fetchAllData = async () => {
       try {
-        const dispositivosResponse = await fetch('/api/dispositivos');
+        const computadoresResponse = await fetch('/api/computador');
 
   
-        if (!dispositivosResponse.ok) {
-          throw new Error(`Error fetching dispositivos: ${dispositivosResponse.status}`);
+        if (!computadoresResponse.ok) {
+          throw new Error(`Error fetching computadores: ${computadoresResponse.status}`);
         }
   
-        const disposistivosData: Dispositivo[] = await dispositivosResponse.json();
+        const computadoresData: Computador[] = await computadoresResponse.json();
         
-        setDispositivos(disposistivosData);
+        setComputadores(computadoresData);
 
       } catch (error: any) {
         showToast.error("¡Error en Cargar!"+ (error.message), {
@@ -191,98 +196,109 @@ const columns: ColumnDef<Dispositivo>[] = [
       fetchAllData();
     }, []);
   
-    const handleOpenEditModal = (dispositivos: Dispositivo) => {
-    setEditingDispositivo(dispositivos);
-    setIsEditModalOpen(true);
-  };
 
-    const handleCreateDispositivo = async (data: DispositivoFormData) => {
-    try {
-        const formData = new FormData();
-        if (data.serial) formData.append('serial', data.serial);
-        if (data.modeloId) formData.append('modeloId', data.modeloId);
-        if (data.estado) formData.append('estado', data.estado);
-        if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
-        const dataObj = Object.fromEntries(formData.entries());
-        console.log("dataObj para enviar:", dataObj);
 
-        const response = await fetch('/api/dispositivos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataObj),
-        });
+  //   const handleCreateComputador = async (data: ComputadorFormData) => {
+  //   try {
+  //       const formData = new FormData();
+  //       if (data.serial) formData.append('serial', data.serial);
+  //       if (data.modeloId) formData.append('modeloId', data.modeloId);
+  //       if (data.estado) formData.append('estado', data.estado);
+  //       if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
+  //       if (data.host !== undefined && data.host !== null) formData.append('host', data.host);
+  //       if (data.sisOperativo !== undefined && data.sisOperativo !== null) formData.append('sisOperativo', data.sisOperativo);
+  //       if (data.arquitectura !== undefined && data.arquitectura !== null) formData.append('arquitectura', data.arquitectura);
+  //       if (data.ram !== undefined && data.ram !== null) formData.append('ram', data.ram);
+  //       if (data.almacenamiento !== undefined && data.almacenamiento !== null) formData.append('almacenamiento', data.almacenamiento);
+  //       if (data.procesador !== undefined && data.procesador !== null) formData.append('procesador', data.procesador);
+  //       if (data.sapVersion !== undefined && data.sapVersion !== null) formData.append('sapVersion', data.sapVersion);
+  //       if (data.officeVersion !== undefined && data.officeVersion !== null) formData.append('officeVersion', data.officeVersion);
+  //       const dataObj = Object.fromEntries(formData.entries());
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(errorData.message || `Error creando dispositivo: ${response.statusText}`);
-    }
+  //       const response = await fetch('/api/computador', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify(dataObj),
+  //       });
 
-      showToast.success("Dispositivo creado correctamente 👍",{
-        duration: 4000,
-        progress: false,
-        position: "top-right",
-        transition: "popUp",
-        icon: '',
-        sound: false,  
-      })
-      setIsCreateModalOpen(false);
-      fetchAllData();
-    } catch (error: any) {
-       showToast.error("Error en Guardar el Equipo:" + (error.message), {
-          duration: 4000,
-          progress: false,
-          position: "top-right",
-          transition: "popUp",
-          icon: '',
-          sound: false,
-      });
-    }
-  };
-     const handleUpdateDispositivo = async (data: Partial<DispositivoFormData>) => {
-    if (!editingDispositivo) return;
+  //   if (!response.ok) {
+  //     const errorData = await response.json().catch(() => ({ message: response.statusText }));
+  //     throw new Error(errorData.message || `Error creando dispositivo: ${response.statusText}`);
+  //   }
 
-    try {
-      const formData = new FormData();
-      if (data.serial) formData.append('serial', data.serial);
-      if (data.modeloId) formData.append('modeloId', data.modeloId);
-      if (data.estado) formData.append('estado', data.estado);
-      if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
-      const dataObj = Object.fromEntries(formData.entries());
-      console.log("dataObj para enviar:", dataObj);
+  //     showToast.success("Computador creado correctamente 👍",{
+  //       duration: 4000,
+  //       progress: false,
+  //       position: "top-right",
+  //       transition: "popUp",
+  //       icon: '',
+  //       sound: false,  
+  //     })
+  //     setIsCreateModalOpen(false);
+  //     fetchAllData();
+  //   } catch (error: any) {
+  //      showToast.error("Error en Guardar el Equipo:" + (error.message), {
+  //         duration: 4000,
+  //         progress: false,
+  //         position: "top-right",
+  //         transition: "popUp",
+  //         icon: '',
+  //         sound: false,
+  //     });
+  //   }
+  // };
+  //    const handleUpdateComputador = async (data: Partial<ComputadorFormData>) => {
+  //   if (!editingComputador) return;
 
-    // Envía el objeto JSON resultante al endpoint
-    const response = await fetch('/api/dispositivos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dataObj),
-    });
+  //   try {
+  //     const formData = new FormData();
+  //     if (data.serial) formData.append('serial', data.serial);
+  //   if (data.modeloId) formData.append('modeloId', data.modeloId);
+  //   if (data.estado) formData.append('estado', data.estado);
+  //   if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
+  //   if (data.host !== undefined && data.host !== null) formData.append('host', data.host);
+  //   if (data.sisOperativo !== undefined && data.sisOperativo !== null) formData.append('sisOperativo', data.sisOperativo);
+  //   if (data.arquitectura !== undefined && data.arquitectura !== null) formData.append('arquitectura', data.arquitectura);
+  //   if (data.ram !== undefined && data.ram !== null) formData.append('ram', data.ram);
+  //   if (data.almacenamiento !== undefined && data.almacenamiento !== null) formData.append('almacenamiento', data.almacenamiento);
+  //   if (data.procesador !== undefined && data.procesador !== null) formData.append('procesador', data.procesador);
+  //   if (data.sapVersion !== undefined && data.sapVersion !== null) formData.append('sapVersion', data.sapVersion);
+  //   if (data.officeVersion !== undefined && data.officeVersion !== null) formData.append('officeVersion', data.officeVersion);
+  //     const dataObj = Object.fromEntries(formData.entries());
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(errorData.message || `Error actualizando dispositivo: ${response.statusText}`);
-      }
-      showToast.success("Dispositivo actualizado correctamente ✨",{
-        duration: 4000,
-        progress: false,
-        position: "top-right",
-        transition: "popUp",
-        icon: '',
-        sound: false,  
-      })
-      setIsEditModalOpen(false);
-      setEditingDispositivo(null);
-      await fetchAllData();
-    } catch (error: any) {
-     showToast.error("Error en Guardar el Dispositivo:" + (error.message), {
-          duration: 4000,
-          progress: false,
-          position: "top-right",
-          transition: "popUp",
-          icon: '',
-          sound: false,
-      });
-    }
-  };
+  //   // Envía el objeto JSON resultante al endpoint
+  //   const response = await fetch('/api/computador', {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(dataObj),
+  //   });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({ message: response.statusText }));
+  //       throw new Error(errorData.message || `Error actualizando dispositivo: ${response.statusText}`);
+  //     }
+  //     showToast.success("Computador actualizado correctamente ✨",{
+  //       duration: 4000,
+  //       progress: false,
+  //       position: "top-right",
+  //       transition: "popUp",
+  //       icon: '',
+  //       sound: false,  
+  //     })
+  //     setIsEditModalOpen(false);
+  //     setEditingComputador(null);
+  //     await fetchAllData();
+  //   } catch (error: any) {
+  //    showToast.error("Error en Guardar el Dispositivo:" + (error.message), {
+  //         duration: 4000,
+  //         progress: false,
+  //         position: "top-right",
+  //         transition: "popUp",
+  //         icon: '',
+  //         sound: false,
+  //     });
+  //   }
+  // };
 
 React.useEffect(() => {
     if (searchQuery) {
@@ -296,7 +312,7 @@ return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-2xl font-bold">Dispositivos</CardTitle>
+          <CardTitle className="text-2xl font-bold">Computadores</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <Input
@@ -328,9 +344,13 @@ return (
                               ? "Serial"
                               : column.id === "estado"
                                 ? "Estado"
-                                : column.id === "Modelo"
+                                : column.id === "modelo"
                                   ? "Modelo"
-                                      : column.id}
+                                    : column.id === "host"
+                                        ? "Host"
+                                            : column.id === "sisOperativo"
+                                                ? "Sistema Operativo"    
+                                                    : column.id}
                         </DropdownMenuCheckboxItem>
                       )
                     })}
@@ -338,10 +358,12 @@ return (
               </DropdownMenu>
             </div>
 
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-                          <PlusIcon className="mr-2 h-4 w-4" />
-                          Agregar Dispositivo
-                        </Button>
+            <Button asChild>
+                <Link href="/computadores/new">
+                      <PlusIcon className="mr-2 h-4 w-4" />
+                      Agregar Computador
+                </Link>
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -400,28 +422,6 @@ return (
           </div>
         </div>
       </CardContent>
-      <DispositivoForm
-              isOpen={isCreateModalOpen}
-              onClose={() => setIsCreateModalOpen(false)}
-              onSubmit={handleCreateDispositivo}
-            />
-
-            {/* Edit Modal */}
-            <DispositivoForm
-              isOpen={isEditModalOpen}
-              onClose={() => {
-                setIsEditModalOpen(false);
-                setEditingDispositivo(null);
-              }}
-              onSubmit={handleUpdateDispositivo} // Usamos el handler de actualización
-              initialData={editingDispositivo ? { // Mapeamos los datos del modelo a editar
-                serial: editingDispositivo.serial,
-                modeloId: editingDispositivo.modelo.id, // Pasamos solo el ID del modelo
-                estado: editingDispositivo.estado,
-                nsap: typeof editingDispositivo.nsap === "string" ? editingDispositivo.nsap : undefined,
-              } : null}
-              key={editingDispositivo?.id || 'create'} // La key es crucial para que React reinicie el form
-            />
     </Card>
   )
 

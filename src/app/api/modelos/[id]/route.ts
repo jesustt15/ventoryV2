@@ -5,6 +5,39 @@ import path from 'path';
 
 import prisma  from "@/lib/prisma";
 
+async function ensureDirExists(dirPath: string) {
+    try {
+        await stat(dirPath);
+    } catch (e: any) {
+        if (e.code === 'ENOENT') {
+            await mkdir(dirPath, { recursive: true });
+        } else {
+            throw e;
+        }
+    }
+}
+
+// --- Helper para eliminar un archivo (si existe) ---
+async function deletePreviousImage(imagePath: string | null | undefined) {
+    if (imagePath) {
+        // imagePath viene como /uploads/equipos/imagen.jpg, necesitamos la ruta completa del sistema
+        const fullPath = path.join(process.cwd(), 'public', imagePath);
+        try {
+            await stat(fullPath); // Verifica si existe
+            await unlink(fullPath); // Elimina el archivo
+            console.log(`Imagen anterior eliminada: ${fullPath}`);
+        } catch (e: any) {
+            if (e.code === 'ENOENT') {
+                console.log(`Imagen anterior no encontrada, no se eliminó nada: ${fullPath}`);
+            } else {
+                console.error(`Error al eliminar imagen anterior ${fullPath}:`, e);
+                // Podrías decidir si este error debe detener la operación o solo registrarse
+            }
+        }
+    }
+}
+
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const {id} = await params;
 
@@ -30,98 +63,102 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
-  const {id} = await params;
-
+  const { id } = params;
   try {
-    // Fetch the existing modelo
+    // 1. Buscar el modelo existente
     const existingModelo = await prisma.modeloDispositivo.findUnique({
-      where: {
-        id: id,
-      },
+      where: { id },
     });
 
     if (!existingModelo) {
       return NextResponse.json({ message: "Modelo not found" }, { status: 404 });
     }
 
+    // 2. Leer los datos del formulario
     const data = await request.formData();
     const nombre = data.get('nombre') as string;
     const marcaId = data.get('marcaId') as string;
     const tipo = data.get('tipo') as string;
-    const image = data.get('img') as File | null;
+    // Tomamos el archivo de imagen (si existe)
+    const imagenFile = data.get('img') as File | null;
     const marcaNombre = data.get('marcaNombre') as string | null;
 
-     let finalMarcaId: string;
-    
-            if (marcaId) {
-                // An existing brand was selected. Use its ID.
-                finalMarcaId = marcaId;
-            } else if (marcaNombre) {
-                // A new brand name was provided. Find it or create it.
-                let existingMarca = await prisma.marca.findUnique({
-                    where: { nombre: marcaNombre },
-                });
-    
-                if (existingMarca) {
-                    finalMarcaId = existingMarca.id;
-                } else {
-                    const newMarca = await prisma.marca.create({
-                        data: { nombre: marcaNombre },
-                    });
-                    finalMarcaId = newMarca.id;
-                }
-            } else {
-                // No brand information was provided. Return an error.
-                return NextResponse.json({ message: "La marca es requerida." }, { status: 400 });
-            }
-
-    if (!nombre|| typeof nombre !== 'string') {
+    // Validar que 'nombre' exista
+    if (!nombre || typeof nombre !== 'string') {
       return NextResponse.json({ message: "El campo 'nombre' es obligatorio" }, { status: 400 });
     }
 
-    let imageUrl = existingModelo.img; // Keep the existing image URL by default
+    // 3. Procesar la marca: usar el ID existente o, si se proporciona un nombre, buscar o crear la marca.
+    let finalMarcaId: string;
+    if (marcaId && marcaId.trim() !== '') {
+      finalMarcaId = marcaId;
+    } else if (marcaNombre && marcaNombre.trim() !== '') {
+      let existingMarca = await prisma.marca.findUnique({
+        where: { nombre: marcaNombre },
+      });
+      if (existingMarca) {
+        finalMarcaId = existingMarca.id;
+      } else {
+        const newMarca = await prisma.marca.create({
+          data: { nombre: marcaNombre },
+        });
+        finalMarcaId = newMarca.id;
+      }
+    } else {
+      return NextResponse.json({ message: "La marca es requerida." }, { status: 400 });
+    }
 
-    if (image) {
-  // Si hay una imagen nueva, borramos la antigua
-      if (existingModelo.img) {
-    // 1. Obtiene la ruta de la URL desde la BD (ej: /uploads/modelos/imagen.jpg)
-    const urlPath = existingModelo.img;
-    const filePathSegment = urlPath.startsWith('/') ? urlPath.substring(1) : urlPath;
+    // 4. Manejo de la imagen
+    // Por defecto se mantiene la URL de imagen existente
+    let finalImageUrl: string | null = existingModelo.img;
+    let oldImageToDelete: string | null = null;
 
-    // 3. Construye la ruta de archivo absoluta y correcta
-    const imagePath = path.join(process.cwd(), 'public', filePathSegment);
-    
-    try {
-      // 4. Ahora sí, borra el archivo usando la ruta correcta
-      await unlink(imagePath);
-    } catch (unlinkError: any) {
-      // Es posible que el archivo ya no exista, podemos registrar el error pero continuar
-      if (unlinkError.code !== 'ENOENT') {
-        console.error("Error deleting old image:", unlinkError);
-        return NextResponse.json({ message: "Error deleting old image" }, { status: 500 });
+    // Si se ha enviado un archivo para "img" y no es de tipo string (p. ej., File)
+    if (imagenFile && typeof imagenFile !== 'string') {
+      if (imagenFile.size > 0) {
+        // Hay una nueva imagen, se sube el archivo
+        oldImageToDelete = existingModelo.img; // Se marcará la imagen anterior para eliminar
+        const uploadDir = path.join(process.cwd(), 'public/uploads/equipos');
+        await ensureDirExists(uploadDir);
+
+        const bytes = await imagenFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const filename = `${Date.now()}-${safeOriginalName}`;
+        const imagePath = path.join(uploadDir, filename);
+
+        await writeFile(imagePath, buffer);
+        finalImageUrl = `/uploads/equipos/${filename}`;
+      } else {
+        // Si se envía el campo pero está vacío, se puede interpretar como "se desea eliminar la imagen actual"
+        finalImageUrl = null;
       }
     }
-  }
-}
 
+    // 5. Preparar los datos a actualizar
+    const dataToUpdate: { [key: string]: any } = {
+      nombre,
+      tipo,
+      marcaId: finalMarcaId,
+      img: finalImageUrl,
+    };
+
+    // 6. Actualizar el modelo en la base de datos
     const updatedModelo = await prisma.modeloDispositivo.update({
-      where: {
-        id: id,
-      },
-      data: {
-        id,
-        nombre,
-        tipo,
-        marcaId: finalMarcaId,
-        img: imageUrl,
-      },
+      where: { id },
+      data: dataToUpdate,
     });
 
-    return NextResponse.json(updatedModelo);
-  } catch (error) {
+    // 7. Si se subió una nueva imagen y había una anterior, borrarla del sistema de archivos
+    if (finalImageUrl !== existingModelo.img && oldImageToDelete) {
+      await deletePreviousImage(oldImageToDelete);
+    }
+
+    return NextResponse.json(updatedModelo, { status: 200 });
+  } catch (error: any) {
     console.error("Error updating modelo:", error);
     return NextResponse.json(
-      { message: "Error updating modelo" },
+      { message: "Error updating modelo", details: error.message },
       { status: 500 }
     );
   }

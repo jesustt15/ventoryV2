@@ -21,6 +21,7 @@ import {
   Printer,
   SearchIcon,
   SettingsIcon,
+  Tag,
   UsersIcon,
 } from "lucide-react"
 
@@ -42,7 +43,7 @@ const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    avatar: "#",
   },
   navMain: [
     {
@@ -58,7 +59,7 @@ const data = {
     {
       title: "Modelos",
       url: "/modelos",
-      icon: Printer,
+      icon: Tag,
     },
     {
       title: "Computadores",
@@ -66,8 +67,8 @@ const data = {
       icon: Laptop,
     },
     {
-      title: "Gerencias",
-      url: "/gerencias",
+      title: "Departamentos",
+      url: "/departamentos",
       icon: Factory,
     },
     {

@@ -168,9 +168,10 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
         }
 
         if (selectedImage) {
+            console.log('ESTA ES LA IMG:', selectedImage); // Debugging line to check if image is being set
             formDataToSubmit.append('img', selectedImage);
         }
-        
+        console.log("imagen desde front:" ,formDataToSubmit.get('img')); // Debugging line to check if image is being added
         onSubmit(formDataToSubmit);
     };
 

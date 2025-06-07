@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ComputadorTable } from "@/components/computador-table";
+
 import { Spinner } from "@/components/ui/spinner";
-import { DepartamentoTable } from "@/components/depto-table";
 
 async function fetchData() {
   try {
-    const response = await fetch("/api/departamentos");
+    const response = await fetch("/api/computador");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status.toString()}`);
     }
@@ -17,7 +18,7 @@ async function fetchData() {
   }
 }
 
-export default function DepartamentoPage() {
+export default function ComputadorPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,9 +39,9 @@ export default function DepartamentoPage() {
     loadData();
   }, []);
 
-  const handleCreateDepartamento = async (formData: FormData) => {
+  const handleCreateComputador = async (formData: FormData) => {
     try {
-      const response = await fetch("/api/departamentos", {
+      const response = await fetch("/api/computador", {
         method: "POST",
         body: formData,
       });
@@ -49,7 +50,6 @@ export default function DepartamentoPage() {
         throw new Error(`HTTP error! status: ${response.status.toString()}`);
       }
 
-      // Refresh data after creating a new model
       const result = await fetchData();
       setData(result);
     } catch (e: any) {
@@ -59,7 +59,7 @@ export default function DepartamentoPage() {
 
 
   if (loading) {
-    return <Spinner size="lg" className="bg-black dark:bg-white" />;
+    return <Spinner size="sm" className="bg-black dark:bg-white" />;
   }
 
   if (error) {
@@ -68,11 +68,7 @@ export default function DepartamentoPage() {
 
   return (
     <div>
-      <div onCreateModel={handleCreateDepartamento} />
-      <DepartamentoTable data={data.length > 0 ? data : []} />
-      {data.length === 0 && (
-        <div>No hay deptos yet.</div>
-      )}
+      <ComputadorTable data={data.length > 0 ? data : []} />
     </div>
   );
 }

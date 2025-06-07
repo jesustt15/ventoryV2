@@ -10,37 +10,6 @@ interface Params {
 }
 
 // --- Helper para asegurar que el directorio existe (lo necesitarás si subes nuevas imágenes en PUT) ---
-async function ensureDirExists(dirPath: string) {
-    try {
-        await stat(dirPath);
-    } catch (e: any) {
-        if (e.code === 'ENOENT') {
-            await mkdir(dirPath, { recursive: true });
-        } else {
-            throw e;
-        }
-    }
-}
-
-// --- Helper para eliminar un archivo (si existe) ---
-async function deletePreviousImage(imagePath: string | null | undefined) {
-    if (imagePath) {
-        // imagePath viene como /uploads/equipos/imagen.jpg, necesitamos la ruta completa del sistema
-        const fullPath = path.join(process.cwd(), 'public', imagePath);
-        try {
-            await stat(fullPath); // Verifica si existe
-            await unlink(fullPath); // Elimina el archivo
-            console.log(`Imagen anterior eliminada: ${fullPath}`);
-        } catch (e: any) {
-            if (e.code === 'ENOENT') {
-                console.log(`Imagen anterior no encontrada, no se eliminó nada: ${fullPath}`);
-            } else {
-                console.error(`Error al eliminar imagen anterior ${fullPath}:`, e);
-                // Podrías decidir si este error debe detener la operación o solo registrarse
-            }
-        }
-    }
-}
 
 
 // --- GET (Obtener un equipo por ID) ---

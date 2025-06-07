@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { useState, useEffect, FormEvent } from 'react';
 import {
@@ -8,22 +8,14 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogClose, // Asegúrate de tener DialogClose si quieres un botón Cancelar explícito
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import CreatableSelect from 'react-select/creatable';
-import { ImageIcon } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { showToast } from 'nextjs-toast-notify';
-import {
-    Select as ShadcnSelect,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { ModeloFormData } from './modelos-table';
+import { showToast } from 'nextjs-toast-notify'; // Asumo que es la librería que usas (antes sonner)
+// Eliminamos los imports de Avatar, ImageIcon y ShadcnSelect ya que no se usarán para imagen o tipo aquí.
 
 // Interfaces
 interface Gerencia {
@@ -33,18 +25,30 @@ interface Gerencia {
 
 interface OptionType {
     value: string;
-    label:string;
+    label: string;
+    __isNew__?: boolean; // Para CreatableSelect
 }
+
+// Asumimos que DepartamentoFormData se importa y ya incluye gerenciaId
+// Si no, deberías definirlo así o similar donde corresponda:
+// export interface DepartamentoFormData {
+//   id?: string; // opcional, si es para edición
+//   nombre: string;
+//   ceco: string;
+//   sociedad: string;
+//   gerenciaId: string; // Esencial para preseleccionar y guardar
+// }
+import { DepartamentoFormData } from './depto-table'; // Asegúrate que esta defina gerenciaId
 
 interface DepartamentoFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: FormData) => void;
+    onSubmit: (data: FormData) => void; // onSubmit seguirá recibiendo FormData
     gerencias: Gerencia[];
-    initialData?: DepartamentoFormData | null;
+    initialData?: DepartamentoFormData & { gerenciaId?: string } | null; // Asegurar que initialData pueda tener gerenciaId
 }
 
-// Styles (unchanged)
+// Estilos de react-select (sin cambios)
 const reactSelectStyles = {
     control: (base: any, state: { isFocused: boolean }) => ({
         ...base,
@@ -79,150 +83,141 @@ const reactSelectStyles = {
             color: 'hsl(var(--accent-foreground))',
         }
     }),
-};
+}
 
 const DepartamentoForm: React.FC<DepartamentoFormProps> = ({
     isOpen,
     onClose,
     onSubmit,
-    gerencias = [], // Default to empty array to prevent .map error
+    gerencias = [],
     initialData,
 }) => {
-    // State management
     const [nombre, setNombre] = useState('');
+    const [ceco, setCeco] = useState('');
+    const [sociedad, setSociedad] = useState('');
     const [selectedGerencia, setSelectedGerencia] = useState<OptionType | null>(null);
-    const [selectedTipo, setSelectedTipo] = useState<string>('');
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [allGerencias, setAllGerencias] = useState<Gerencia[]>(gerencias); // Para manejar las gerencias creadas dinámicamente
+    const [isLoadingGerencias, setIsLoadingGerencias] = useState(false);
+    const [isCreatingGerencia, setIsCreatingGerencia] = useState(false);
 
-    const isEditing = !!initialData;
 
-    // Effect to populate form for editing or reset for creation
+    const isEditing = !!initialData  // Es edición si initialData tiene un ID
+
+    useEffect(() => {
+        setAllGerencias(gerencias); // Sincronizar con las props cuando cambien
+    }, [gerencias]);
+
     useEffect(() => {
         if (isOpen) {
             if (isEditing && initialData) {
                 setNombre(initialData.nombre || '');
-                const gerenciaInicial = gerencias.find(m => m.id === initialData.marca);
-                setSelectedGerencia(gerenciaInicial ? { value: gerenciaInicial.id, label: gerenciaInicial.nombre } : null);
-            } else {
-                // Reset form for creation
-                setNombre('');
-                setSelectedGerencia(null);
+                setCeco(initialData.ceco || '');
+                setSociedad(initialData.sociedad || '');
 
+                // Corregir la lógica para preseleccionar la gerencia
+                if (initialData.gerenciaId) {
+                    const gerenciaActual = allGerencias.find(g => g.id === initialData.gerenciaId);
+                    if (gerenciaActual) {
+                        setSelectedGerencia({ value: gerenciaActual.id, label: gerenciaActual.nombre });
+                    } else {
+                        setSelectedGerencia(null); // Si no se encuentra, no preseleccionar
+                    }
+                } else {
+                    setSelectedGerencia(null);
+                }
+
+            } else {
+                // Resetear para creación
+                setNombre('');
+                setCeco('');
+                setSociedad('');
+                setSelectedGerencia(null);
             }
         }
-    }, [isOpen, initialData, isEditing, gerencias]);
+    }, [isOpen, initialData, isEditing, allGerencias]); // allGerencias en dependencias
 
+    const handleCreateGerencia = async (inputValue: string) => {
+            setIsCreatingGerencia(true);
+            // Create a temporary option for the user to see
+            const newGerenciaOption: OptionType = {
+                value: inputValue, // For a new brand, value and label can be the same initially
+                label: inputValue,
+                __isNew__: true, // Flag it as a new brand
+            };
+            setSelectedGerencia(newGerenciaOption);
+            setIsCreatingGerencia(false); // This is a quick operation, no need for long loading
+            showToast.success(`Gerencia"${inputValue}" lista para ser creada.`, { position: "top-right" });
+    };
 
-    // --- FIX 2: Correctly prepare FormData in handleSubmit ---
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        if (!selectedGerencia || !selectedTipo || !nombre.trim()) {
-            showToast.warning("Por favor complete Marca, Nombre, y Tipo.", { position: "top-right" });
+        if (!nombre.trim() || !ceco.trim() || !sociedad.trim() || !selectedGerencia) {
+            showToast.warning("Todos los campos son requeridos, incluyendo la gerencia.", { position: "top-right" });
             return;
         }
 
         const formDataToSubmit = new FormData();
         formDataToSubmit.append('nombre', nombre.trim());
-        formDataToSubmit.append('tipo', selectedTipo);
+        formDataToSubmit.append('ceco', ceco.trim());
+        formDataToSubmit.append('sociedad', sociedad.trim());
 
-        // This is the crucial logic change
         if (selectedGerencia.__isNew__) {
             // If it's a new brand, send the name for the backend to create
-            formDataToSubmit.append('marcaNombre', selectedGerencia.label);
+            formDataToSubmit.append('gerenciaNombre', selectedGerencia.label);
         } else {
             // If it's an existing brand, send its ID
-            formDataToSubmit.append('marcaId', selectedGerencia.value);
+            formDataToSubmit.append('gerenciaId', selectedGerencia.value);
         }
 
-        if (selectedImage) {
-            formDataToSubmit.append('img', selectedImage);
-        }
         
         onSubmit(formDataToSubmit);
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(openValue) => !openValue && onClose()}>
+        <Dialog open={isOpen} onOpenChange={(openValue) => {
+            if (!openValue) onClose();
+        }}>
             <DialogContent className="sm:max-w-[525px]">
                 <DialogHeader>
-                    <DialogTitle>{isEditing ? "Editar Modelo" : "Crear Nuevo Modelo"}</DialogTitle>
+                    <DialogTitle>{isEditing ? "Editar Departamento" : "Crear Nuevo Departamento"}</DialogTitle>
                     <DialogDescription>
-                        {isEditing ? "Modifique los detalles del modelo aquí." : "Complete los detalles para el nuevo modelo."}
+                        {isEditing ? "Modifique los detalles del Departamento aquí." : "Complete los detalles para el nuevo departamento."}
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit}>
-                    <div className="grid gap-4 py-4">
-                        {/* --- FIX 3: Add onCreateOption prop to CreatableSelect --- */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="marca-select" className="text-right">Marca</Label>
+                <form onSubmit={handleSubmit} className="grid gap-6 py-4"> {/* Aumentado el gap general */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="nombre" className="text-right">Nombre</Label>
+                        <Input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="col-span-3" placeholder="Nombre del Departamento"/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="ceco" className="text-right">CECO</Label>
+                        <Input id="ceco" value={ceco} onChange={(e) => setCeco(e.target.value)} className="col-span-3" placeholder="Centro de Costo"/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="sociedad" className="text-right">Sociedad</Label>
+                        <Input id="sociedad" value={sociedad} onChange={(e) => setSociedad(e.target.value)} className="col-span-3" placeholder="Sociedad a la que pertenece"/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="gerencia-select" className="text-right">Gerencia</Label>
+                        <div className="col-span-3"> {/* Contenedor para CreatableSelect */}
                             <CreatableSelect
-                                inputId="marca-select"
-                                className="col-span-3"
-                                isClearable
-                                isLoading={isCreatingMarca}
-                                placeholder="Seleccione o cree una marca"
-                                options={marcas.map(m => ({ value: m.id, label: m.nombre }))}
-                                value={selectedGerencia}
-                                onChange={(option) => setSelectedGerencia(option as OptionType)}
-                                onCreateOption={handleCreateMarca}
-                                formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
+                                instanceId="gerencia-creatable-select"
                                 styles={reactSelectStyles}
+                                options={allGerencias.map(g => ({ value: g.id, label: g.nombre }))}
+                                value={selectedGerencia}
+                                onChange={(option) => setSelectedGerencia(option as OptionType | null)}
+                                onCreateOption={handleCreateGerencia} // Se llama al crear nueva opción
+                                placeholder="Seleccionar o crear Gerencia"
+                                isClearable
+                                isLoading={isLoadingGerencias}
+                                formatCreateLabel={(inputValue) => `Crear nueva gerencia: "${inputValue}"`}
                             />
-                        </div>
-                        
-                        {/* Other form fields remain the same */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="nombre" className="text-right">Nombre</Label>
-                            <Input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="col-span-3" placeholder="Ej: LaserJet Pro M404dn"/>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="img" className="text-right">Imagen</Label>
-                            <Input
-                                type="file"
-                                id="img"
-                                name="img"
-                                accept="image/png, image/jpeg, image/webp"
-                                onChange={handleImageChange}
-                                className="col-span-3 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                            />
-                        </div>
-                        {selectedImagePreview && (
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label className="text-right">Vista previa</Label>
-                                <div className="col-span-3 flex items-center gap-2">
-                                    <Avatar className="w-24 h-24 rounded-md"><AvatarImage src={selectedImagePreview} alt="Vista previa" className="object-cover rounded-md"/><AvatarFallback className="rounded-md"><ImageIcon className="h-8 w-8 text-muted-foreground" /></AvatarFallback></Avatar>
-                                    <Button type="button" variant="ghost" size="sm" onClick={() => {
-                                        setSelectedImage(null); setSelectedImagePreview(null);
-                                        const fileInput = document.getElementById('img') as HTMLInputElement;
-                                        if (fileInput) fileInput.value = "";
-                                    }}>Quitar</Button>
-                                </div>
-                            </div>
-                        )}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="tipo-select" className="text-right">Tipo de Equipo</Label>
-                            <ShadcnSelect value={selectedTipo} onValueChange={setSelectedTipo}>
-                                <SelectTrigger id="tipo-select" className="col-span-3"><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Telefono IP">Teléfono IP</SelectItem>
-                                    <SelectItem value="Switch">Switch</SelectItem>
-                                    <SelectItem value="Mouse">Mouse</SelectItem>
-                                    <SelectItem value="Teclado">Teclado</SelectItem>
-                                    <SelectItem value="Impresora">Impresora</SelectItem>
-                                    <SelectItem value="Laptop">Laptop</SelectItem>
-                                    <SelectItem value="Desktop">Desktop</SelectItem>
-                                    <SelectItem value="Monitor">Monitor</SelectItem>
-                                    <SelectItem value="Router">Router</SelectItem>
-                                    <SelectItem value="Access Point">Access Point</SelectItem>
-                                    <SelectItem value="Otro">Otro</SelectItem>
-                                </SelectContent>
-                            </ShadcnSelect>
                         </div>
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-                        <Button type="submit" disabled={isCreatingMarca}>{isEditing ? "Guardar Cambios" : "Crear Modelo"}</Button>
+                        <Button type="submit">{isEditing ? "Guardar Cambios" : "Crear Departamento"}</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -230,4 +225,4 @@ const DepartamentoForm: React.FC<DepartamentoFormProps> = ({
     );
 };
 
-export default ModeloForm;
+export default DepartamentoForm;
