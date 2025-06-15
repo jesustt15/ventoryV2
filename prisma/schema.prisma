@@ -72,8 +72,11 @@ model Computador {
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   nsap String?
   host String?
+  ubicacion String?
   sisOperativo String?
   arquitectura String?
+  macWifi String?
+  macEthernet String?
   ram String?
   almacenamiento String?
   procesador String?
@@ -86,11 +89,13 @@ model Dispositivo {
   id             String          @id @default(uuid())
   serial         String          @unique // El serial es único para esta instancia
   estado         String          // Ej: Activo, En Reparación, De Baja, Almacenado
-  modeloId       String          // Relación al modelo específico
+  modeloId       String
+  ubicacion      String?          // Relación al modelo específico
   modelo         ModeloDispositivo @relation(fields: [modeloId], references: [id])
   usuarioId      String?
   usuario        Usuario?        @relation(fields: [usuarioId], references: [id])
   departamentoId String?
+  mac            String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   lineas         LineaTelefonica[]
   nsap String?
@@ -113,12 +118,12 @@ model User { // Para autenticación de la app
 model Asignaciones {
   id           Int      @id @default(autoincrement())
   date         DateTime @default(now())
-  equipoId     String   // Este ID ahora podría referenciar a Computador.id o Dispositivo.id
-  equipoType   String   // "Computador" o "Dispositivo" para saber a qué tabla apunta equipoId
-  usuarioId    String
+  equipoId     String   // ID del Computador o Dispositivo
+  equipoType   String   // "Computador" o "Dispositivo"
+  targetId     String   // Guardará el ID del Usuario O del Departamento
+  targetType   String   // Guardará "Usuario" o "Departamento" para saber a qué tabla apunta targetId  
   type         String   // "Assignment" o "Return"
   notes        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
 }

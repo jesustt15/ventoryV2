@@ -1,23 +1,84 @@
 import { NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 interface Params {
   id: string;
 }
 
 export async function GET(request: Request, { params }: { params: Params }) {
+  const { searchParams } = new URL(request.url);
+  const asignado = searchParams.get('asignado');
+
+  // --- PASO 1: DEPURACIÓN ---
+  console.log(`[API/COMPUTADOR] Parámetro 'asignado' recibido: ${asignado}`);
+
+  let where: Prisma.ComputadorWhereInput = {};
+
+  if (asignado === 'false') {
+    // --- PASO 2: LÓGICA REFORZADA ---
+    // Un equipo NO está asignado si AMBOS campos son null o vacíos.
+    where = {
+      AND: [
+        { usuarioId: null },
+        { departamentoId: null }
+      ]
+    };
+  } else if (asignado === 'true') {
+    where = {
+      OR: [
+        { usuarioId: { not: null } },
+        { departamentoId: { not: null } },
+      ],
+    };
+  }
+  
+  console.log(`[API/COMPUTADOR] Cláusula 'where' de Prisma construida:`, JSON.stringify(where, null, 2));
   try {
-    const { id } = await params;
-    const equipo = await prisma.computador.findUnique({
-      where: {
-        id: id,
-      },
-    });
-    if (!equipo) {
-      return NextResponse.json({ message: 'Equipo no encontrado' }, { status: 404 });
-    }
-    return NextResponse.json(equipo, { status: 200 });
-  } catch (error) {
+        const { id } = await params;
+        const computador = await prisma.computador.findUnique({
+            where: { id },
+            include: {
+                modelo: {         // Incluye el objeto 'modelo' relacionado
+                    include: {
+                        marca: true // Dentro de 'modelo', incluye también la 'marca'
+                    }
+                },
+                usuario: {
+                  include:{
+                      departamento: true // Incluye el objeto 'departamento' del usuario asignado (si existe)
+                  }
+                },      // Incluye el objeto 'usuario' asignado (si existe)
+                departamento: {
+                  include: {
+                    gerencia: true, // Incluye la 'gerencia' del departamento (si existe)
+                  }
+                }, // Incluye el objeto 'departamento' asignado (si existe)
+            }
+        });
+
+        if (!computador) {
+            return NextResponse.json({ message: 'Computador no encontrado' }, { status: 404 });
+        }
+
+        // Ahora, 'computador' es un objeto mucho más rico con toda la información.
+        // También vamos a buscar la última asignación para tener un historial.
+        const ultimaAsignacion = await prisma.asignaciones.findFirst({
+            where: { equipoId: id },
+            orderBy: {
+                createdAt: 'desc'
+            },
+        });
+        
+        // Combinamos la información del computador con su última asignación
+        const responseData = {
+            ...computador,
+            ultimaAsignacion: ultimaAsignacion || null
+        };
+
+        return NextResponse.json(responseData, { status: 200 });
+
+    } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Error al obtener equipo' }, { status: 500 });
   }
@@ -27,12 +88,57 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   try {
     const { id } = await params;
     const body = await request.json();
-    const updatedEquipo = await prisma.computador.update({
-      where: {
-        id: id,
-      },
-      data: body,
-    });
+    const {
+      serial,
+      estado,
+      modeloId,
+      usuarioId,
+      departamentoId,
+      nsap,
+      host,
+      ubicacion,
+      sisOperativo,
+      arquitectura,
+      ram,
+      almacenamiento,
+      procesador,
+      sapVersion,
+      officeVersion,
+  } = body;
+
+const updatedEquipo = await prisma.computador.update({
+  where: { id },
+  data: {
+    // simple scalars
+    serial,
+    estado,
+    nsap,
+    host,
+    ubicacion,
+    sisOperativo,
+    arquitectura,
+    ram,
+    almacenamiento,
+    procesador,
+    sapVersion,
+    officeVersion,
+
+    // relation: connect an existing Modelo by its ID
+    modelo: {
+      connect: { id: modeloId },
+    },
+
+    // relation: if usuarioId is present, connect; if null, disconnect
+    ...(usuarioId
+      ? { usuario: { connect: { id: usuarioId } } }
+      : { usuario: { disconnect: true } }),
+
+    // relation: connect Departamento
+    departamento: {
+      connect: { id: departamentoId },
+    },
+  },
+})
     return NextResponse.json(updatedEquipo, { status: 200 });
   } catch (error) {
     console.error(error);

@@ -20,6 +20,7 @@ export const computadorSchema = z.object({
     estado: z.string().min(1, "El Estado de dispositivo es requerido"),
     nsap: z.string().nullable(),
     host: z.string().nullable(),
+    ubicacion: z.string().nullable(),
     sisOperativo: z.string().nullable(),
     arquitectura: z.string().nullable(),
     ram: z.string().nullable(),
@@ -27,6 +28,8 @@ export const computadorSchema = z.object({
     procesador: z.string().nullable(),
     sapVersion: z.string().nullable(),
     officeVersion: z.string().nullable(),
+    macWifi: z.string().nullable(),
+    macEthernet: z.string().nullable(),
 })
 
 export type ComputadorFormData = z.infer<typeof computadorSchema>
@@ -38,8 +41,11 @@ export interface Computador {
     estado: string;
     nsap?: string;
     host?: string;
+    ubicacion:string;
     sisOperativo?: string;
     arquitectura?: string;
+    macWifi?: string;
+    macEthernet?: string;
     ram?: string;
     almacenamiento?: string;
     procesador?: string;
@@ -86,7 +92,8 @@ const columns: ColumnDef<Computador>[] = [
     accessorKey: "serial",
     header: "Serial",
     cell: ({ row }) => <div>{row.getValue("serial")}</div>,
-  },  {
+  },  
+  {
       accessorFn: (row) => row.modelo?.marca?.nombre ?? "Sin marca",
       id: "marcaNombre", // El ID único para la columna sigue siendo importante
       header: "Marca",
@@ -161,7 +168,11 @@ const columns: ColumnDef<Computador>[] = [
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(computador.serial.toString())}>
               Copiar Serial
             </DropdownMenuItem>
-            <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/computadores/${computador.id}/details`}>
+                Ver detalles
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href={`/computadores/${computador.id}/editar`}>
                   Editar equipo

@@ -18,7 +18,8 @@ export const dispositivoSchema = z.object({
   serial: z.string().min(1, "El nombre es requerido"),
   modeloId: z.string().min(1, "La Marca es Requerida"),
   estado: z.string().min(1, "El tipo de dispositivo es requerido"),
-  nsap: z.string().nullable()
+  nsap: z.string().nullable(),
+  ubicacion: z.string().nullable()
 })
 
 export type DispositivoFormData = z.infer<typeof dispositivoSchema>
@@ -29,6 +30,7 @@ export interface Dispositivo {
   serial: string;
   estado: string;
   nsap?: string;
+  ubicacion?: string;
   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Added img and marca properties
 }
 
@@ -39,6 +41,7 @@ export interface DispositivoFormProps {
     serial: string;
     estado: string;
     nsap: string | null;
+    ubicacion: string | null;
   };
 }
 
@@ -445,6 +448,7 @@ return (
                 serial: editingDispositivo.serial,
                 modeloId: editingDispositivo.modelo.id, // Pasamos solo el ID del modelo
                 estado: editingDispositivo.estado,
+                ubicacion: typeof editingDispositivo.ubicacion === "string" ? editingDispositivo.ubicacion : undefined,
                 nsap: typeof editingDispositivo.nsap === "string" ? editingDispositivo.nsap : undefined,
               } : null}
               key={editingDispositivo?.id || 'create'} // La key es crucial para que React reinicie el form

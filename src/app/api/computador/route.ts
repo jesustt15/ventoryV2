@@ -1,23 +1,50 @@
 import { NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Extraemos los parámetros de la URL
+  const { searchParams } = new URL(request.url);
+  const asignado = searchParams.get('Asignado'); // 'true' o 'false'
+
+  // Creamos la cláusula 'where' de forma dinámica
+  let where: Prisma.ComputadorWhereInput = {};
+
+  if (asignado === 'false') {
+    // Si queremos los NO asignados, ambos campos de ID deben ser null
+    where = { usuarioId: null, departamentoId: null };
+  } else if (asignado === 'true') {
+    // Si queremos los SÍ asignados, al menos uno de los campos de ID NO debe ser null
+    where = {
+      OR: [
+        { usuarioId: { not: null } },
+        { departamentoId: { not: null } },
+      ],
+    };
+  }
+
   try {
-    const equipos = await prisma.computador.findMany({
-      include:{
+    const computadores = await prisma.computador.findMany({
+      where, // Aplicamos el filtro
+      include: {
         modelo: {
           include: {
-            marca: true, // Incluye la marca del modelo
-          }
+            marca: true,
+          },
         },
-        usuario: true, // Incluye el usuario asignado al equipo
-        departamento: true, // Incluye el departamento al que pertenece el equipo
+        usuario: true, // Incluimos esto para saber a quién está asignado
+        departamento: true, // Y a qué depto
+      },
+      orderBy: {
+        modelo: {
+          nombre: 'asc'
+        }
       }
     });
-    return NextResponse.json(equipos, { status: 200 });
+    return NextResponse.json(computadores);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: 'Error al obtener equipos' }, { status: 500 });
+    return NextResponse.json({ message: 'Error al obtener computadores' }, { status: 500 });
   }
 }
 

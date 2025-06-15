@@ -2,9 +2,27 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma'
 import path from 'path';
 import { stat, mkdir, writeFile } from 'fs/promises';
+import { Prisma } from '@prisma/client';
 
 
-export async function GET() {
+export async function GET(request: Request) {
+
+  const { searchParams } = new URL(request.url);
+  const asignado = searchParams.get('Asignado');
+  let where: Prisma.ComputadorWhereInput = {};
+  
+    if (asignado === 'false') {
+      // Si queremos los NO asignados, ambos campos de ID deben ser null
+      where = { usuarioId: null, departamentoId: null };
+    } else if (asignado === 'true') {
+      // Si queremos los SÍ asignados, al menos uno de los campos de ID NO debe ser null
+      where = {
+        OR: [
+          { usuarioId: { not: null } },
+          { departamentoId: { not: null } },
+        ],
+      };
+    }
   try {
     const equipos = await prisma.dispositivo.findMany({
       include: {
@@ -13,6 +31,13 @@ export async function GET() {
             marca: true, // Incluye la marca del modelo
           }
         },
+        usuario: true, // Incluye el usuario asignado (si existe)
+        departamento: true, // Incluye el departamento asignado (si existe)
+      },
+      orderBy: {
+        modelo: {
+          nombre: 'asc'
+        }
       }
     });
     return NextResponse.json(equipos, { status: 200 });

@@ -73,8 +73,14 @@ const columns: ColumnDef<Usuario>[] = [
   {
     accessorKey: "nombre",
     header: "Nombre",
-    cell: ({ row }) => <div>{row.getValue("serial")}</div>,
-  },  {
+    cell: ({ row }) => <div>{row.getValue("nombre")}</div>,
+  },
+    {
+    accessorKey: "apellido",
+    header: "Apellido",
+    cell: ({ row }) => <div>{row.getValue("apellido")}</div>,
+  },  
+  {
       accessorFn: (row) => row.departamento?.gerencia?.nombre ?? "Sin gerencia",
       id: "gerenciaNombre", // El ID único para la columna sigue siendo importante
       header: "Gerencia",
@@ -90,13 +96,18 @@ const columns: ColumnDef<Usuario>[] = [
       header: "Legajo",
     },
   {
-    accessorKey: "departamento.nombre",
+    accessorFn: (row) => row.departamento?.nombre ?? "Sin departamento",
+    id: "departamentoNombre",
     header: "Departamento",
+    cell: ({ row }) => {
+      const departamentoNombre = row.original.departamento?.nombre;
+      return <div>{departamentoNombre || "Sin departamento"}</div>;
+    },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const computador = row.original
+      const usuario = row.original
 
       return (
         <DropdownMenu>
@@ -107,13 +118,13 @@ const columns: ColumnDef<Usuario>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(computador.legajo.toString())}>
-              Copiar Serial
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.legajo.toString())}>
+              Copiar Legajo
             </DropdownMenuItem>
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/usuarios/${computador.id}/editar`}>
-                  Editar equipo
+              <Link href={`/usuarios/${usuario.id}/editar`}>
+                  Editar Usuario
               </Link>
               </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -176,9 +187,9 @@ const columns: ColumnDef<Usuario>[] = [
 
 React.useEffect(() => {
     if (searchQuery) {
-      table.getColumn("serial")?.setFilterValue(searchQuery)
+      table.getColumn("nombre")?.setFilterValue(searchQuery)
     } else {
-      table.getColumn("serial")?.setFilterValue("")
+      table.getColumn("nombre")?.setFilterValue("")
     }
   }, [table, searchQuery])
 
@@ -214,16 +225,14 @@ return (
                           checked={column.getIsVisible()}
                           onCheckedChange={(value) => column.toggleVisibility(!!value)}
                         >
-                          {column.id === "serial"
-                              ? "Serial"
-                              : column.id === "estado"
-                                ? "Estado"
-                                : column.id === "modelo"
-                                  ? "Modelo"
-                                    : column.id === "host"
-                                        ? "Host"
-                                            : column.id === "sisOperativo"
-                                                ? "Sistema Operativo"    
+                          {column.id === "legajo"
+                              ? "Legajo"
+                              : column.id === "ced"
+                                ? "Cedula"
+                                : column.id === "departamento"
+                                  ? "Departamento"
+                                    : column.id === "cargo"
+                                        ? "Cargo" 
                                                     : column.id}
                         </DropdownMenuCheckboxItem>
                       )

@@ -10,6 +10,7 @@ import {
     DialogHeader, DialogTitle, DialogClose,
 } from '@/components/ui/dialog';
 import { showToast } from "nextjs-toast-notify";
+import { reactSelectStyles } from '@/utils/reactSelectStyles';
 
 // Define the interface for a single Modelo
 interface Modelo {
@@ -23,7 +24,9 @@ export interface DispositivoFormData {
     modeloId: string;
     serial: string;
     estado: string;
-    nsap?: string;   // Optional field
+    nsap?: string; 
+    ubicacion?: string;
+    mac?: string;// Optional field
 }
 
 // Define the props for the component
@@ -39,39 +42,6 @@ interface OptionType {
     value: string;
     label: string;
 }
-
-// Styles for react-select (remains unchanged)
-const reactSelectStyles = {
-    control: (base: any, state: { isFocused: boolean }) => ({
-        ...base,
-        minHeight: '40px',
-        background: 'hsl(var(--background))',
-        borderColor: state.isFocused ? 'hsl(var(--ring))' : 'hsl(var(--input))',
-        borderWidth: '1px',
-        boxShadow: state.isFocused ? `0 0 0 1px hsl(var(--ring))` : 'none',
-        '&:hover': {
-            borderColor: 'hsl(var(--input))',
-        },
-    }),
-    valueContainer: (base: any) => ({ ...base, padding: '0 8px' }),
-    input: (base: any) => ({ ...base, color: 'hsl(var(--foreground))', margin: '0', padding: '0' }),
-    placeholder: (base: any) => ({ ...base, color: 'hsl(var(--muted-foreground))' }),
-    singleValue: (base: any) => ({ ...base, color: 'hsl(var(--foreground))' }),
-    menu: (base: any) => ({
-        ...base,
-        background: 'hsl(var(--popover))',
-        color: 'hsl(var(--popover-foreground))',
-        borderRadius: 'var(--radius)',
-        border: '1px solid hsl(var(--border))',
-        zIndex: 50,
-    }),
-    option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
-        ...base,
-        background: state.isSelected ? 'hsl(var(--accent))' : state.isFocused ? 'hsl(var(--accent))' : 'transparent',
-        color: 'hsl(var(--accent-foreground))',
-        cursor: 'pointer',
-    }),
-};
 
 // The refactored EquipoForm component
 const DispositivoForm: React.FC<DispositivoFormProps> = ({
@@ -89,6 +59,8 @@ const DispositivoForm: React.FC<DispositivoFormProps> = ({
         serial: '',
         estado: '',
         nsap: '',
+        mac: '',
+        ubicacion: '',
     });
     const [modelos, setModelos] = useState<Modelo[]>([]);
     const [isLoadingModelos, setIsLoadingModelos] = useState(false);
@@ -123,6 +95,8 @@ const DispositivoForm: React.FC<DispositivoFormProps> = ({
                     serial: '',
                     estado: '',
                     nsap: '',
+                    ubicacion: '',
+                    mac: '',
                 });
             }
         }
@@ -190,12 +164,20 @@ const DispositivoForm: React.FC<DispositivoFormProps> = ({
                             </div>
 
                             {/* NSAP Input */}
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="ubicacion">Ubicación</Label>
+                                <Input id="ubicacion" value={formData.ubicacion || ''} onChange={handleInputChange} placeholder="Ej: Edificio 1, Oficina de Gerencia" />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="mac">MAC</Label>
+                                <Input id="mac" value={formData.mac || ''} onChange={handleInputChange} placeholder="Ej: a1:b2:c3:d4:f4:g5" />
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nsap">Ficha SAP (Opcional)</Label>
                                 <Input id="nsap" value={formData.nsap || ''} onChange={handleInputChange} placeholder="N° de Ficha SAP" />
                             </div>
                             
-
                             {/* Estado Select */}
                             <div className="grid gap-2">
                                 <Label htmlFor="estado">Estado</Label>

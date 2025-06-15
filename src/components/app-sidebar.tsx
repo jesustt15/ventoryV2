@@ -76,6 +76,11 @@ const data = {
       url: "/usuarios",
       icon: UsersIcon,
     },
+        {
+      title: "Asignaciones",
+      url: "/asignaciones",
+      icon: ClipboardListIcon,
+    },
   ],
   navSecondary: [
     {

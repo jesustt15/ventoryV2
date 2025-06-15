@@ -8,6 +8,7 @@ import Select from 'react-select'; // Usando react-select para modelos
 import { showToast } from "nextjs-toast-notify"; // Usando el componente de scroll de Shadcn
 import Link from 'next/link';
 import { RadioGroupItem, RadioGroup } from '@/components/ui/radio-group';
+import { reactSelectStyles } from '@/utils/reactSelectStyles';
 
 // --- Interfaces y Tipos (sin cambios) ---
 interface Modelo {
@@ -21,6 +22,7 @@ export interface ComputadorFormData {
     serial: string;
     estado: string;
     nsap?: string;
+    ubicacion?: string;
     host?: string;
     sisOperativo?: string;
     arquitectura?: "32" | "64" | "";
@@ -28,6 +30,8 @@ export interface ComputadorFormData {
     almacenamiento?: string;
     procesador?: string;
     sapVersion?: string;
+    macWifi?: string;
+    macEthernet?: string;
     officeVersion?: string;
 }
 
@@ -42,36 +46,6 @@ interface OptionType {
     label: string;
 }
 
-// --- Estilos de react-select (sin cambios) ---
-const reactSelectStyles = {  control: (base: any, state: { isFocused: boolean }) => ({
-        ...base,
-        minHeight: '40px',
-        background: 'hsl(var(--background))',
-        borderColor: state.isFocused ? 'hsl(var(--ring))' : 'hsl(var(--input))',
-        borderWidth: '1px',
-        boxShadow: state.isFocused ? `0 0 0 1px hsl(var(--ring))` : 'none',
-        '&:hover': {
-            borderColor: 'hsl(var(--input))',
-        },
-    }),
-    valueContainer: (base: any) => ({ ...base, padding: '0 8px' }),
-    input: (base: any) => ({ ...base, color: 'hsl(var(--foreground))', margin: '0', padding: '0' }),
-    placeholder: (base: any) => ({ ...base, color: 'hsl(var(--muted-foreground))' }),
-    singleValue: (base: any) => ({ ...base, color: 'hsl(var(--foreground))' }),
-    menu: (base: any) => ({
-        ...base,
-        background: 'hsl(var(--popover))',
-        color: 'hsl(var(--popover-foreground))',
-        borderRadius: 'var(--radius)',
-        border: '1px solid hsl(var(--border))',
-        zIndex: 50,
-    }),
-    option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
-        ...base,
-        background: state.isSelected ? 'hsl(var(--accent))' : state.isFocused ? 'hsl(var(--accent))' : 'transparent',
-        color: 'hsl(var(--accent-foreground))',
-        cursor: 'pointer',
-    }), };
 
 // Estado inicial limpio para el formulario de creación
 const initialState: ComputadorFormData = {
@@ -87,6 +61,9 @@ const initialState: ComputadorFormData = {
     procesador: '',
     sapVersion: '',
     officeVersion: '',
+    ubicacion: '',
+    macEthernet: '',
+    macWifi:''
 };
 
 const ComputadorForm: React.FC<ComputadorFormProps> = ({
@@ -170,6 +147,10 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
                                      />
                                 </div>
                                 <div className="grid gap-2">
+                                    <Label htmlFor="ubicacion">UBICACION</Label>
+                                    <Input id="ubicacion" value={formData.ubicacion || ''} onChange={handleInputChange} placeholder="Ej: Edificio 1, Oficina Gerencia"/>
+                                </div>
+                                <div className="grid gap-2">
                                     <Label htmlFor="nsap">Ficha SAP (Opcional)</Label>
                                     <Input id="nsap" value={formData.nsap || ''} onChange={handleInputChange} placeholder="N° de Ficha SAP"/>
                                 </div>
@@ -190,6 +171,14 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
                                 <div className="grid gap-2">
                                     <Label htmlFor="procesador">Procesador</Label>
                                     <Input id="procesador" value={formData.procesador || ''} onChange={handleInputChange} placeholder="Intel Core i5-8250U"/>
+                                </div>
+                                 <div className="grid gap-2">
+                                    <Label htmlFor="macWifi">Mac Wifi</Label>
+                                    <Input id="macWifi" value={formData.macWifi || ''} onChange={handleInputChange} placeholder="Ej: A0:A1:A2:A3:B2"/>
+                                </div>
+                                 <div className="grid gap-2">
+                                    <Label htmlFor="macEthernet">Mac de Ethernet</Label>
+                                    <Input id="macEthernet" value={formData.macEthernet || ''} onChange={handleInputChange} placeholder="Ej: A0:A1:A2:A3:B2"/>
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="arquitectura">Arquitectura</Label>

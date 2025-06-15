@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../../utils/database';
+import  prisma  from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const usuarios = await prisma.usuario.findMany();
+    const usuarios = await prisma.usuario.findMany({
+      include: {
+        departamento: {
+          include: {
+            gerencia: {}
+          }
+        }
+      }
+    });
     return NextResponse.json(usuarios, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -14,8 +22,12 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const { legajo, ...rest } = body;
     const newUsuario = await prisma.usuario.create({
-      data: body,
+      data: {
+        legajo: Number(legajo),
+        ...rest,
+      },
     });
     return NextResponse.json(newUsuario, { status: 201 });
   } catch (error) {
