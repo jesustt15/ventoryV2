@@ -3,9 +3,9 @@ import  prisma  from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
-  // Extraemos los parámetros de la URL
+
   const { searchParams } = new URL(request.url);
-  const asignado = searchParams.get('Asignado'); // 'true' o 'false'
+  const asignado = searchParams.get('asignado'); // 'true' o 'false'
 
   // Creamos la cláusula 'where' de forma dinámica
   let where: Prisma.ComputadorWhereInput = {};

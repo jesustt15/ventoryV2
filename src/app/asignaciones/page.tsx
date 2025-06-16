@@ -52,9 +52,8 @@ export default function AsignacionesPage() {
             const disponiblesData = await resDisponibles.json();
             const asignadosData = await resAsignados.json();
             const usuariosData = await resUsuarios.json();
-            console.log("Usuarios Data:", usuariosData);
             const deptosData = await resDeptos.json();
-            console.log(deptosData);
+            
 
             setEquiposDisponibles(disponiblesData.map((e: any) => ({
                 value: e.id,
@@ -66,7 +65,8 @@ export default function AsignacionesPage() {
                 value: e.id,
                 label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
                 type: 'Computador',
-                asignadoA: e.usuario ? e.usuario.nombre + ' ' + e.usuario.apellido : e.departamento.nombre,
+                // LÍNEA CORREGIDA:
+                asignadoA: (e.usuario ? `${e.usuario.nombre} ${e.usuario.apellido}` : e.departamento?.nombre) ?? 'Destino desconocido',
             })));
 
             setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));

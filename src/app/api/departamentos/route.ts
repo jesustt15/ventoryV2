@@ -17,42 +17,68 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // Primero, leemos el cuerpo como texto para imprimirlo si es necesario
-    const text = await request.text();
-    console.log("Texto recibido:", text);
-
-    // Luego, intentamos parsearlo como JSON
-    let body;
-    try {
-      body = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Error al parsear JSON:", parseError);
-      return NextResponse.json(
-        { message: "JSON inválido" },
-        { status: 400 }
-      );
-    }
-
+    // Es mejor parsear el JSON directamente.
+    // El manejo de texto plano es solo para depuración y puede ser eliminado.
+    const body = await request.json();
     console.log("Cuerpo parseado:", body);
 
-    // Comprobamos si body tiene la propiedad requerida
-    if (!body.nombre) {
-      console.error("La propiedad 'nombre' no se encontró en el cuerpo:", body);
+    const { nombre, ceco, sociedad, gerenciaId, gerenciaNombre } = body;
+
+    // Validación básica
+    if (!nombre || !ceco || !sociedad) {
       return NextResponse.json(
-        { message: "La propiedad 'nombre' es requerida." },
+        { message: "Los campos nombre, ceco y sociedad son requeridos." },
         { status: 400 }
       );
     }
+    
+    // Si no se provee ni un ID de gerencia ni un nombre para crear una nueva
+    if (!gerenciaId && !gerenciaNombre) {
+        return NextResponse.json(
+          { message: "Debe proporcionar una gerencia existente (gerenciaId) o crear una nueva (gerenciaNombre)." },
+          { status: 400 }
+        );
+    }
 
-    // Creación del departamento
+    let dataForDepartamento: any = {
+      nombre,
+      ceco,
+      sociedad,
+    };
+
+    // Lógica para manejar la Gerencia
+    if (gerenciaNombre) {
+      // Caso 1: Se está creando una nueva gerencia.
+      // Primero, creamos la gerencia.
+      const newGerencia = await prisma.gerencia.create({
+        data: {
+          nombre: gerenciaNombre,
+        },
+      });
+      // Luego, usamos su ID para la relación.
+      dataForDepartamento.gerenciaId = newGerencia.id;
+
+    } else {
+      // Caso 2: Se está conectando a una gerencia existente.
+      dataForDepartamento.gerenciaId = gerenciaId;
+    }
+
+    // Ahora, creamos el departamento con los datos correctos y estructurados.
     const newDepartamento = await prisma.departamento.create({
-      data: body,
+      data: dataForDepartamento,
     });
+
     return NextResponse.json(newDepartamento, { status: 201 });
+
   } catch (error) {
     console.error("Error al crear departamento:", error);
+    // Este log es más útil para ver errores de Prisma
+    if (error instanceof Error) {
+        console.error("Error Name:", error.name);
+        console.error("Error Message:", error.message);
+    }
     return NextResponse.json(
-      { message: 'Error al crear departamento' },
+      { message: "Error interno del servidor al crear el departamento" },
       { status: 500 }
     );
   }
