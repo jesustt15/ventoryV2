@@ -46,7 +46,6 @@ model Departamento {
   computadores Computador[]
   dispositivos Dispositivo[] // Renombrado de Equipos a Dispositivo
 }
-
 model Usuario {
   id             String       @id @default(uuid())
   nombre         String
@@ -59,6 +58,7 @@ model Usuario {
   computadores   Computador[]
   dispositivos   Dispositivo[] // Renombrado de Equipos a Dispositivo
 }
+
 
 model Computador {
   id             String          @id @default(uuid())
@@ -109,10 +109,16 @@ model LineaTelefonica {
   dispositivo  Dispositivo @relation(fields: [dispositivoId], references: [id]) // Cambiado de Equipos a Dispositivo
 }
 
+enum Role {
+  user
+  admin
+}
+
 model User { // Para autenticación de la app
   id       String @id @default(uuid())
   username String @unique
   password String
+  role     Role @default(user)
 }
 
 model Asignaciones {
@@ -121,9 +127,9 @@ model Asignaciones {
   equipoId     String   // ID del Computador o Dispositivo
   equipoType   String   // "Computador" o "Dispositivo"
   targetId     String   // Guardará el ID del Usuario O del Departamento
-  targetType   String   // Guardará "Usuario" o "Departamento" para saber a qué tabla apunta targetId  
-  type         String   // "Assignment" o "Return"
-  notes        String?
+  targetType   String
+  notes       String?
+  type        String   // Guardará "Usuario" o "Departamento" para saber a qué tabla apunta targetId
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

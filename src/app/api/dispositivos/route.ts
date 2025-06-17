@@ -8,8 +8,8 @@ import { Prisma } from '@prisma/client';
 export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
-  const asignado = searchParams.get('Asignado');
-  let where: Prisma.ComputadorWhereInput = {};
+  const asignado = searchParams.get('asignado');
+  let where: Prisma.DispositivoWhereInput = {};
   
     if (asignado === 'false') {
       // Si queremos los NO asignados, ambos campos de ID deben ser null
@@ -25,6 +25,7 @@ export async function GET(request: Request) {
     }
   try {
     const equipos = await prisma.dispositivo.findMany({
+      where,
       include: {
         modelo:{
           include: {

@@ -42,11 +42,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useParams, useRouter } from "next/navigation";
-import { showToast } from "nextjs-toast-notify"
-import { ComputadorFormData } from "@/components/computador-table"
 import { Spinner } from "@/components/ui/spinner"
 import Link from "next/link"
 
+
+interface HistorialEntry {
+    id: number;
+    type: string;
+    targetType: string;
+    date: string;
+    notes?: string | null;
+    // Puedes añadir más campos si los incluiste en la API, ej:
+    usuarioAsignado?: { nombre: string, apellido: string } | null;
+    departamentoAsignado?: { nombre: string } | null;
+}
 
 interface ComputadorDetallado {
     id: string;
@@ -63,7 +72,8 @@ interface ComputadorDetallado {
     macEthernet: string | null;
     procesador?: string | null;
     sapVersion?: string | null;
-    officeVersion?: string | null;   
+    officeVersion?: string | null; 
+    historial: HistorialEntry[];  
     modelo: { // El modelo ahora es un objeto
         id: string;
         nombre: string;
@@ -100,83 +110,6 @@ interface ComputadorDetallado {
 }
 
 
-
-const equipmentData = {
-  id: "EQ-001",
-  name: "ThinkPad X1 Carbon Gen 9",
-  brand: "Lenovo",
-  serial: "PC-123456-ABCDE-XYZ",
-  status: "operational",
-  image: "/placeholder.svg?height=300&width=400",
-  acquisitionDate: "2023-03-15",
-  warrantyExpiry: "2026-03-15",
-  location: "Oficina 301, Piso 3",
-  department: "Desarrollo",
-  cost: 1299.99,
-  specifications: {
-    processor: "Intel Core i7-1165G7",
-    memory: "16GB LPDDR4X",
-    storage: "512GB SSD NVMe",
-    display: '14" FHD IPS Touch',
-    graphics: "Intel Iris Xe Graphics",
-    os: "Windows 11 Pro",
-    connectivity: "Wi-Fi 6, Bluetooth 5.1, USB-C",
-  },
-  assignedUsers: [
-    {
-      id: "1",
-      name: "Miguel Fernández",
-      department: "Desarrollo",
-      role: "Senior Developer",
-      assignedDate: "2023-03-20",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: "2",
-      name: "Ana Martínez",
-      department: "Desarrollo",
-      role: "Project Manager",
-      assignedDate: "2023-08-15",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  ],
-  history: [
-    {
-      id: "1",
-      action: "Asignado",
-      user: "Ana Martínez",
-      date: "2023-08-15",
-      description: "Equipo asignado como dispositivo secundario",
-    },
-    {
-      id: "2",
-      action: "Mantenimiento",
-      user: "Sistema",
-      date: "2023-07-10",
-      description: "Actualización de sistema operativo y software",
-    },
-    {
-      id: "3",
-      action: "Asignado",
-      user: "Miguel Fernández",
-      date: "2023-03-20",
-      description: "Asignación inicial del equipo",
-    },
-    {
-      id: "4",
-      action: "Registrado",
-      user: "Sistema",
-      date: "2023-03-15",
-      description: "Equipo registrado en el inventario",
-    },
-  ],
-  metrics: {
-    uptime: 98.5,
-    performance: 92,
-    healthScore: 95,
-    lastMaintenance: "2023-07-10",
-  },
-}
 
 const statusConfig = {
   Resguardo: { label: "Resguardo", color: "green", bgColor: "bg-green-500/20", textColor: "text-green-400" },
@@ -671,40 +604,54 @@ export default function EquipmentDetails() {
               </TabsContent>
 
               <TabsContent value="history" className="mt-0">
-                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                  <CardHeader className="border-b border-slate-700/50 pb-3">
-                    <CardTitle className="text-slate-100 flex items-center">
-                      <History className="mr-2 h-5 w-5 text-cyan-500" />
-                      Historial de Cambios
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      {equipmentData.history.map((entry, index) => (
-                        <div key={entry.id} className="flex items-start space-x-4">
-                          <div className="flex-shrink-0">
-                            <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700">
-                              <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
-                            </div>
-                            {index < equipmentData.history.length - 1 && (
-                              <div className="w-px h-12 bg-slate-700 ml-4 mt-2"></div>
-                            )}
+                  <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                      <CardHeader className="border-b border-slate-700/50 pb-3">
+                          <CardTitle className="text-slate-100 flex items-center">
+                              <History className="mr-2 h-5 w-5 text-cyan-500" />
+                              Historial de Movimientos
+                          </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                          <div className="space-y-4">
+                              {equipo.historial && equipo.historial.length > 0 ? (
+                                  equipo.historial.map((entry, index) => {
+                                      const isLast = index === equipo.historial.length - 1;
+                                      const actionLabel = entry.type === 'Assignment' ? 'Asignado' : 'Devuelto';
+                                      const targetName = entry.usuarioAsignado 
+                                          ? `${entry.usuarioAsignado.nombre} ${entry.usuarioAsignado.apellido}`
+                                          : entry.departamentoAsignado?.nombre || 'N/A';
+
+                                      return (
+                                          <div key={entry.id} className="flex items-start space-x-4">
+                                              <div className="flex flex-col items-center">
+                                                  <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700">
+                                                      <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                                                  </div>
+                                                  {!isLast && (
+                                                      <div className="w-px h-16 bg-slate-700 mt-2"></div>
+                                                  )}
+                                              </div>
+                                              <div className="flex-1 min-w-0 pt-1">
+                                                  <div className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
+                                                      <div className="flex items-center justify-between mb-2">
+                                                          <h3 className="text-sm font-medium text-slate-200">{actionLabel} a {entry.targetType}</h3>
+                                                          <p className="text-xs text-slate-400">{formatDate(entry.date)}</p>
+                                                      </div>
+                                                      <p className="text-sm text-slate-300 mb-2">Destino: <span className="font-semibold">{targetName}</span></p>
+                                                      {entry.notes && (
+                                                          <p className="text-xs text-slate-400 border-l-2 border-slate-600 pl-2">Nota: {entry.notes}</p>
+                                                      )}
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      );
+                                  })
+                              ) : (
+                                  <p className="text-center text-slate-400">No hay historial de movimientos para este equipo.</p>
+                              )}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
-                              <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-sm font-medium text-slate-200">{entry.action}</h3>
-                                <p className="text-xs text-slate-400">{formatDate(entry.date)}</p>
-                              </div>
-                              <p className="text-xs text-slate-400 mb-1">Por: {entry.user}</p>
-                              <p className="text-sm text-slate-300">{entry.description}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                  </Card>
               </TabsContent>
             </Tabs>
           </div>

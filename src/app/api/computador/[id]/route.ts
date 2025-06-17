@@ -53,7 +53,7 @@ export async function GET(request: Request, { params }: { params: Params }) {
                   include: {
                     gerencia: true, // Incluye la 'gerencia' del departamento (si existe)
                   }
-                }, // Incluye el objeto 'departamento' asignado (si existe)
+                },
             }
         });
 
@@ -61,19 +61,40 @@ export async function GET(request: Request, { params }: { params: Params }) {
             return NextResponse.json({ message: 'Computador no encontrado' }, { status: 404 });
         }
 
-        // Ahora, 'computador' es un objeto mucho más rico con toda la información.
-        // También vamos a buscar la última asignación para tener un historial.
-        const ultimaAsignacion = await prisma.asignaciones.findFirst({
-            where: { equipoId: id },
-            orderBy: {
-                createdAt: 'desc'
+        const historial = await prisma.asignaciones.findMany({
+            where: {
+                equipoId: id,
+                equipoType: "Computador" // Importante para no mezclar con dispositivos
             },
+            orderBy: {
+                date: 'desc' // El más reciente primero
+            },
+          include: {
+            usuarioAsignado: {
+              select: { nombre: true, apellido: true }
+            },
+            departamentoAsignado: {
+              select: { nombre: true }
+            }
+          }
         });
-        
-        // Combinamos la información del computador con su última asignación
+
+        // --- PASO 3: Combinar los datos para enviar al frontend ---
+
+        // Tomamos el primer elemento del historial (el más reciente) para la "última asignación"
+        const ultimaAsignacion = historial.length > 0 ? {
+            id: historial[0].id,
+            type: historial[0].type,
+            targetType: historial[0].targetType,
+            
+            date: historial[0].date.toISOString(),
+        } : null;
+
+        // Construimos el objeto de respuesta final
         const responseData = {
-            ...computador,
-            ultimaAsignacion: ultimaAsignacion || null
+            ...computador,      // Todos los datos del computador
+            historial,          // El array de historial que consultamos por separado
+            ultimaAsignacion    // El objeto simplificado del último movimiento
         };
 
         return NextResponse.json(responseData, { status: 200 });

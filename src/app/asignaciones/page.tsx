@@ -42,32 +42,57 @@ export default function AsignacionesPage() {
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const [resDisponibles, resAsignados, resUsuarios, resDeptos] = await Promise.all([
+            const [resDisponibles, resAsignados,resDisDisponibles, resDisAsignados, resUsuarios, resDeptos] = await Promise.all([
                 fetch('/api/computador?asignado=false'),
                 fetch('/api/computador?asignado=true'), // <-- Nuevo fetch para los asignados
+                fetch('/api/dispositivos?asignado=false'),
+                fetch('/api/dispositivos?asignado=true'),
                 fetch('/api/usuarios'),
                 fetch('/api/departamentos'),
             ]);
             
             const disponiblesData = await resDisponibles.json();
             const asignadosData = await resAsignados.json();
+            const dispositivosDisponiblesData = await resDisDisponibles.json();
+            console.log("Dispositivos Disponibles:", dispositivosDisponiblesData);
+            const dispositivosAsignadosData = await resDisAsignados.json();
+            console.log("Dispositivos Asignados:", dispositivosAsignadosData);
+
+            // Mezclar computadores y dispositivos en equiposDisponibles
+            const equiposDisponiblesList = [
+                ...disponiblesData.map((e: any) => ({
+                    value: e.id,
+                    label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
+                    type: 'Computador',
+                })),
+                ...dispositivosDisponiblesData.map((d: any) => ({
+                    value: d.id,
+                    label: `${d.modelo.marca.nombre} ${d.modelo.nombre} (Serial: ${d.serial})`,
+                    type: 'Dispositivo',
+                }))
+            ];
+
+            setEquiposDisponibles(equiposDisponiblesList);
+
+            // Mezclar computadores y dispositivos en equiposAsignados
+            const equiposAsignadosList = [
+                ...asignadosData.map((e: any) => ({
+                    value: e.id,
+                    label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
+                    type: 'Computador',
+                    asignadoA: (e.usuario ? `${e.usuario.nombre} ${e.usuario.apellido}` : e.departamento?.nombre) ?? 'Destino desconocido',
+                })),
+                ...dispositivosAsignadosData.map((d: any) => ({
+                    value: d.id,
+                    label: `${d.modelo.marca.nombre} ${d.modelo.nombre} (Serial: ${d.serial})`,
+                    type: 'Dispositivo',
+                    asignadoA: (d.usuario ? `${d.usuario.nombre} ${d.usuario.apellido}` : d.departamento?.nombre) ?? 'Destino desconocido',
+                }))
+            ];
+
+            setEquiposAsignados(equiposAsignadosList); 
             const usuariosData = await resUsuarios.json();
             const deptosData = await resDeptos.json();
-            
-
-            setEquiposDisponibles(disponiblesData.map((e: any) => ({
-                value: e.id,
-                label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
-                type: 'Computador',
-            })));
-            
-            setEquiposAsignados(asignadosData.map((e: any) => ({
-                value: e.id,
-                label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
-                type: 'Computador',
-                // LÍNEA CORREGIDA:
-                asignadoA: (e.usuario ? `${e.usuario.nombre} ${e.usuario.apellido}` : e.departamento?.nombre) ?? 'Destino desconocido',
-            })));
 
             setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
             setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../../../utils/database';
+import  prisma  from '@/lib/prisma'; // Adjust the import path as necessary
 
 interface Params {
   id: string;

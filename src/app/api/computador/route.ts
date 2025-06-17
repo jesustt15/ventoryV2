@@ -6,8 +6,6 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const asignado = searchParams.get('asignado'); // 'true' o 'false'
-
-  // Creamos la cláusula 'where' de forma dinámica
   let where: Prisma.ComputadorWhereInput = {};
 
   if (asignado === 'false') {
