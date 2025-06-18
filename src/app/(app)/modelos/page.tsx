@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DispositivoTable } from "@/components/equipos-table";
-import DispositivoForm from "@/components/EquipoForm";
+import { ModelosTable } from "@/components/modelos-table";
+import ModeloForm from "@/components/ModeloForm";
 import { Spinner } from "@/components/ui/spinner";
 
 async function fetchData() {
   try {
-    const response = await fetch("/api/dispositivos");
+    const response = await fetch("/api/modelos");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status.toString()}`);
     }
@@ -18,7 +18,7 @@ async function fetchData() {
   }
 }
 
-export default function DispositivoPage() {
+export default function ModeloPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export default function DispositivoPage() {
 
   const handleCreateModel = async (formData: FormData) => {
     try {
-      const response = await fetch("/api/dispositivos", {
+      const response = await fetch("/api/modelos", {
         method: "POST",
         body: formData,
       });
@@ -69,12 +69,11 @@ export default function DispositivoPage() {
 
   return (
     <div>
-      <DispositivoForm onCreateModel={handleCreateModel} />
-      <DispositivoTable data={data.length > 0 ? data : []} />
+      <ModeloForm onCreateModel={handleCreateModel} />
+      <ModelosTable data={data.length > 0 ? data : []} />
       {data.length === 0 && (
         <div>No hay modelos yet.</div>
       )}
     </div>
   );
 }
-

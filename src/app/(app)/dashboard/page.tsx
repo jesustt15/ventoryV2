@@ -1,11 +1,8 @@
 
-import { DataTable } from "../../components/data-table"
+import { DataTable } from "@/components/data-table"
 
-import { SiteHeader } from "../../components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { ThemeProvider } from "@/components/theme-provider"
+
 import data from "./data.json"
-import { AppSidebar } from "@/components/app-sidebar"
 import { SectionCards } from "@/components/section-card"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 
