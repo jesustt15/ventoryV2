@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ComputadorTable } from "@/components/computador-table";
 
 import { Spinner } from "@/components/ui/spinner";
+import Loading from "@/utils/loading";
 
 async function fetchData() {
   try {
@@ -59,7 +60,7 @@ export default function ComputadorPage() {
 
 
   if (loading) {
-    return <Spinner size="sm" className="bg-black dark:bg-white" />;
+    return <Loading message="Cargando computadores..." />;
   }
 
   if (error) {

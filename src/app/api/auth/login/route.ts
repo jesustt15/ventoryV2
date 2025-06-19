@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
-import { createSession } from '@/lib/auth';
+import { createSession } from '@/lib/auth-server';
+
 
 // Esquema de validación con Zod
 const loginSchema = z.object({
@@ -32,9 +33,7 @@ export async function POST(req: NextRequest) {
     if (!isPasswordValid) {
       return NextResponse.json({ message: 'Credenciales inválidas' }, { status: 401 });
     }
-
-    // Crear la sesión
-    await createSession(user.id, user.role);
+      const session = await createSession(user.id, user.role as 'user' | 'admin');
 
     return NextResponse.json({ message: 'Login exitoso' }, { status: 200 });
 

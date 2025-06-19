@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label';
 import { AlertCircle, ArrowRight, Cpu, Eye, EyeOff, Lock, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Loading from '@/utils/loading';
+
+
 
 type Particle = {
   x: number;
@@ -218,6 +221,7 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   placeholder="Ingrese su usuario"
+                  className="pl-10"
                 />
               </div>
             </div>
@@ -236,6 +240,7 @@ export default function LoginPage() {
                   required
                   type={showPassword ? "text" : "password"}
                   placeholder="Ingrese su contraseña"
+                  className="pl-10 pr-10"
                 />
                 <button
                   type="button"
@@ -288,17 +293,7 @@ export default function LoginPage() {
 
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="flex flex-col items-center">
-            <div className="relative w-20 h-20">
-              <div className="absolute inset-0 border-4 border-cyan-500/30 rounded-full animate-ping"></div>
-              <div className="absolute inset-2 border-4 border-t-cyan-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-              <div className="absolute inset-4 border-4 border-r-blue-500 border-t-transparent border-b-transparent border-l-transparent rounded-full animate-spin-slow"></div>
-              <div className="absolute inset-6 border-4 border-b-purple-500 border-t-transparent border-r-transparent border-l-transparent rounded-full animate-spin-slower"></div>
-            </div>
-            <div className="mt-4 text-cyan-500 font-mono text-sm tracking-wider">AUTENTICANDO...</div>
-          </div>
-        </div>
+          <Loading  message='AUTENTICANDO...' />
       )}
 
       {/* Floating elements */}

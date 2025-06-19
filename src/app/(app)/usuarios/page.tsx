@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { UsuarioTable } from "@/components/usuarios-table";
 
 import { Spinner } from "@/components/ui/spinner";
+import Loading from "@/utils/loading";
 
 async function fetchData() {
   try {
@@ -59,7 +60,7 @@ export default function usuariosPage() {
 
 
   if (loading) {
-    return <Spinner size="sm" className="bg-black dark:bg-white" />;
+    return <Loading message="Cargando usuarios..." />;
   }
 
   if (error) {

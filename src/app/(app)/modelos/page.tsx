@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ModelosTable } from "@/components/modelos-table";
 import ModeloForm from "@/components/ModeloForm";
 import { Spinner } from "@/components/ui/spinner";
+import Loading from "@/utils/loading";
 
 async function fetchData() {
   try {
@@ -60,7 +61,7 @@ export default function ModeloPage() {
 
 
   if (loading) {
-    return <Spinner size="sm" className="bg-black dark:bg-white" />;
+    return <Loading message="Cargando modelos..." />;
   }
 
   if (error) {
@@ -71,9 +72,6 @@ export default function ModeloPage() {
     <div>
       <ModeloForm onCreateModel={handleCreateModel} />
       <ModelosTable data={data.length > 0 ? data : []} />
-      {data.length === 0 && (
-        <div>No hay modelos yet.</div>
-      )}
     </div>
   );
 }

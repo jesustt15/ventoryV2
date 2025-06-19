@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
+import bcrypt from 'bcrypt';
 
 export async function GET() {
   try {
@@ -11,15 +12,55 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const newUser = await prisma.user.create({
-      data: body,
+
+    const { username, password, role } = body;
+
+    // Verificar si el usuario ya existe
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }],
+      },
     });
-    return NextResponse.json(newUser, { status: 201 });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { message: 'El usuario o email ya está registrado' },
+        { status: 409 }
+      );
+    }
+
+    // Encriptar contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear nuevo usuario
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        role,
+        password: hashedPassword,
+      },
+    });
+
+    return NextResponse.json(
+      { 
+        message: 'Usuario creado exitosamente', 
+        user: { 
+          id: newUser.id, 
+          username: newUser.username,
+          role: newUser.role
+        } 
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Error al crear user' }, { status: 500 });
+    console.error('[SIGNUP_ERROR]', error);
+    return NextResponse.json(
+      { message: 'Error interno del servidor' },
+      { status: 500 }
+    );
   }
 }
+

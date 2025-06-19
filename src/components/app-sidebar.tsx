@@ -1,116 +1,71 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  Factory,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
-  Laptop,
-  LayoutDashboardIcon,
-  ListIcon,
-  Network,
-  Phone,
-  Printer,
-  SearchIcon,
-  SettingsIcon,
-  Tag,
-  UsersIcon,
-} from "lucide-react"
+import React, { useEffect } from 'react';
+import { Sidebar, SidebarHeader, SidebarMenu, SidebarMenuItem, 
+         SidebarMenuButton, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
+import { LayoutDashboardIcon, Printer, Tag, Laptop, Factory, 
+         UsersIcon, ClipboardListIcon, SettingsIcon, HelpCircleIcon, 
+         SearchIcon, ArrowUpCircleIcon, LogOutIcon } from 'lucide-react';
+import Link from 'next/link';
+import { NavMain } from './nav-main';
+import { NavSecondary } from './nav-secondary';
+import { NavUser } from './nav-user';
+import type { UserJwtPayload } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
+import { Spinner } from './ui/spinner';
 
-import Link from "next/link";
-import { NavSecondary } from "./nav-secondary"
-import { NavUser } from "./nav-user"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
-
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "#",
-  },
+// Define una estructura de datos para la navegación
+const navData = {
   navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Dispositivos",
-      url: "/dispositivos",
-      icon: Printer,
-    },
-    {
-      title: "Modelos",
-      url: "/modelos",
-      icon: Tag,
-    },
-    {
-      title: "Computadores",
-      url: "/computadores",
-      icon: Laptop,
-    },
-    {
-      title: "Departamentos",
-      url: "/departamentos",
-      icon: Factory,
-    },
-    {
-      title: "Usuarios",
-      url: "/usuarios",
-      icon: UsersIcon,
-    },
-        {
-      title: "Asignaciones",
-      url: "/asignaciones",
-      icon: ClipboardListIcon,
-    },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Dispositivos", url: "/dispositivos", icon: Printer },
+    { title: "Modelos", url: "/modelos", icon: Tag },
+    { title: "Computadores", url: "/computadores", icon: Laptop },
+    { title: "Departamentos", url: "/departamentos", icon: Factory },
+    { title: "Usuarios", url: "/usuarios", icon: UsersIcon },
+    { title: "Asignaciones", url: "/asignaciones", icon: ClipboardListIcon },
   ],
   navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
+    { title: "Settings", url: "#", icon: SettingsIcon },
+    { title: "Get Help", url: "#", icon: HelpCircleIcon },
+    { title: "Search", url: "#", icon: SearchIcon },
   ],
+};
+
+// Define las props que el componente aceptará
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: UserJwtPayload | null;
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const router = useRouter();
+  
+useEffect(() => {
+    if (!user) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return (
+      <div className="fixed left-0 top-0 h-screen w-64 bg-gray-100 border-r">
+        <Spinner />
+      </div>
+    );
+  }
+
+  const userData = {
+    username: user.username || "Invitado",
+    role: user.role || "user",
+    avatar: user.avatar || "",
+  };
+  
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link href="/dashboard">
                 <ArrowUpCircleIcon className="h-5 w-5" />
                 <span className="text-base font-semibold">Ventory</span>
@@ -120,39 +75,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navData.navMain} />
+        <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
-  )
-}
-
-interface NavMainItem {
-  title: string;
-  url: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-}
-
-interface NavMainProps {
-  items: NavMainItem[];
-}
-
-function NavMain({ items }: NavMainProps) {
-  return (
-    <SidebarMenu>
-      {items.map((item) => (
-        <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild>
-            <Link href={item.url}>
-              <item.icon className="h-5 w-5" />
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
-    </SidebarMenu>
   );
 }

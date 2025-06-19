@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { DepartamentoTable } from "@/components/depto-table";
+import Loading from "@/utils/loading";
 
 async function fetchData() {
   try {
@@ -59,7 +60,7 @@ export default function DepartamentoPage() {
 
 
   if (loading) {
-    return <Spinner size="lg" className="bg-black dark:bg-white" />;
+    return <Loading message="Cargando departamentos..." />;
   }
 
   if (error) {
@@ -70,9 +71,6 @@ export default function DepartamentoPage() {
     <div>
       <div onCreateModel={handleCreateDepartamento} />
       <DepartamentoTable data={data.length > 0 ? data : []} />
-      {data.length === 0 && (
-        <div>No hay deptos yet.</div>
-      )}
     </div>
   );
 }
