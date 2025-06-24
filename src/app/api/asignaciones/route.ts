@@ -16,9 +16,13 @@ const asignacionSchema = z.object({
 
 export async function GET(request: Request) {
   try {
-    
+    const asignaciones = await prisma.asignaciones.findMany({
+      orderBy: { createdAt: 'desc' },});
+    return NextResponse.json(asignaciones, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: 'Error al obtener asignaciones' }, { status: 500 });
   }
-catch {}
 }
 
 export async function POST(request: Request) {

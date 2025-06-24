@@ -18,17 +18,12 @@ import { Spinner } from './ui/spinner';
 const navData = {
   navMain: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Dispositivos", url: "/dispositivos", icon: Printer },
     { title: "Modelos", url: "/modelos", icon: Tag },
+    { title: "Dispositivos", url: "/dispositivos", icon: Printer },
     { title: "Computadores", url: "/computadores", icon: Laptop },
     { title: "Departamentos", url: "/departamentos", icon: Factory },
     { title: "Usuarios", url: "/usuarios", icon: UsersIcon },
     { title: "Asignaciones", url: "/asignaciones", icon: ClipboardListIcon },
-  ],
-  navSecondary: [
-    { title: "Settings", url: "#", icon: SettingsIcon },
-    { title: "Get Help", url: "#", icon: HelpCircleIcon },
-    { title: "Search", url: "#", icon: SearchIcon },
   ],
 };
 
@@ -76,7 +71,6 @@ useEffect(() => {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navData.navMain} />
-        <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

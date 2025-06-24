@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { UsuarioTable } from "@/components/usuarios-table";
 
-import { Spinner } from "@/components/ui/spinner";
 import Loading from "@/utils/loading";
 
 async function fetchData() {
