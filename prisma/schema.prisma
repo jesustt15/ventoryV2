@@ -44,7 +44,8 @@ model Departamento {
   gerencia     Gerencia     @relation(fields: [gerenciaId], references: [id])
   usuarios     Usuario[]
   computadores Computador[]
-  dispositivos Dispositivo[] // Renombrado de Equipos a Dispositivo
+  dispositivos Dispositivo[]
+  asignaciones Asignaciones[] // Renombrado de Equipos a Dispositivo
 }
 model Usuario {
   id             String       @id @default(uuid())
@@ -56,7 +57,8 @@ model Usuario {
   departamentoId String
   departamento   Departamento @relation(fields: [departamentoId], references: [id])
   computadores   Computador[]
-  dispositivos   Dispositivo[] // Renombrado de Equipos a Dispositivo
+  dispositivos   Dispositivo[]
+  asignaciones Asignaciones[] // Renombrado de Equipos a Dispositivo
 }
 
 
@@ -82,6 +84,7 @@ model Computador {
   procesador String?
   sapVersion String?
   officeVersion String?
+  asignaciones Asignaciones[]
 }
 
 // Renombrado de Equipos a Dispositivo para mayor claridad y evitar colisión de nombres
@@ -99,6 +102,7 @@ model Dispositivo {
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   lineas         LineaTelefonica[]
   nsap String?
+  asignaciones Asignaciones[]
 }
 
 model LineaTelefonica {
@@ -122,14 +126,34 @@ model User { // Para autenticación de la app
 }
 
 model Asignaciones {
-  id           Int      @id @default(autoincrement())
-  date         DateTime @default(now())
-  equipoId     String   // ID del Computador o Dispositivo
-  equipoType   String   // "Computador" o "Dispositivo"
-  targetId     String   // Guardará el ID del Usuario O del Departamento
-  targetType   String
-  notes       String?
-  type        String   // Guardará "Usuario" o "Departamento" para saber a qué tabla apunta targetId
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now())
+  notes     String?
+  actionType String 
+  motivo    String?
+  gerente    String?
+  localidad   String?
+  serialC       String? // Serial del computador asignado
+  modeloC   String? // Modelo del computador asignado
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- A QUÉ SE ASIGNA (Polimórfico: Usuario o Departamento) ---
+  targetType           String // "Usuario" o "Departamento"
+  
+  targetUsuarioId      String?
+  targetUsuario        Usuario?      @relation(fields: [targetUsuarioId], references: [id])
+  
+  targetDepartamentoId String?
+  targetDepartamento   Departamento? @relation(fields: [targetDepartamentoId], references: [id])
+
+
+  // --- QUÉ SE ASIGNA (Polimórfico: Computador o Dispositivo) ---
+  itemType             String // "Computador" o "Dispositivo"
+
+  computadorId         String?
+  computador           Computador?   @relation(fields: [computadorId], references: [id])
+
+  dispositivoId        String?
+  dispositivo          Dispositivo?  @relation(fields: [dispositivoId], references: [id])
 }

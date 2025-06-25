@@ -12,14 +12,13 @@ import { ArrowRightLeftIcon, Undo2 } from 'lucide-react';
 import { reactSelectStyles } from '@/utils/reactSelectStyles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Spinner } from '@/components/ui/spinner';
+import { useRouter } from 'next/router';
 
-// Interfaces para los datos que cargaremos
-interface Equipo {
-    value: string;
-    label: string;
+interface Activo {
+    value: string; // id
+    label: string; // nombre descriptivo
     type: 'Computador' | 'Dispositivo';
-    // Para la lista de asignados, añadimos a quién está asignado
-    asignadoA?: string; 
+    asignadoA?: string;
 }
 interface Target {
     value: string; // id
@@ -27,74 +26,43 @@ interface Target {
 }
 
 export default function AsignacionesPage() {
-    const [equiposDisponibles, setEquiposDisponibles] = useState<Equipo[]>([]);
-    const [equiposAsignados, setEquiposAsignados] = useState<Equipo[]>([]); // <-- Nuevo estado
+    const [equiposDisponibles, setEquiposDisponibles] = useState<Activo[]>([]);
+    const [equiposAsignados, setEquiposAsignados] = useState<Activo[]>([]);
     const [usuarios, setUsuarios] = useState<Target[]>([]);
     const [departamentos, setDepartamentos] = useState<Target[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [selectedEquipo, setSelectedEquipo] = useState<Equipo | null>(null);
+    const [selectedEquipo, setSelectedEquipo] = useState<Activo | null>(null);
     const [asignarA, setAsignarA] = useState<'Usuario' | 'Departamento'>('Usuario');
     const [selectedTarget, setSelectedTarget] = useState<Target | null>(null);
     const [notas, setNotas] = useState('');
+    const [gerente, setGerente] = useState('');
+    const [motivo, setMotivo] = useState('');
+    const [serialC, setSerialC] = useState('');
+    const [modeloC, setModeloC] = useState('');
+    const [ localidad, setLocalidad ] = useState('');   
 
+    // --- LÓGICA DE FETCH REFACTORIZADA ---
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const [resDisponibles, resAsignados,resDisDisponibles, resDisAsignados, resUsuarios, resDeptos] = await Promise.all([
-                fetch('/api/computador?asignado=false'),
-                fetch('/api/computador?asignado=true'), // <-- Nuevo fetch para los asignados
-                fetch('/api/dispositivos?asignado=false'),
-                fetch('/api/dispositivos?asignado=true'),
+            const [resDisponibles, resAsignados, resUsuarios, resDeptos] = await Promise.all([
+                fetch('/api/activos?estado=disponible'), // <-- Nuevo endpoint
+                fetch('/api/activos?estado=asignado'),   // <-- Nuevo endpoint
                 fetch('/api/usuarios'),
                 fetch('/api/departamentos'),
             ]);
             
-            const disponiblesData = await resDisponibles.json();
-            const asignadosData = await resAsignados.json();
-            const dispositivosDisponiblesData = await resDisDisponibles.json();
-            console.log("Dispositivos Disponibles:", dispositivosDisponiblesData);
-            const dispositivosAsignadosData = await resDisAsignados.json();
-            console.log("Dispositivos Asignados:", dispositivosAsignadosData);
+            if(!resDisponibles.ok || !resAsignados.ok) throw new Error("Error cargando activos");
+            
+            setEquiposDisponibles(await resDisponibles.json());
+            setEquiposAsignados(await resAsignados.json());
 
-            // Mezclar computadores y dispositivos en equiposDisponibles
-            const equiposDisponiblesList = [
-                ...disponiblesData.map((e: any) => ({
-                    value: e.id,
-                    label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
-                    type: 'Computador',
-                })),
-                ...dispositivosDisponiblesData.map((d: any) => ({
-                    value: d.id,
-                    label: `${d.modelo.marca.nombre} ${d.modelo.nombre} (Serial: ${d.serial})`,
-                    type: 'Dispositivo',
-                }))
-            ];
-
-            setEquiposDisponibles(equiposDisponiblesList);
-
-            // Mezclar computadores y dispositivos en equiposAsignados
-            const equiposAsignadosList = [
-                ...asignadosData.map((e: any) => ({
-                    value: e.id,
-                    label: `${e.modelo.marca.nombre} ${e.modelo.nombre} (Serial: ${e.serial})`,
-                    type: 'Computador',
-                    asignadoA: (e.usuario ? `${e.usuario.nombre} ${e.usuario.apellido}` : e.departamento?.nombre) ?? 'Destino desconocido',
-                })),
-                ...dispositivosAsignadosData.map((d: any) => ({
-                    value: d.id,
-                    label: `${d.modelo.marca.nombre} ${d.modelo.nombre} (Serial: ${d.serial})`,
-                    type: 'Dispositivo',
-                    asignadoA: (d.usuario ? `${d.usuario.nombre} ${d.usuario.apellido}` : d.departamento?.nombre) ?? 'Destino desconocido',
-                }))
-            ];
-
-            setEquiposAsignados(equiposAsignadosList); 
             const usuariosData = await resUsuarios.json();
             const deptosData = await resDeptos.json();
-
             setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
             setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));
+
         } catch (error) {
             showToast.error("Error al cargar los datos.");
             console.error("Error fetching data:", error);
@@ -107,6 +75,7 @@ export default function AsignacionesPage() {
         fetchData();
     }, [fetchData]);
 
+    // --- LÓGICA DE HANDLERS REFACTORIZADA ---
     const handleAsignar = async () => {
         if (!selectedEquipo || !selectedTarget) {
             showToast.warning("Por favor, selecciona un equipo y un destino.");
@@ -114,12 +83,17 @@ export default function AsignacionesPage() {
         }
 
         const body = {
-            equipoId: selectedEquipo.value,
-            equipoType: selectedEquipo.type,
-            action: 'asignar',
-            asignarA_type: asignarA,
+            action: 'asignar' as const,
+            itemId: selectedEquipo.value,
+            itemType: selectedEquipo.type,
             asignarA_id: selectedTarget.value,
+            asignarA_type: asignarA,
             notas: notas,
+            gerente: gerente,
+            motivo: motivo,
+            serialC: serialC,
+            modeloC: modeloC,
+            localidad: localidad,
         };
 
         try {
@@ -128,48 +102,46 @@ export default function AsignacionesPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
-
             if (!response.ok) throw new Error("La asignación falló.");
             
             showToast.success(`Equipo asignado a ${selectedTarget.label} con éxito.`);
-            // Resetear el formulario y refrescar las listas
             setSelectedEquipo(null);
             setSelectedTarget(null);
             setNotas('');
+            fetchData();// Redirigir a la lista
+        } catch (error: any) {
+            showToast.error(error.message);
+        }
+    };
+
+    const handleDesvincular = async (equipo: Activo) => {
+        const body = {
+            action: 'desvincular' as const,
+            itemId: equipo.value,
+            itemType: equipo.type,
+            notas: `Devolución de ${equipo.asignadoA}`,
+        };
+
+        try {
+            const response = await fetch('/api/asignaciones', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "La desvinculación falló.");
+            }
+            
+            showToast.success(`Equipo ${equipo.label} desvinculado con éxito.`);
             fetchData();
         } catch (error: any) {
             showToast.error(error.message);
         }
     };
 
-    const handleDesvincular = async (equipo: Equipo) => {
-        const body = {
-            equipoId: equipo.value,
-            equipoType: equipo.type,
-            action: 'desvincular',
-            notas: `Devolución de ${equipo.asignadoA}`
-        };
-
-        try {
-            const response = await fetch('/api/asignaciones', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-
-            if (!response.ok) {
-                 const errorData = await response.json();
-                 throw new Error(errorData.message || "La desvinculación falló.");
-            }
-            
-            showToast.success(`Equipo ${equipo.label} desvinculado con éxito.`);
-            fetchData(); // Vuelve a cargar todos los datos para refrescar las listas
-        } catch (error: any) {
-            showToast.error(error.message);
-        }
-    };
-
-     const targetOptions = asignarA === 'Usuario' ? usuarios : departamentos;
+    // --- RENDERIZADO (sin cambios significativos) ---
+    const targetOptions = asignarA === 'Usuario' ? usuarios : departamentos;
     return (
         <div className="p-4 md:p-8">
             <Tabs defaultValue="asignar" className="max-w-2xl mx-auto">
@@ -231,6 +203,32 @@ export default function AsignacionesPage() {
                             isSearchable
                             isDisabled={!selectedEquipo}
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="gerente">Gerente</Label>
+                        <Textarea id="gerente" value={gerente} onChange={(e) => setGerente(e.target.value)} placeholder="Ej: Carlos Urdaneta..." />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="motivo">Motivo</Label>
+                        <Textarea id="motivo" value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ej: Asignacion" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="modeloC">Modelo Cargador (Opcional)</Label>
+                        <Textarea id="modeloC" value={modeloC} onChange={(e) => setModeloC(e.target.value)} placeholder="Ej: Lenovo" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="serialC">Serial Cargador(Opcional)</Label>
+                        <Textarea id="serialC" value={serialC} onChange={(e) => setSerialC(e.target.value)} placeholder="Ej:CHNN45GHJJ" />
+                    </div>
+
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="localidad">Localidad</Label>
+                        <Textarea id="localidad" value={localidad} onChange={(e) => setLocalidad(e.target.value)} placeholder="MCP, PZO, ESP, CCS" />
                     </div>
                     
                     <div className="space-y-2">

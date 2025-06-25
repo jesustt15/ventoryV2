@@ -3,7 +3,6 @@
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
 import React from "react";
-import {z} from "zod";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { ArchiveRestore, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
@@ -12,28 +11,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
+import { formatDate } from "@/utils/formatDate";
 
 
-export const asignacioneSchema = z.object({
-    nombre: z.string().min(1, "El nombre es requerido"),
-    departamentoId: z.string().min(1, "La Marca es Requerida"),
-    apellido: z.string().min(1, "El Estado de dispositivo es requerido"),
-    cargo: z.string().nullable(),
-    ced: z.string().nullable(),
-    legajo: z.number().nullable(),
-})
-
-export type AsignacionesFormData = z.infer<typeof asignacioneSchema>
 
 // Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
 export interface Asignaciones {
-    id: string; // Or number, depending on your API
-    nombre: string;
-    apellido: string;
-    cargo: string;
-    ced: string;
-    legajo: number;
-    departamento: { id: string; nombre: string;  gerencia: { nombre?: string } }; // Assuming 'marca' is an object in the fetched data
+  id: string,
+  date: string,
+  action: string,
+  item: {tipo: string, serial: string, descripcion: string},
+  asignadoA: {nombre: string},
+  notes: string,
+  gerente: string,
+  serialC: string,
+  modeloC: string,
+  motivo: string,
+  localidad: string, // Assuming 'marca' is an object in the fetched data
 }
 
 
@@ -71,37 +65,34 @@ const columns: ColumnDef<Asignaciones>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "nombre",
-    header: "Nombre",
-    cell: ({ row }) => <div>{row.getValue("nombre")}</div>,
+    accessorKey: "motivo",
+    header: "Motivo",
+    cell: ({ row }) => <div>{row.getValue("motivo")}</div>,
   },
     {
-    accessorKey: "apellido",
-    header: "Apellido",
-    cell: ({ row }) => <div>{row.getValue("apellido")}</div>,
-  },  
-  {
-      accessorFn: (row) => row.departamento?.gerencia?.nombre ?? "Sin gerencia",
-      id: "gerenciaNombre", // El ID único para la columna sigue siendo importante
-      header: "Gerencia",
+      accessorFn: (row) => row.item.descripcion,
+      id: "itemNombre", // El ID único para la columna sigue siendo importante
+      header: "Equipo",
       // CORRECCIÓN: Usamos `row.original` dentro de la celda para una mayor fiabilidad
       cell: ({ row }) => {
           // `row.original` es el objeto `Dispositivo` completo para esta fila
-          const gerenciaNombre = row.original.departamento?.gerencia?.nombre;
-          return <div>{gerenciaNombre || "Sin marca"}</div>;
+          const itemNombre = row.original.item.descripcion;
+          return <div>{itemNombre || "Sin marca"}</div>;
       },
     },
+    {      accessorKey: "item.serial",
+          header:"Serial",
+    },  
     {
-      accessorKey: "legajo",
-      header: "Legajo",
+      accessorKey: "asignadoA.nombre",
+      header: "Usuario",
     },
   {
-    accessorFn: (row) => row.departamento?.nombre ?? "Sin departamento",
-    id: "departamentoNombre",
-    header: "Departamento",
+    accessorKey: "date",
+    header: "Fecha de Asignación",
     cell: ({ row }) => {
-      const departamentoNombre = row.original.departamento?.nombre;
-      return <div>{departamentoNombre || "Sin departamento"}</div>;
+      const date = formatDate(row.getValue("date"));
+      return <div>{date}</div>;
     },
   },
   {
@@ -118,8 +109,8 @@ const columns: ColumnDef<Asignaciones>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.legajo.toString())}>
-              Copiar Legajo
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.item.serial.toString())}>
+              Copiar Serial
             </DropdownMenuItem>
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -187,9 +178,9 @@ const columns: ColumnDef<Asignaciones>[] = [
 
 React.useEffect(() => {
     if (searchQuery) {
-      table.getColumn("nombre")?.setFilterValue(searchQuery)
+      table.getColumn("item.serial")?.setFilterValue(searchQuery)
     } else {
-      table.getColumn("nombre")?.setFilterValue("")
+      table.getColumn("item.serial")?.setFilterValue("")
     }
   }, [table, searchQuery])
 

@@ -44,6 +44,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner"
 import Link from "next/link"
+import { formatDate } from "@/utils/formatDate"
 
 
 interface HistorialEntry {
@@ -185,13 +186,7 @@ export default function EquipmentDetails() {
     "Versión Office": officeVersion ?? "—",
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  }
+
 
 
 

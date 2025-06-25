@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { ComputadorTable } from "@/components/computador-table";
-
-import { Spinner } from "@/components/ui/spinner";
 import Loading from "@/utils/loading";
 
 async function fetchData() {

@@ -40,24 +40,7 @@ export default function asignacionesPage() {
     loadData();
   }, []);
 
-  const handleCreateusuarios = async (formData: FormData) => {
-    try {
-      const response = await fetch("/api/usuarios", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status.toString()}`);
-      }
-
-      const result = await fetchData();
-      setData(result);
-    } catch (e: any) {
-      setError(e.message);
-    }
-  };
-
+ 
 
   if (loading) {
     return <Loading message="Cargando asignaciones..." />;
