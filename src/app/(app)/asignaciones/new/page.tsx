@@ -13,6 +13,7 @@ import { reactSelectStyles } from '@/utils/reactSelectStyles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Spinner } from '@/components/ui/spinner';
 import { useRouter } from 'next/router';
+import { Input } from '@/components/ui/input';
 
 interface Activo {
     value: string; // id
@@ -207,33 +208,59 @@ export default function AsignacionesPage() {
 
                     <div className="space-y-2">
                         <Label htmlFor="gerente">Gerente</Label>
-                        <Textarea id="gerente" value={gerente} onChange={(e) => setGerente(e.target.value)} placeholder="Ej: Carlos Urdaneta..." />
+                        <Input id="gerente" value={gerente} onChange={(e) => setGerente(e.target.value)} placeholder="Ej: Carlos Urdaneta..." />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="motivo">Motivo</Label>
-                        <Textarea id="motivo" value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ej: Asignacion" />
+                        <Label htmlFor="motivo">Motivo<span className="text-destructive">*</span></Label>
+                            <select
+                                id="motivo"
+                                className="w-full h-10 border rounded-md px-2 bg-[hsl(var(--background))] border-[hsl(var(--input))] focus:ring-1 focus:ring-[hsl(var(--ring))] focus:outline-none"
+                                value={motivo || ''}
+                                onChange={(e) => setMotivo(e.target.value)}
+                                required
+                            >
+                                <option value="" disabled>Seleccionar Motivo...</option>
+                                <option value="Nueva Asignacion">Nueva Asignacion</option>
+                                <option value="Reposicion por Renovación">Reposicion por Renovación</option>
+                                <option value="Reposicion por Pérdida">Reposicion por Pérdida</option>
+                                <option value="Reposicion por Robo">Reposicion por Robo</option>
+                                <option value="Traspaso">Traspaso</option>
+                                <option value="Prestámo IT">Prestámo IT</option>
+                            </select>
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="modeloC">Modelo Cargador (Opcional)</Label>
-                        <Textarea id="modeloC" value={modeloC} onChange={(e) => setModeloC(e.target.value)} placeholder="Ej: Lenovo" />
+                        <Input id="modeloC" value={modeloC} onChange={(e) => setModeloC(e.target.value)} placeholder="Ej: Lenovo" />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="serialC">Serial Cargador(Opcional)</Label>
-                        <Textarea id="serialC" value={serialC} onChange={(e) => setSerialC(e.target.value)} placeholder="Ej:CHNN45GHJJ" />
+                        <Input id="serialC" value={serialC} onChange={(e) => setSerialC(e.target.value)} placeholder="Ej:CHNN45GHJJ" />
                     </div>
 
                     
                     <div className="space-y-2">
-                        <Label htmlFor="localidad">Localidad</Label>
-                        <Textarea id="localidad" value={localidad} onChange={(e) => setLocalidad(e.target.value)} placeholder="MCP, PZO, ESP, CCS" />
+                        <Label htmlFor="localidad">Localidad<span className="text-destructive">*</span></Label>
+                            <select
+                                id="localidad"
+                                className="w-full h-10 border rounded-md px-2 bg-[hsl(var(--background))] border-[hsl(var(--input))] focus:ring-1 focus:ring-[hsl(var(--ring))] focus:outline-none"
+                                value={localidad || ''}
+                                onChange={(e) => setLocalidad(e.target.value)}
+                                required
+                            >
+                                <option value="" disabled>Seleccionar localidad...</option>
+                                <option value="MCP">Macapaima</option>
+                                <option value="PZO">Puerto Ordaz</option>
+                                <option value="CCS">Caracas</option>
+                                <option value="ESP">La Esperanza</option>
+                            </select>
                     </div>
                     
                     <div className="space-y-2">
                         <Label htmlFor="notas">Notas Adicionales (Opcional)</Label>
-                        <Textarea id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Ej: Equipo de reemplazo temporal..." />
+                        <Input id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Ej: Equipo de reemplazo temporal..." />
                     </div>
 
                     <Button onClick={handleAsignar} disabled={!selectedEquipo || !selectedTarget} className="w-full">

@@ -43,6 +43,43 @@ export function AsignacionesTable({}: AsignacionesTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [searchQuery, setSearchQuery] = React.useState("")
   const [asignaciones, setAsignaciones] = React.useState<Asignaciones[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+
+
+ const handleDownload = React.useCallback(async (assignmentId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // La URL incluye el ID de la asignación.
+      const response = await fetch(`/api/asignaciones/${assignmentId}/generar-nota/`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al generar la nota de entrega.');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Nota_Entrega_${assignmentId}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err: any) {
+      console.error('Error durante la descarga:', err);
+      setError(err.message);
+      // Opcional: mostrar una notificación de error al usuario
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
 
 const columns: ColumnDef<Asignaciones>[] = [
   {
@@ -98,7 +135,7 @@ const columns: ColumnDef<Asignaciones>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const usuario = row.original
+      const asignacion = row.original
 
       return (
         <DropdownMenu>
@@ -109,12 +146,17 @@ const columns: ColumnDef<Asignaciones>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.item.serial.toString())}>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(asignacion.item.serial.toString())}>
               Copiar Serial
             </DropdownMenuItem>
-            <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+               <DropdownMenuItem
+                onClick={() => handleDownload(asignacion.id)}
+                disabled={loading} // Se deshabilita mientras carga
+              >
+                {loading ? 'Generando...' : 'Descargar Excel'}
+              </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/asignaciones/${usuario.id}/editar`}>
+              <Link href={`/asignaciones/${asignacion.id}/editar`}>
                   Editar Usuario
               </Link>
               </DropdownMenuItem>
@@ -178,9 +220,9 @@ const columns: ColumnDef<Asignaciones>[] = [
 
 React.useEffect(() => {
     if (searchQuery) {
-      table.getColumn("item.serial")?.setFilterValue(searchQuery)
+      table.getColumn("asignacion.id")?.setFilterValue(searchQuery)
     } else {
-      table.getColumn("item.serial")?.setFilterValue("")
+      table.getColumn("asignacion.id")?.setFilterValue("")
     }
   }, [table, searchQuery])
 
