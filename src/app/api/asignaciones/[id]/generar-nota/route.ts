@@ -1,13 +1,11 @@
 import prisma from '@/lib/prisma';
 import ExcelJS from 'exceljs';
 import path from 'path';
-import fs from 'fs';
+
 
 import { NextRequest, NextResponse } from 'next/server';
 
-interface Params {
-  id: string;
-}
+
 
 export async function GET(
   request: NextRequest, 
@@ -117,19 +115,20 @@ export async function GET(
         worksheet.getCell('B4').value = asignacion.computador?.modelo.tipo; // Tipo de equipo (Computador o Dispositivo)
         worksheet.getCell('B6').value = asignacion.computador?.nsap || ''; // NSAP (si aplica)
         worksheet.getCell('E6').value = asignacion.computador?.procesador || 'N/A';
+        worksheet.getCell('E7').value = asignacion.computador?.ram || 'N/A';
+        worksheet.getCell('E8').value = asignacion.computador?.almacenamiento || 'N/A';
         worksheet.getCell('E13').value = asignacion.computador?.sisOperativo || 'N/A';
         worksheet.getCell('E15').value = asignacion.computador?.sapVersion || 'N/A';
         worksheet.getCell('E14').value = asignacion.computador?.officeVersion || 'N/A';
     } else if (asignacion.itemType === 'Dispositivo') {
       // Si hay líneas telefónicas, puedes listarlas o poner la primera
       // Limpiar celdas de computador si el equipo es un dispositivo
-      worksheet.getCell('B25').value = '';
-      worksheet.getCell('B26').value = '';
-      worksheet.getCell('B27').value = '';
-      worksheet.getCell('B28').value = '';
-      worksheet.getCell('B29').value = '';
-      worksheet.getCell('B30').value = '';
-      worksheet.getCell('B31').value = '';
+      worksheet.getCell('E4').value = `${asignacion.dispositivo?.modelo.marca.nombre} ${asignacion.dispositivo?.modelo.nombre}`; // Marca
+      worksheet.getCell('E5').value = asignacion.dispositivo?.serial;
+      worksheet.getCell('E6').value = '';
+      worksheet.getCell('E7').value = '';
+      worksheet.getCell('E8').value = '';
+ 
     }
 
     // Notas de la asignación

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DispositivoForm from "./EquipoForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
 
 export const dispositivoSchema = z.object({
   serial: z.string().min(1, "El nombre es requerido"),
@@ -160,7 +161,11 @@ const columns: ColumnDef<Dispositivo>[] = [
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(dispositivo.serial.toString())}>
               Copiar Serial
             </DropdownMenuItem>
-            <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/dispositivos/${dispositivo.id}/details`}>
+                Ver detalles
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem
             onClick={() => handleOpenEditModal(dispositivo)}
             >Editar equipo</DropdownMenuItem>

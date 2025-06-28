@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { writeFile, mkdir, stat, unlink } from 'fs/promises'; // Añadimos unlink
-import path from 'path';
+import { Prisma } from '@prisma/client';
 
 interface Params {
     params: {
@@ -9,29 +8,107 @@ interface Params {
     };
 }
 
-// --- Helper para asegurar que el directorio existe (lo necesitarás si subes nuevas imágenes en PUT) ---
-
-
 // --- GET (Obtener un equipo por ID) ---
 export async function GET(request: Request, { params }: Params) {
-    const { id } =  await params;
-    try {
-        const equipo = await prisma.dispositivo.findUnique({
+  const { searchParams } = new URL(request.url);
+  const asignado = searchParams.get('asignado');
+
+  // --- PASO 1: DEPURACIÓN ---
+  console.log(`[API/COMPUTADOR] Parámetro 'asignado' recibido: ${asignado}`);
+
+  let where: Prisma.ComputadorWhereInput = {};
+
+  if (asignado === 'false') {
+    // --- PASO 2: LÓGICA REFORZADA ---
+    // Un equipo NO está asignado si AMBOS campos son null o vacíos.
+    where = {
+      AND: [
+        { usuarioId: null },
+        { departamentoId: null }
+      ]
+    };
+  } else if (asignado === 'true') {
+    where = {
+      OR: [
+        { usuarioId: { not: null } },
+        { departamentoId: { not: null } },
+      ],
+    };
+  }
+  
+  console.log(`[API/COMPUTADOR] Cláusula 'where' de Prisma construida:`, JSON.stringify(where, null, 2));
+  try {
+        const { id } = await params;
+        const dispositivo = await prisma.dispositivo.findUnique({
             where: { id },
+            include: {
+                modelo: {         // Incluye el objeto 'modelo' relacionado
+                    include: {
+                        marca: true // Dentro de 'modelo', incluye también la 'marca'
+                    }
+                },
+                usuario: {
+                  include:{
+                      departamento: true // Incluye el objeto 'departamento' del usuario asignado (si existe)
+                  }
+                },      // Incluye el objeto 'usuario' asignado (si existe)
+                departamento: {
+                  include: {
+                    gerencia: true, // Incluye la 'gerencia' del departamento (si existe)
+                  }
+                },
+            }
         });
-        if (!equipo) {
-            return NextResponse.json({ message: 'Equipo no encontrado' }, { status: 404 });
+
+        if (!dispositivo) {
+            return NextResponse.json({ message: 'dispositivo no encontrado' }, { status: 404 });
         }
-        return NextResponse.json(equipo, { status: 200 });
+
+        const historial = await prisma.asignaciones.findMany({
+            where: {
+                dispositivoId: id,// Importante para no mezclar con dispositivos
+            },
+            orderBy: {
+                date: 'desc' // El más reciente primero
+            },
+          include: {
+            targetUsuario: {
+              select: { nombre: true, apellido: true }
+            },
+            targetDepartamento: {
+              select: { nombre: true }
+            }
+          }
+        });
+
+        // --- PASO 3: Combinar los datos para enviar al frontend ---
+
+        // Tomamos el primer elemento del historial (el más reciente) para la "última asignación"
+        const ultimaAsignacion = historial.length > 0 ? {
+            id: historial[0].id,
+            type: historial[0].motivo,
+            targetType: historial[0].targetType,
+            
+            date: historial[0].date.toISOString(),
+        } : null;
+
+        // Construimos el objeto de respuesta final
+        const responseData = {
+            ...dispositivo,      // Todos los datos del computador
+            historial,          // El array de historial que consultamos por separado
+            ultimaAsignacion    // El objeto simplificado del último movimiento
+        };
+
+        return NextResponse.json(responseData, { status: 200 });
+
     } catch (error) {
-        console.error(`Error en GET /api/equipos/${id}:`, error);
-        const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-        return NextResponse.json({ message: errorMessage }, { status: 500 });
-    }
+    console.error(error);
+    return NextResponse.json({ message: 'Error al obtener equipo' }, { status: 500 });
+  }
 }
 
-export async function PUT(request: Request, { params }: Params) {
-    const { id } = await params;
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+     const { id } = params;
     try {
         const equipoExistente = await prisma.dispositivo.findUnique({ where: { id } });
 
@@ -43,54 +120,17 @@ export async function PUT(request: Request, { params }: Params) {
         const serial = data.get('serial') as string;
         const nsap = data.get('nsap') as string || null;
         const estado = data.get('estado') as string;
-
-        // Código para borrar imagen
-        // const dataToUpdate: { [key: string]: any } = {};
-        // let newImageUrl: string | undefined = equipoExistente.img || undefined; // Mantener la imagen actual por defecto
-        // let oldImageToDelete: string | null = null;
-
-        // // Iterar sobre los datos del formulario
-        // for (const [key, value] of formData.entries()) {
-        //     if (key === 'imagenEquipo') {
-        //         const imagenFile = value as File | null;
-        //         if (imagenFile && imagenFile.size > 0) {
-        //             // Hay una nueva imagen para subir
-        //             oldImageToDelete = equipoExistente.img; // Marcar la imagen anterior para eliminar
-
-        //             const uploadDir = path.join(process.cwd(), 'public/uploads/equipos');
-        //             await ensureDirExists(uploadDir);
-
-        //             const bytes = await imagenFile.arrayBuffer();
-        //             const buffer = Buffer.from(bytes);
-        //             const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        //             const filename = `${Date.now()}-${safeOriginalName}`;
-        //             const imagePath = path.join(uploadDir, filename);
-
-        //             await writeFile(imagePath, buffer);
-        //             newImageUrl = `/uploads/equipos/${filename}`;
-        //         } else if (formData.has(key) && imagenFile && imagenFile.size === 0 && equipoExistente.img) {
-        //             // Si se envía 'imagenEquipo' pero está vacío, podría interpretarse como "eliminar imagen actual"
-        //         }
-        //     } else if (typeof value === 'string') {
-        //         // Aquí también, convierte a números, booleanos, etc., si es necesario
-        //         // Ejemplo: if (key === 'cantidad') dataToUpdate[key] = parseInt(value, 10);
-        //         dataToUpdate[key] = value;
-        //     }
-        // }
-        
-        // dataToUpdate.imageUrl = newImageUrl; // Asignar la nueva URL o la antigua si no cambió
-
-        // // Si la imagen cambió y había una anterior, eliminar la antigua DESPUÉS de subir la nueva
-        // if (newImageUrl !== equipoExistente.img && oldImageToDelete) {
-        //      await deletePreviousImage(oldImageToDelete);
-        // }
+        const mac = data.get('mac') as string | null;
+        const ubicacion = data.get('ubicacion') as string | null;
 
         const updatedEquipo = await prisma.dispositivo.update({
             where: { id },
             data: {
                 serial,
                 nsap,
-                estado
+                estado,
+                mac,
+                ubicacion,
             }, // Cuidado con 'as any', valida y tipa los datos.
         });
 

@@ -44,6 +44,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner"
 import Link from "next/link"
+import { handleGenerateAndDownloadQRd } from "@/utils/qrCode"
 
 
 interface HistorialEntry {
@@ -53,8 +54,8 @@ interface HistorialEntry {
     date: string;
     notes?: string | null;
     // Puedes añadir más campos si los incluiste en la API, ej:
-    usuarioAsignado?: { nombre: string, apellido: string } | null;
-    departamentoAsignado?: { nombre: string } | null;
+    targetUsuario?: { nombre: string, apellido: string } | null;
+    targetDepartamento?: { nombre: string } | null;
 }
 
 interface DispositivoDetallado {
@@ -63,6 +64,7 @@ interface DispositivoDetallado {
     estado: string;
     nsap?: string | null;
     mac?: string | null;
+    ubicacion: string;
     historial: HistorialEntry[];  
     modelo: { // El modelo ahora es un objeto
         id: string;
@@ -138,6 +140,16 @@ export default function EquipmentDetails() {
             fetchDispositivo();
         }
     }, [id]);
+
+const departamentoTag = (
+  equipo?.estado === 'Resguardo'
+    ? 'Jefatura de IT y Comunicaciones'
+    : equipo?.departamento?.nombre
+    ? equipo?.departamento.nombre
+    : equipo?.usuario?.departamento?.nombre
+    ? equipo?.usuario?.departamento?.nombre
+    : '—'
+);
 
         // 1. Mostrar un spinner o mensaje mientras los datos están cargando
     if (loading) {
@@ -326,7 +338,7 @@ export default function EquipmentDetails() {
                           <p className="text-xs text-slate-400 uppercase tracking-wider">Ubicación</p>
                           <div className="flex items-center">
                             <MapPin className="h-4 w-4 text-slate-400 mr-2" />
-                            <p className="text-sm text-slate-200">ubi</p>
+                            <p className="text-sm text-slate-200">{equipo.ubicacion}</p>
                           </div>
                         </div>
 
@@ -334,7 +346,7 @@ export default function EquipmentDetails() {
                           <p className="text-xs text-slate-400 uppercase tracking-wider">Departamento</p>
                           <div className="flex items-center">
                             <Tag className="h-4 w-4 text-slate-400 mr-2" />
-                            <p className="text-sm text-slate-200">{equipo.departamento?.nombre}</p>
+                            <p className="text-sm text-slate-200">{departamentoTag}</p>
                           </div>
                         </div>
 
@@ -363,6 +375,9 @@ export default function EquipmentDetails() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
+                                onClick={() => {
+                                  handleGenerateAndDownloadQRd({ equipoId: equipo.id });
+                                }}
                                 variant="outline"
                                 className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
                               >
@@ -379,13 +394,12 @@ export default function EquipmentDetails() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="outline"
+                              <Link href={`/asignaciones/new?equipoId=${equipo.id}`}
                                 className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
                               >
                                 <Users className="h-6 w-6 text-blue-500" />
                                 <span className="text-xs">Asignar</span>
-                              </Button>
+                              </Link>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>Asignar a usuario</p>
@@ -542,9 +556,9 @@ export default function EquipmentDetails() {
                                   equipo.historial.map((entry, index) => {
                                       const isLast = index === equipo.historial.length - 1;
                                       const actionLabel = entry.type === 'Assignment' ? 'Asignado' : 'Devuelto';
-                                      const targetName = entry.usuarioAsignado 
-                                          ? `${entry.usuarioAsignado.nombre} ${entry.usuarioAsignado.apellido}`
-                                          : entry.departamentoAsignado?.nombre || 'N/A';
+                                      const targetName = entry.targetUsuario 
+                                          ? `${entry.targetUsuario.nombre} ${entry.targetUsuario.apellido}`
+                                          : entry.targetDepartamento?.nombre || 'N/A';
 
                                       return (
                                           <div key={entry.id} className="flex items-start space-x-4">

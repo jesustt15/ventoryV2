@@ -63,17 +63,16 @@ export async function GET(request: Request, { params }: { params: Params }) {
 
         const historial = await prisma.asignaciones.findMany({
             where: {
-                equipoId: id,
-                equipoType: "Computador" // Importante para no mezclar con dispositivos
+                computadorId: id,// Importante para no mezclar con dispositivos
             },
             orderBy: {
                 date: 'desc' // El más reciente primero
             },
           include: {
-            usuarioAsignado: {
+            targetUsuario: {
               select: { nombre: true, apellido: true }
             },
-            departamentoAsignado: {
+            targetDepartamento: {
               select: { nombre: true }
             }
           }
@@ -84,7 +83,7 @@ export async function GET(request: Request, { params }: { params: Params }) {
         // Tomamos el primer elemento del historial (el más reciente) para la "última asignación"
         const ultimaAsignacion = historial.length > 0 ? {
             id: historial[0].id,
-            type: historial[0].type,
+            type: historial[0].motivo,
             targetType: historial[0].targetType,
             
             date: historial[0].date.toISOString(),

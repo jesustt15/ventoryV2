@@ -45,6 +45,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner"
 import Link from "next/link"
 import { formatDate } from "@/utils/formatDate"
+import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
 
 
 interface HistorialEntry {
@@ -54,8 +55,8 @@ interface HistorialEntry {
     date: string;
     notes?: string | null;
     // Puedes añadir más campos si los incluiste en la API, ej:
-    usuarioAsignado?: { nombre: string, apellido: string } | null;
-    departamentoAsignado?: { nombre: string } | null;
+    targetUsuario?: { nombre: string, apellido: string } | null;
+    targetDepartamento?: { nombre: string } | null;
 }
 
 interface ComputadorDetallado {
@@ -120,6 +121,8 @@ const statusConfig = {
   Baja: { label: "De Baja", color: "red", bgColor: "bg-red-500/20", textColor: "text-red-400" },
 }
 
+
+
 export default function EquipmentDetails() {
   const [activeTab, setActiveTab] = useState("overview")
 
@@ -149,6 +152,16 @@ export default function EquipmentDetails() {
             fetchComputador();
         }
     }, [id]);
+
+const departamentoTag = (
+  equipo?.estado === 'Resguardo'
+    ? 'Jefatura de IT y Comunicaciones'
+    : equipo?.departamento?.nombre
+    ? equipo?.departamento.nombre
+    : equipo?.usuario?.departamento?.nombre
+    ? equipo?.usuario?.departamento?.nombre
+    : '—'
+);
 
         // 1. Mostrar un spinner o mensaje mientras los datos están cargando
     if (loading) {
@@ -383,7 +396,7 @@ export default function EquipmentDetails() {
                           <p className="text-xs text-slate-400 uppercase tracking-wider">Departamento</p>
                           <div className="flex items-center">
                             <Tag className="h-4 w-4 text-slate-400 mr-2" />
-                            <p className="text-sm text-slate-200">{equipo.departamento?.nombre}</p>
+                            <p className="text-sm text-slate-200">{departamentoTag}</p>
                           </div>
                         </div>
 
@@ -411,7 +424,7 @@ export default function EquipmentDetails() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Link href={`/computadores/${equipo.id}/editar`}
-                                className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
+                               className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
                               >
                                 <Edit className="h-6 w-6 text-cyan-500" />
                                 <span className="text-xs">Editar</span>
@@ -429,6 +442,9 @@ export default function EquipmentDetails() {
                               <Button
                                 variant="outline"
                                 className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
+                               onClick={() => {
+                                  handleGenerateAndDownloadQR({ equipoId: equipo.id });
+                                }}
                               >
                                 <QrCode className="h-6 w-6 text-purple-500" />
                                 <span className="text-xs">QR Code</span>
@@ -440,22 +456,20 @@ export default function EquipmentDetails() {
                           </Tooltip>
                         </TooltipProvider>
 
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
-                              >
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Link href={`/asignaciones/new?equipoId=${equipo.id}`}
+                             className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2">
                                 <Users className="h-6 w-6 text-blue-500" />
                                 <span className="text-xs">Asignar</span>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Asignar a usuario</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                            </Link>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Asignar este equipo a un usuario</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
 
                         <TooltipProvider>
                           <Tooltip>
@@ -612,9 +626,9 @@ export default function EquipmentDetails() {
                                   equipo.historial.map((entry, index) => {
                                       const isLast = index === equipo.historial.length - 1;
                                       const actionLabel = entry.type === 'Assignment' ? 'Asignado' : 'Devuelto';
-                                      const targetName = entry.usuarioAsignado 
-                                          ? `${entry.usuarioAsignado.nombre} ${entry.usuarioAsignado.apellido}`
-                                          : entry.departamentoAsignado?.nombre || 'N/A';
+                                      const targetName = entry.targetUsuario 
+                                          ? `${entry.targetUsuario.nombre} ${entry.targetUsuario.apellido}`
+                                          : entry.targetDepartamento?.nombre || 'N/A';
 
                                       return (
                                           <div key={entry.id} className="flex items-start space-x-4">

@@ -6,14 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Select from 'react-select'; // react-select es ideal para buscar en listas largas
-import { Textarea } from '@/components/ui/textarea';
 import { showToast } from 'nextjs-toast-notify';
-import { ArrowRightLeftIcon, Undo2 } from 'lucide-react';
+import { ArrowRightLeftIcon, Undo2, XCircle } from 'lucide-react';
 import { reactSelectStyles } from '@/utils/reactSelectStyles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Spinner } from '@/components/ui/spinner';
-import { useRouter } from 'next/router';
 import { Input } from '@/components/ui/input';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Activo {
     value: string; // id
@@ -27,12 +26,13 @@ interface Target {
 }
 
 export default function AsignacionesPage() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [equiposDisponibles, setEquiposDisponibles] = useState<Activo[]>([]);
     const [equiposAsignados, setEquiposAsignados] = useState<Activo[]>([]);
     const [usuarios, setUsuarios] = useState<Target[]>([]);
     const [departamentos, setDepartamentos] = useState<Target[]>([]);
     const [loading, setLoading] = useState(true);
-
     const [selectedEquipo, setSelectedEquipo] = useState<Activo | null>(null);
     const [asignarA, setAsignarA] = useState<'Usuario' | 'Departamento'>('Usuario');
     const [selectedTarget, setSelectedTarget] = useState<Target | null>(null);
@@ -43,26 +43,48 @@ export default function AsignacionesPage() {
     const [modeloC, setModeloC] = useState('');
     const [ localidad, setLocalidad ] = useState('');   
 
-    // --- LÓGICA DE FETCH REFACTORIZADA ---
-    const fetchData = useCallback(async () => {
+   const fetchData = useCallback(async () => {
         setLoading(true);
+        const equipoId = searchParams.get('equipoId');
+
         try {
-            const [resDisponibles, resAsignados, resUsuarios, resDeptos] = await Promise.all([
-                fetch('/api/activos?estado=disponible'), // <-- Nuevo endpoint
-                fetch('/api/activos?estado=asignado'),   // <-- Nuevo endpoint
+            // Siempre necesitamos los usuarios y departamentos para los dropdowns
+            const [resUsuarios, resDeptos] = await Promise.all([
                 fetch('/api/usuarios'),
                 fetch('/api/departamentos'),
             ]);
-            
-            if(!resDisponibles.ok || !resAsignados.ok) throw new Error("Error cargando activos");
-            
-            setEquiposDisponibles(await resDisponibles.json());
-            setEquiposAsignados(await resAsignados.json());
-
             const usuariosData = await resUsuarios.json();
             const deptosData = await resDeptos.json();
             setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
             setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));
+
+            // Lógica condicional para el equipo
+            if (equipoId) {
+                // Si hay un ID en la URL, buscamos solo ese equipo.
+                const resEquipo = await fetch(`/api/activos/${equipoId}`);
+                if (!resEquipo.ok) {
+                    showToast.error("El equipo preseleccionado no se encontró o ya está asignado.");
+                    // Limpiamos el parámetro de la URL para evitar bucles
+                    router.replace('/asignaciones', { scroll: false }); 
+                    // Y cargamos la lista normal de disponibles
+                    const resDisponibles = await fetch('/api/activos?estado=disponible');
+                    setEquiposDisponibles(await resDisponibles.json());
+                } else {
+                    const equipoData = await resEquipo.json();
+                    // Ponemos el equipo preseleccionado en el estado `selectedEquipo`
+                    setSelectedEquipo(equipoData);
+                }
+            } else {
+                // Si no hay ID, cargamos todos los equipos disponibles como antes
+                const resDisponibles = await fetch('/api/activos?estado=disponible');
+                if(!resDisponibles.ok) throw new Error("Error cargando activos disponibles");
+                setEquiposDisponibles(await resDisponibles.json());
+            }
+
+            // Siempre cargamos la lista de asignados para la otra pestaña
+            const resAsignados = await fetch('/api/activos?estado=asignado');
+            if(!resAsignados.ok) throw new Error("Error cargando activos asignados");
+            setEquiposAsignados(await resAsignados.json());
 
         } catch (error) {
             showToast.error("Error al cargar los datos.");
@@ -70,11 +92,17 @@ export default function AsignacionesPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [searchParams, router]); // Dependemos de searchParams para re-evaluar
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+        // AÑADIDO: Función para limpiar la preselección
+    const handleClearPreselection = () => {
+        setSelectedEquipo(null);
+        router.replace('/asignaciones', { scroll: false });
+    };
 
     // --- LÓGICA DE HANDLERS REFACTORIZADA ---
     const handleAsignar = async () => {
@@ -144,7 +172,7 @@ export default function AsignacionesPage() {
     // --- RENDERIZADO (sin cambios significativos) ---
     const targetOptions = asignarA === 'Usuario' ? usuarios : departamentos;
     return (
-        <div className="p-4 md:p-8">
+        <div className="p-2 md:p-8">
             <Tabs defaultValue="asignar" className="max-w-2xl mx-auto">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="asignar"><ArrowRightLeftIcon className="mr-2 h-4 w-4" />Asignar Equipo</TabsTrigger>
@@ -164,17 +192,40 @@ export default function AsignacionesPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label>1. Selecciona un Equipo Disponible</Label>
-                        <Select
-                            instanceId="sololo"
-                            options={equiposDisponibles}
-                            value={selectedEquipo}
-                            onChange={setSelectedEquipo}
-                            styles={reactSelectStyles}
-                            placeholder="Buscar por modelo o serial..."
-                            isClearable
-                            isSearchable
-                        />
+                        <Label>1. Selecciona un Equipo</Label>
+                        
+                        {loading ? (
+                            <p>Cargando...</p>
+                        ) : // MODIFICADO: Renderizado condicional del campo de equipo
+                            selectedEquipo && searchParams.get('equipoId') ? (
+                            // Si hay un equipo preseleccionado desde la URL, lo mostramos
+                            <div className="flex items-center justify-between p-3 border border-blue-500 rounded-md bg-slate-800">
+                                <div>
+                                    <p className="font-bold">{selectedEquipo.label}</p>
+                                    <p className="text-xs text-slate-400">Equipo preseleccionado</p>
+                                </div>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={handleClearPreselection}
+                                    aria-label="Limpiar selección"
+                                >
+                                    <XCircle className="h-5 w-5 text-red-500" />
+                                </Button>
+                            </div>
+                        ) : (
+                            // Si no, mostramos el Select buscable normal
+                            <Select
+                                instanceId="sololo"
+                                options={equiposDisponibles}
+                                value={selectedEquipo}
+                                onChange={setSelectedEquipo}
+                                styles={reactSelectStyles}
+                                placeholder="Buscar por modelo o serial..."
+                                isClearable
+                                isSearchable
+                            />
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -205,11 +256,12 @@ export default function AsignacionesPage() {
                             isDisabled={!selectedEquipo}
                         />
                     </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="gerente">Gerente</Label>
-                        <Input id="gerente" value={gerente} onChange={(e) => setGerente(e.target.value)} placeholder="Ej: Carlos Urdaneta..." />
-                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                            <Label htmlFor="gerente">Gerente</Label>
+                            <Input id="gerente" value={gerente} onChange={(e) => setGerente(e.target.value)} placeholder="Ej: Carlos Urdaneta..." />
+                        </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="motivo">Motivo<span className="text-destructive">*</span></Label>
@@ -263,6 +315,7 @@ export default function AsignacionesPage() {
                         <Input id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Ej: Equipo de reemplazo temporal..." />
                     </div>
 
+                    </div>
                     <Button onClick={handleAsignar} disabled={!selectedEquipo || !selectedTarget} className="w-full">
                         Confirmar Asignación
                     </Button>
