@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import CreatableSelect from 'react-select/creatable';
+import { reactSelectStyles } from '@/utils/reactSelectStyles';
 import { showToast } from 'nextjs-toast-notify'; // Asumo que es la librería que usas (antes sonner)
 // Eliminamos los imports de Avatar, ImageIcon y ShadcnSelect ya que no se usarán para imagen o tipo aquí.
 
@@ -29,17 +30,9 @@ interface OptionType {
     __isNew__?: boolean; // Para CreatableSelect
 }
 
-// Asumimos que DepartamentoFormData se importa y ya incluye gerenciaId
-// Si no, deberías definirlo así o similar donde corresponda:
-// export interface DepartamentoFormData {
-//   id?: string; // opcional, si es para edición
-//   nombre: string;
-//   ceco: string;
-//   sociedad: string;
-//   gerenciaId: string; // Esencial para preseleccionar y guardar
-// }
+
 import { DepartamentoFormData } from './depto-table'; // Asegúrate que esta defina gerenciaId
-import { reactSelectStyles } from '@/utils/reactSelectStyles';
+;
 
 interface DepartamentoFormProps {
     isOpen: boolean;
@@ -165,19 +158,20 @@ const DepartamentoForm: React.FC<DepartamentoFormProps> = ({
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="gerencia-select" className="text-right">Gerencia</Label>
-                        <div className="col-span-3"> {/* Contenedor para CreatableSelect */}
-                            <CreatableSelect
-                                instanceId="gerencia-creatable-select"
-                                styles={reactSelectStyles}
-                                options={allGerencias.map(g => ({ value: g.id, label: g.nombre }))}
-                                value={selectedGerencia}
-                                onChange={(option) => setSelectedGerencia(option as OptionType | null)}
-                                onCreateOption={handleCreateGerencia} // Se llama al crear nueva opción
-                                placeholder="Seleccionar o crear Gerencia"
-                                isClearable
-                                isLoading={isLoadingGerencias}
-                                formatCreateLabel={(inputValue) => `Crear nueva gerencia: "${inputValue}"`}
-                            />
+                        <div className="col-span-3">
+                        <CreatableSelect
+                            inputId="gerencia-select"
+                            className="w-full"
+                            options={allGerencias.map(g => ({ value: g.id, label: g.nombre }))}
+                            value={selectedGerencia}
+                            onChange={opt => setSelectedGerencia(opt as OptionType | null)}
+                            onCreateOption={handleCreateGerencia}
+                            placeholder="Seleccionar o crear Gerencia"
+                            isClearable
+                            isLoading={isLoadingGerencias}
+                            formatCreateLabel={val => `Crear "${val}"`}
+                            styles={reactSelectStyles}
+                        />
                         </div>
                     </div>
                     <DialogFooter>

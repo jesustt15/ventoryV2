@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { dispositivoSchema } from '@/components/equipos-table';
 
 interface Params {
     params: {
@@ -108,7 +109,7 @@ export async function GET(request: Request, { params }: Params) {
 }
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
-     const { id } = params;
+     const { id } = await params;
     try {
         const equipoExistente = await prisma.dispositivo.findUnique({ where: { id } });
 
@@ -116,12 +117,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             return NextResponse.json({ message: 'Equipo no encontrado para actualizar' }, { status: 404 });
         }
 
-        const data = await request.formData();
-        const serial = data.get('serial') as string;
-        const nsap = data.get('nsap') as string || null;
-        const estado = data.get('estado') as string;
-        const mac = data.get('mac') as string | null;
-        const ubicacion = data.get('ubicacion') as string | null;
+        const body = await request.json();
+          
+        const { serial, nsap, estado, ubicacion, mac, modeloId } = body;
 
         const updatedEquipo = await prisma.dispositivo.update({
             where: { id },

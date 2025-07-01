@@ -85,10 +85,11 @@ export async function GET(
 
     // Datos de la Asignación
     // worksheet.getCell('B2').value = asignacion.id; // ID de la Asignación
-    worksheet.getCell('B4').value = asignacion.date.toLocaleDateString('es-ES'); // Fecha de Asignación
+     // Fecha de Asignación
 
     // Datos del Usuario/Departamento Asignado (Target)
     if (asignacion.targetType === 'Usuario') {
+      worksheet.getCell('B4').value = asignacion.date.toLocaleDateString('es-ES');
       worksheet.getCell('B5').value = `${asignacion.targetUsuario?.nombre} ${asignacion.targetUsuario?.apellido}`;
       worksheet.getCell('B6').value = asignacion.targetUsuario?.ced || '';
       worksheet.getCell('B7').value = asignacion.targetUsuario?.cargo || '';
@@ -100,29 +101,38 @@ export async function GET(
       worksheet.getCell('B13').value =asignacion.targetUsuario?.departamento.ceco;
       worksheet.getCell('B15').value = asignacion.motivo;
     } else { // targetType === 'Departamento'
-      worksheet.getCell('B5').value = asignacion.targetDepartamento?.nombre;
+      worksheet.getCell('B5').value = '';
+      worksheet.getCell('B6').value = '';
+      worksheet.getCell('B7').value = '';
+      worksheet.getCell('B8').value = '';
+      worksheet.getCell('B4').value = asignacion.date.toLocaleDateString('es-ES');
+      worksheet.getCell('B10').value = asignacion.targetDepartamento?.nombre;
       worksheet.getCell('B6').value = asignacion.targetDepartamento?.gerencia.nombre;
-      worksheet.getCell('B7').value = asignacion.targetDepartamento?.ceco;
-      worksheet.getCell('B8').value = asignacion.targetDepartamento?.sociedad;
-      worksheet.getCell('B9').value = '';
-      worksheet.getCell('B10').value = '';
+      worksheet.getCell('B13').value = asignacion.targetDepartamento?.ceco;
+      worksheet.getCell('B9').value = asignacion.targetDepartamento?.sociedad;
+      worksheet.getCell('B11').value = asignacion.localidad;
+      worksheet.getCell('B12').value = asignacion.gerente;
     }
 
 
     if (asignacion.itemType === 'Computador') {
         worksheet.getCell('E4').value = `${asignacion.computador?.modelo.marca.nombre} ${asignacion.computador?.modelo.nombre}`; // Marca
-        worksheet.getCell('E5').value = asignacion.computador?.serial;
-        worksheet.getCell('B4').value = asignacion.computador?.modelo.tipo; // Tipo de equipo (Computador o Dispositivo)
-        worksheet.getCell('B6').value = asignacion.computador?.nsap || ''; // NSAP (si aplica)
+        worksheet.getCell('E5').value = asignacion.computador?.serial; // Tipo de equipo (Computador o Dispositivo)
+        worksheet.getCell('B6').value = asignacion.computador?.nsap || '';
+        worksheet.getCell('B14').value = asignacion.computador?.modelo.tipo || ''; // NSAP (si aplica)
         worksheet.getCell('E6').value = asignacion.computador?.procesador || 'N/A';
         worksheet.getCell('E7').value = asignacion.computador?.ram || 'N/A';
         worksheet.getCell('E8').value = asignacion.computador?.almacenamiento || 'N/A';
+        worksheet.getCell('E9').value = asignacion.serialC || 'N/A';
+        worksheet.getCell('E10').value = asignacion.modeloC || 'N/A';
         worksheet.getCell('E13').value = asignacion.computador?.sisOperativo || 'N/A';
         worksheet.getCell('E15').value = asignacion.computador?.sapVersion || 'N/A';
         worksheet.getCell('E14').value = asignacion.computador?.officeVersion || 'N/A';
     } else if (asignacion.itemType === 'Dispositivo') {
       // Si hay líneas telefónicas, puedes listarlas o poner la primera
       // Limpiar celdas de computador si el equipo es un dispositivo
+      worksheet.getCell('B6').value = asignacion.dispositivo?.nsap || '';
+      worksheet.getCell('B14').value = asignacion.dispositivo?.modelo.tipo || '';
       worksheet.getCell('E4').value = `${asignacion.dispositivo?.modelo.marca.nombre} ${asignacion.dispositivo?.modelo.nombre}`; // Marca
       worksheet.getCell('E5').value = asignacion.dispositivo?.serial;
       worksheet.getCell('E6').value = '';

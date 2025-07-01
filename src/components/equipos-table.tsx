@@ -16,22 +16,28 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
 export const dispositivoSchema = z.object({
-  serial: z.string().min(1, "El nombre es requerido"),
-  modeloId: z.string().min(1, "La Marca es Requerida"),
-  estado: z.string().min(1, "El tipo de dispositivo es requerido"),
+  id: z.string().optional(), // Es buena idea tener el id en el schema para la lógica unificada
+  serial: z.string().min(1, "El serial es requerido"),
+  modeloId: z.string().min(1, "El Modelo es Requerido"),
+  estado: z.string().min(1, "El estado es requerido"),
   nsap: z.string().nullable(),
-  ubicacion: z.string().nullable()
-})
+  ubicacion: z.string().nullable(),
+  mac: z.string().nullable()
+});
 
-export type DispositivoFormData = z.infer<typeof dispositivoSchema>
+export type DispositivoFormData = z.infer<typeof dispositivoSchema>;
+
+
 
 // Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
 export interface Dispositivo {
-  id: string; // Or number, depending on your API
+  id?: string;
+  modeloId: string; // Or number, depending on your API
   serial: string;
   estado: string;
   nsap?: string;
   ubicacion?: string;
+  mac?: string; // Optional, as it might not be present in all devices
   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Added img and marca properties
 }
 
@@ -39,10 +45,12 @@ export interface DispositivoFormProps {
   onCreateModel: (data: DispositivoFormData) => void;
   modelo: { id: string; nombre: string }[];
   initialData?: {
+    id?: string;
     serial: string;
     estado: string;
     nsap: string | null;
     ubicacion: string | null;
+    mac: string | null;
   };
 }
 
@@ -60,6 +68,7 @@ export function DispositivoTable({}: DispositivoTableProps) {
   const [editingDispositivo, setEditingDispositivo] = React.useState<Dispositivo | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("")
   const [dispositivos, setDispositivos] = React.useState<Dispositivo[]>([]);
+  const [modelos, setModelos] = React.useState<{ id: string; nombre: string }[]>([]);
 
 const columns: ColumnDef<Dispositivo>[] = [
   {
@@ -197,27 +206,30 @@ const columns: ColumnDef<Dispositivo>[] = [
     },
   });
 
-    const fetchAllData = async () => {
+   const fetchAllData = async () => {
       try {
-        const dispositivosResponse = await fetch('/api/dispositivos');
-
+        // Hacemos ambas peticiones en paralelo para mejorar la velocidad
+        const [dispositivosResponse, modelosResponse] = await Promise.all([
+            fetch('/api/dispositivos'),
+            fetch('/api/modelos') 
+        ]);
   
         if (!dispositivosResponse.ok) {
           throw new Error(`Error fetching dispositivos: ${dispositivosResponse.status}`);
         }
-  
-        const disposistivosData: Dispositivo[] = await dispositivosResponse.json();
+        if (!modelosResponse.ok) {
+            throw new Error(`Error fetching modelos: ${modelosResponse.status}`);
+        }
         
-        setDispositivos(disposistivosData);
-
+        const dispositivosData: Dispositivo[] = await dispositivosResponse.json();
+        const modelosData = await modelosResponse.json();
+        
+        setDispositivos(dispositivosData);
+        setModelos(modelosData); // CAMBIO 2: Guarda la lista de modelos en el estado
+  
       } catch (error: any) {
         showToast.error("¡Error en Cargar!"+ (error.message), {
-            duration: 4000,
-            progress: false,
             position: "top-right",
-            transition: "popUp",
-            icon: '',
-            sound: true,
         });
       }
     };
@@ -231,90 +243,61 @@ const columns: ColumnDef<Dispositivo>[] = [
     setIsEditModalOpen(true);
   };
 
-    const handleCreateDispositivo = async (data: DispositivoFormData) => {
+  // ==================================================================
+  // CAMBIO 1: Lógica Unificada para Guardar (Crear y Actualizar)
+  // Reemplaza tus funciones handleCreateDispositivo y handleUpdateDispositivo con esta.
+  // ==================================================================
+  const handleSaveDispositivo = async (data: DispositivoFormData) => {
+    // CAMBIO 2: Determinamos si es una edición si los datos incluyen un 'id'.
+    console.log("Datos recibidos en handleSaveDispositivo:", data);
+
+    const isEditing = !!data.id;
+    const method = isEditing ? 'PUT' : 'POST';
+    const url = isEditing ? `/api/dispositivos/${data.id}` : '/api/dispositivos';
+
+    // El 'serial' no debería cambiarse al editar, pero lo incluimos por si acaso.
+    // El backend debe validar que el 'serial' no se duplique.
+    // El 'id' no se debe enviar en el cuerpo de la petición PUT.
+    const bodyPayload: Omit<DispositivoFormData, 'id'> = {
+      serial: data.serial,
+      modeloId: data.modeloId,
+      estado: data.estado,
+      nsap: data.nsap,
+      ubicacion: data.ubicacion,
+      mac: data.mac,
+    };
+
     try {
-        const formData = new FormData();
-        if (data.serial) formData.append('serial', data.serial);
-        if (data.modeloId) formData.append('modeloId', data.modeloId);
-        if (data.estado) formData.append('estado', data.estado);
-        if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
-        const dataObj = Object.fromEntries(formData.entries());
-        console.log("dataObj para enviar:", dataObj);
+      console.log(`Enviando ${method} a ${url} con payload:`, bodyPayload);
 
-        const response = await fetch('/api/dispositivos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataObj),
-        });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(errorData.message || `Error creando dispositivo: ${response.statusText}`);
-    }
-
-      showToast.success("Dispositivo creado correctamente 👍",{
-        duration: 4000,
-        progress: false,
-        position: "top-right",
-        transition: "popUp",
-        icon: '',
-        sound: false,  
-      })
-      setIsCreateModalOpen(false);
-      fetchAllData();
-    } catch (error: any) {
-       showToast.error("Error en Guardar el Equipo:" + (error.message), {
-          duration: 4000,
-          progress: false,
-          position: "top-right",
-          transition: "popUp",
-          icon: '',
-          sound: false,
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyPayload),
       });
-    }
-  };
-     const handleUpdateDispositivo = async (data: Partial<DispositivoFormData>) => {
-    if (!editingDispositivo) return;
-
-    try {
-      const formData = new FormData();
-      if (data.serial) formData.append('serial', data.serial);
-      if (data.modeloId) formData.append('modeloId', data.modeloId);
-      if (data.estado) formData.append('estado', data.estado);
-      if (data.nsap !== undefined && data.nsap !== null) formData.append('nsap', data.nsap);
-      const dataObj = Object.fromEntries(formData.entries());
-      console.log("dataObj para enviar:", dataObj);
-
-    // Envía el objeto JSON resultante al endpoint
-    const response = await fetch('/api/dispositivos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dataObj),
-    });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(errorData.message || `Error actualizando dispositivo: ${response.statusText}`);
+        throw new Error(errorData.message || `Error en la operación: ${response.statusText}`);
       }
-      showToast.success("Dispositivo actualizado correctamente ✨",{
-        duration: 4000,
-        progress: false,
+
+      showToast.success(`Dispositivo ${isEditing ? 'actualizado' : 'creado'} correctamente ${isEditing ? '✨' : '👍'}`, {
         position: "top-right",
-        transition: "popUp",
-        icon: '',
-        sound: false,  
-      })
-      setIsEditModalOpen(false);
-      setEditingDispositivo(null);
+      });
+
+      // Cerramos el modal correspondiente y refrescamos los datos
+      if (isEditing) {
+        setIsEditModalOpen(false);
+        setEditingDispositivo(null);
+      } else {
+        setIsCreateModalOpen(false);
+      }
+      
       await fetchAllData();
+
     } catch (error: any) {
-     showToast.error("Error en Guardar el Dispositivo:" + (error.message), {
-          duration: 4000,
-          progress: false,
-          position: "top-right",
-          transition: "popUp",
-          icon: '',
-          sound: false,
+      showToast.error("Error al guardar el Dispositivo: " + error.message, {
+        position: "top-right",
       });
     }
   };
@@ -435,29 +418,35 @@ return (
           </div>
         </div>
       </CardContent>
-      <DispositivoForm
-              isOpen={isCreateModalOpen}
-              onClose={() => setIsCreateModalOpen(false)}
-              onSubmit={handleCreateDispositivo}
-            />
+     <DispositivoForm
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleSaveDispositivo} // CAMBIO 4: Usamos el nuevo handler unificado
+        initialData={null}
+        modelos={modelos} // CAMBIO 3: Pasa la lista de modelos al formulario // Para crear, no hay datos iniciales
+      />
 
-            {/* Edit Modal */}
-            <DispositivoForm
-              isOpen={isEditModalOpen}
-              onClose={() => {
-                setIsEditModalOpen(false);
-                setEditingDispositivo(null);
-              }}
-              onSubmit={handleUpdateDispositivo} // Usamos el handler de actualización
-              initialData={editingDispositivo ? { // Mapeamos los datos del modelo a editar
-                serial: editingDispositivo.serial,
-                modeloId: editingDispositivo.modelo.id, // Pasamos solo el ID del modelo
-                estado: editingDispositivo.estado,
-                ubicacion: typeof editingDispositivo.ubicacion === "string" ? editingDispositivo.ubicacion : undefined,
-                nsap: typeof editingDispositivo.nsap === "string" ? editingDispositivo.nsap : undefined,
-              } : null}
-              key={editingDispositivo?.id || 'create'} // La key es crucial para que React reinicie el form
-            />
+      {/* Modal para Editar */}
+      <DispositivoForm
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingDispositivo(null);
+        }}
+        onSubmit={handleSaveDispositivo} // CAMBIO 5: Usamos el mismo handler unificado
+        initialData={editingDispositivo ? { // CAMBIO 3: ASEGÚRATE DE PASAR EL ID
+          id: editingDispositivo.id, // ¡ESTA LÍNEA ES CRUCIAL!
+          serial: editingDispositivo.serial,
+          modeloId: editingDispositivo.modeloId,
+          estado: editingDispositivo.estado,
+          ubicacion: editingDispositivo.ubicacion ?? null,
+          nsap: editingDispositivo.nsap ?? null,
+          mac: editingDispositivo.mac ?? null,
+        } : null}
+        modelos={modelos} 
+        // La key es importante para que React reinicie el estado del formulario al cambiar de un dispositivo a otro
+        key={editingDispositivo?.id || 'create'} 
+      />
     </Card>
   )
 

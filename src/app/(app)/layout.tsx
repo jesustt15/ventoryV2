@@ -1,7 +1,9 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { getSessionUser } from "@/lib/auth-server";
+import { getSessionUser } from "@/lib/auth-server";// app/layout.tsx ó src/index.tsx
+
+
 
 import { ReactNode } from "react";
 

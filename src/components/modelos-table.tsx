@@ -260,6 +260,7 @@ const columns: ColumnDef<Modelo>[] = [
 
     try {
 
+
       // 2. Realiza la petición fetch
       const response = await fetch(`/api/modelos/${editingModelo.id}`, {
         method: 'PUT',
