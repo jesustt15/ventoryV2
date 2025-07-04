@@ -343,6 +343,7 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        onGlobalFilterChange: setSearchQuery,
         state: {
             sorting,
             columnFilters,
@@ -452,13 +453,6 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
         }
     };
 
-    // Apply filtering to columns
-    React.useEffect(() => {
-        // This applies a "contains" filter to the 'nombre' column.
-        table.getColumn("nombre")?.setFilterValue(searchQuery);
-        table.getColumn("ceco")?.setFilterValue(searchQuery);
-
-    }, [searchQuery, table]);
 
 
     return (

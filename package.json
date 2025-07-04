@@ -2,10 +2,13 @@
   "name": "ventory2",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "scripts": {
+     "db:migrar-usuarios": "node --loader ts-node/esm scripts/migrar-usuarios.ts",
+    "db:generar-seed": "node --loader ts-node/esm scripts/generar-seed.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -38,6 +41,7 @@
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "csv-parser": "^3.2.0",
     "exceljs": "^4.4.0",
     "jose": "^6.0.11",
     "lucide-react": "^0.511.0",
