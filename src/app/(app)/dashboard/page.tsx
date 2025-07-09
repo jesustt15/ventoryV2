@@ -1,24 +1,673 @@
+"use client"
 
-import { DataTable } from "@/components/data-table"
+import { useState, useRef, useEffect } from "react"
+import {
+  Users,
+  Monitor,
+  Cpu,
+  UserCheck,
+  Shield,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  PieChart,
+  RefreshCw,
+  Download,
+  Bell,
+  Hexagon,
+} from "lucide-react"
 
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-import data from "./data.json"
-import { SectionCards } from "@/components/section-card"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+// Datos de ejemplo para las estadísticas
+const dashboardData = {
+  totalUsers: 245,
+  totalDevices: 892,
+  totalComputers: 456,
+  assignedComputers: 387,
+  storedComputers: 69,
+  trends: {
+    users: 12.5,
+    devices: 8.3,
+    computers: 5.7,
+    assigned: 15.2,
+    stored: -8.4,
+  },
+  recentActivity: [
+    {
+      id: 1,
+      action: "Nuevo dispositivo registrado",
+      device: "Dell OptiPlex 7090",
+      user: "Sistema",
+      time: "Hace 5 min",
+      type: "registration",
+    },
+    {
+      id: 2,
+      action: "Computador asignado",
+      device: "ThinkPad X1 Carbon",
+      user: "Ana Martínez",
+      time: "Hace 12 min",
+      type: "assignment",
+    },
+    {
+      id: 3,
+      action: "Dispositivo en mantenimiento",
+      device: "HP EliteBook 840",
+      user: "Carlos López",
+      time: "Hace 25 min",
+      type: "maintenance",
+    },
+    {
+      id: 4,
+      action: "Usuario registrado",
+      device: "N/A",
+      user: "María González",
+      time: "Hace 1 hora",
+      type: "user",
+    },
+  ],
+  departmentStats: [
+    { name: "Desarrollo", computers: 125, users: 45, percentage: 27.4 },
+    { name: "Ventas", computers: 89, users: 67, percentage: 19.5 },
+    { name: "Marketing", computers: 67, users: 34, percentage: 14.7 },
+    { name: "Finanzas", computers: 45, users: 28, percentage: 9.9 },
+    { name: "RRHH", computers: 34, users: 22, percentage: 7.5 },
+    { name: "Otros", computers: 96, users: 49, percentage: 21.0 },
+  ],
+  monthlyData: [
+    { month: "Ene", devices: 45, computers: 23, users: 12 },
+    { month: "Feb", devices: 52, computers: 28, users: 15 },
+    { month: "Mar", devices: 38, computers: 19, users: 8 },
+    { month: "Abr", devices: 67, computers: 34, users: 22 },
+    { month: "May", devices: 78, computers: 41, users: 28 },
+    { month: "Jun", devices: 89, computers: 45, users: 31 },
+  ],
+}
 
-export default function Page() {
+export default function InventoryDashboard() {
+  const [timeRange, setTimeRange] = useState("30d")
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  // Update time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Particle effect
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    canvas.width = canvas.offsetWidth
+    canvas.height = canvas.offsetHeight
+
+    const particles: Particle[] = []
+    const particleCount = 80
+
+    class Particle {
+      x: number
+      y: number
+      size: number
+      speedX: number
+      speedY: number
+      color: string
+
+      constructor() {
+        this.x = Math.random() * (canvas?.width ?? 0)
+        this.y = Math.random() * (canvas?.height ?? 0)
+        this.size = Math.random() * 2 + 0.5
+        this.speedX = (Math.random() - 0.5) * 0.3
+        this.speedY = (Math.random() - 0.5) * 0.3
+        this.color = `rgba(${Math.floor(Math.random() * 100) + 100}, ${Math.floor(Math.random() * 100) + 150}, ${Math.floor(Math.random() * 55) + 200}, ${Math.random() * 0.3 + 0.1})`
+      }
+
+      update() {
+        this.x += this.speedX
+        this.y += this.speedY
+
+        if (!canvas) return
+
+        if (this.x > canvas.width) this.x = 0
+        if (this.x < 0) this.x = canvas.width
+        if (this.y > canvas.height) this.y = 0
+        if (this.y < 0) this.y = canvas.height
+      }
+
+      draw() {
+        if (!ctx) return
+        ctx.fillStyle = this.color
+        ctx.beginPath()
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle())
+    }
+
+    function animate() {
+      if (!ctx || !canvas) return
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      for (const particle of particles) {
+        particle.update()
+        particle.draw()
+      }
+
+      requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    const handleResize = () => {
+      if (!canvas) return
+      canvas.width = canvas.offsetWidth
+      canvas.height = canvas.offsetHeight
+    }
+
+    window.addEventListener("resize", handleResize)
+
+    return () => {
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [])
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("es-ES", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+  }
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case "registration":
+        return Monitor
+      case "assignment":
+        return UserCheck
+      case "maintenance":
+        return Shield
+      case "user":
+        return Users
+      default:
+        return Activity
+    }
+  }
+
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case "registration":
+        return "text-green-500"
+      case "assignment":
+        return "text-blue-500"
+      case "maintenance":
+        return "text-amber-500"
+      case "user":
+        return "text-purple-500"
+      default:
+        return "text-slate-500"
+    }
+  }
+
   return (
-          <div className="flex flex-1 flex-col">
-            <div className="@container/main flex flex-1 flex-col gap-2">
-              <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                <SectionCards />
-                <div className="px-4 lg:px-6">
-                  <ChartAreaInteractive />
+    <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
+      {/* Background particle effect */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-20" />
+
+      <div className="container mx-auto p-4 relative z-10">
+
+        {/* Main Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <StatCard
+            title="Total Usuarios"
+            value={dashboardData.totalUsers}
+            trend={dashboardData.trends.users}
+            icon={Users}
+            color="cyan"
+            description="Usuarios registrados"
+          />
+          <StatCard
+            title="Dispositivos Totales"
+            value={dashboardData.totalDevices}
+            trend={dashboardData.trends.devices}
+            icon={Monitor}
+            color="blue"
+            description="Todos los dispositivos"
+          />
+          <StatCard
+            title="Computadores Totales"
+            value={dashboardData.totalComputers}
+            trend={dashboardData.trends.computers}
+            icon={Cpu}
+            color="purple"
+            description="Total de computadores"
+          />
+          <StatCard
+            title="Computadores Asignados"
+            value={dashboardData.assignedComputers}
+            trend={dashboardData.trends.assigned}
+            icon={UserCheck}
+            color="green"
+            description="En uso activo"
+          />
+          <StatCard
+            title="Computadores en Resguardo"
+            value={dashboardData.storedComputers}
+            trend={dashboardData.trends.stored}
+            icon={Shield}
+            color="amber"
+            description="Almacenados"
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Column - Charts and Analytics */}
+          <div className="col-span-12 lg:col-span-8">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="bg-slate-800/50 p-1 mb-6">
+                <TabsTrigger
+                  value="overview"
+                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                >
+                  Resumen
+                </TabsTrigger>
+                <TabsTrigger
+                  value="departments"
+                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                >
+                  Departamentos
+                </TabsTrigger>
+                <TabsTrigger
+                  value="trends"
+                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                >
+                  Tendencias
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="mt-0">
+                <div className="grid gap-6">
+                  {/* Assignment Overview */}
+                  <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                    <CardHeader className="border-b border-slate-700/50 pb-3">
+                      <CardTitle className="text-slate-100 flex items-center">
+                        <PieChart className="mr-2 h-5 w-5 text-cyan-500" />
+                        Estado de Computadores
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm text-slate-400">Asignados</span>
+                              <span className="text-sm text-green-400">
+                                {dashboardData.assignedComputers} (
+                                {Math.round((dashboardData.assignedComputers / dashboardData.totalComputers) * 100)}%)
+                              </span>
+                            </div>
+                            <Progress
+                              value={(dashboardData.assignedComputers / dashboardData.totalComputers) * 100}
+                              className="h-3 bg-slate-700"
+                            >
+                              <div
+                                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
+                                style={{
+                                  width: `${(dashboardData.assignedComputers / dashboardData.totalComputers) * 100}%`,
+                                }}
+                              />
+                            </Progress>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm text-slate-400">En Resguardo</span>
+                              <span className="text-sm text-amber-400">
+                                {dashboardData.storedComputers} (
+                                {Math.round((dashboardData.storedComputers / dashboardData.totalComputers) * 100)}%)
+                              </span>
+                            </div>
+                            <Progress
+                              value={(dashboardData.storedComputers / dashboardData.totalComputers) * 100}
+                              className="h-3 bg-slate-700"
+                            >
+                              <div
+                                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+                                style={{
+                                  width: `${(dashboardData.storedComputers / dashboardData.totalComputers) * 100}%`,
+                                }}
+                              />
+                            </Progress>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-center">
+                          <div className="relative w-48 h-48">
+                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                              <circle cx="50" cy="50" r="40" stroke="rgb(51 65 85)" strokeWidth="8" fill="none" />
+                              <circle
+                                cx="50"
+                                cy="50"
+                                r="40"
+                                stroke="url(#gradient1)"
+                                strokeWidth="8"
+                                fill="none"
+                                strokeDasharray={`${(dashboardData.assignedComputers / dashboardData.totalComputers) * 251.2} 251.2`}
+                                strokeLinecap="round"
+                              />
+                              <defs>
+                                <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                  <stop offset="0%" stopColor="rgb(34 197 94)" />
+                                  <stop offset="100%" stopColor="rgb(16 185 129)" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-slate-100">
+                                  {Math.round((dashboardData.assignedComputers / dashboardData.totalComputers) * 100)}%
+                                </div>
+                                <div className="text-xs text-slate-400">Asignados</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                <DataTable data={data} />
-              </div>
-            </div>
+              </TabsContent>
+
+              <TabsContent value="departments" className="mt-0">
+                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader className="border-b border-slate-700/50 pb-3">
+                    <CardTitle className="text-slate-100 flex items-center">
+                      <Users className="mr-2 h-5 w-5 text-cyan-500" />
+                      Distribución por Departamentos
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {dashboardData.departmentStats.map((dept, index) => (
+                        <div key={index} className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <h3 className="text-sm font-medium text-slate-200">{dept.name}</h3>
+                              <p className="text-xs text-slate-400">
+                                {dept.users} usuarios • {dept.computers} computadores
+                              </p>
+                            </div>
+                            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+                              {dept.percentage}%
+                            </Badge>
+                          </div>
+                          <Progress value={dept.percentage} className="h-2 bg-slate-700">
+                            <div
+                              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+                              style={{ width: `${dept.percentage}%` }}
+                            />
+                          </Progress>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="trends" className="mt-0">
+                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader className="border-b border-slate-700/50 pb-3">
+                    <CardTitle className="text-slate-100 flex items-center">
+                      <TrendingUp className="mr-2 h-5 w-5 text-cyan-500" />
+                      Análisis de Tendencias
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-cyan-400">Crecimiento Mensual</h3>
+                        <div className="space-y-3">
+                          <TrendItem label="Usuarios" value={dashboardData.trends.users} />
+                          <TrendItem label="Dispositivos" value={dashboardData.trends.devices} />
+                          <TrendItem label="Computadores" value={dashboardData.trends.computers} />
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-cyan-400">Asignaciones</h3>
+                        <div className="space-y-3">
+                          <TrendItem label="Asignados" value={dashboardData.trends.assigned} />
+                          <TrendItem label="En Resguardo" value={dashboardData.trends.stored} />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
 
+          {/* Right Column - Activity and Time */}
+          <div className="col-span-12 lg:col-span-4">
+            <div className="space-y-6">
+              {/* System Time */}
+              <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 border-b border-slate-700/50">
+                    <div className="text-center">
+                      <div className="text-xs text-slate-500 mb-1 font-mono">TIEMPO DEL SISTEMA</div>
+                      <div className="text-2xl font-mono text-cyan-400 mb-1">{formatTime(currentTime)}</div>
+                      <div className="text-sm text-slate-400">{formatDate(currentTime)}</div>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-800/50 rounded-md p-3 border border-slate-700/50">
+                        <div className="text-xs text-slate-500 mb-1">Última Actualización</div>
+                        <div className="text-sm font-mono text-slate-200">Hace 2 min</div>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-md p-3 border border-slate-700/50">
+                        <div className="text-xs text-slate-500 mb-1">Estado</div>
+                        <div className="flex items-center">
+                          <div className="h-2 w-2 rounded-full bg-green-500 mr-1 animate-pulse"></div>
+                          <div className="text-sm font-mono text-slate-200">Online</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Activity */}
+              <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                <CardHeader className="border-b border-slate-700/50 pb-3">
+                  <CardTitle className="text-slate-100 text-base flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Activity className="mr-2 h-4 w-4 text-cyan-500" />
+                      Actividad Reciente
+                    </div>
+                    <Badge variant="outline" className="bg-slate-800/50 text-cyan-400 border-cyan-500/50">
+                      {dashboardData.recentActivity.length} Nuevas
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    {dashboardData.recentActivity.map((activity) => {
+                      const ActivityIcon = getActivityIcon(activity.type)
+                      const activityColor = getActivityColor(activity.type)
+
+                      return (
+                        <div
+                          key={activity.id}
+                          className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-md border border-slate-700/30"
+                        >
+                          <div className={`mt-0.5 p-1 rounded-full bg-slate-800 border border-slate-700`}>
+                            <ActivityIcon className={`h-3 w-3 ${activityColor}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-slate-200">{activity.action}</p>
+                            <p className="text-xs text-slate-400">{activity.device}</p>
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-xs text-slate-500">{activity.user}</p>
+                              <p className="text-xs text-slate-500">{activity.time}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                <CardHeader className="border-b border-slate-700/50 pb-3">
+                  <CardTitle className="text-slate-100 text-base">Acciones Rápidas</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="outline"
+                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                    >
+                      <Monitor className="h-5 w-5 text-cyan-500" />
+                      <span className="text-white">Nuevo Dispositivo</span>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                    >
+                      <Users className="h-5 w-5 text-blue-500" />
+                      <span className="text-white">Nuevo Usuario</span>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                    >
+                      <UserCheck className="h-5 w-5 text-green-500" />
+                      <span className="text-white">Asignar</span>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                    >
+                      <Cpu className="h-5 w-5 text-purple-500" />
+                      <span className="text-white">Nuevo Computador</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
+
+// Componente para las tarjetas de estadísticas
+function StatCard({
+  title,
+  value,
+  trend,
+  icon: Icon,
+  color,
+  description,
+}: {
+  title: string
+  value: number
+  trend: number
+  icon: any
+  color: string
+  description: string
+}) {
+  const getColorClasses = () => {
+    switch (color) {
+      case "cyan":
+        return "from-cyan-500 to-blue-500 border-cyan-500/30 text-cyan-500"
+      case "blue":
+        return "from-blue-500 to-indigo-500 border-blue-500/30 text-blue-500"
+      case "purple":
+        return "from-purple-500 to-pink-500 border-purple-500/30 text-purple-500"
+      case "green":
+        return "from-green-500 to-emerald-500 border-green-500/30 text-green-500"
+      case "amber":
+        return "from-amber-500 to-orange-500 border-amber-500/30 text-amber-500"
+      default:
+        return "from-cyan-500 to-blue-500 border-cyan-500/30 text-cyan-500"
+    }
+  }
+
+  const colorClasses = getColorClasses()
+
+  return (
+    <Card className={`bg-slate-900/50 border-slate-700/50 backdrop-blur-sm overflow-hidden relative`}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-sm text-slate-400">{title}</div>
+          <Icon className={`h-5 w-5 ${colorClasses.split(" ")[2]}`} />
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-3xl font-bold text-slate-100">{value.toLocaleString()}</div>
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-slate-500">{description}</div>
+            <div className={`flex items-center text-xs ${trend >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {trend >= 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+              {Math.abs(trend)}%
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`absolute -bottom-6 -right-6 h-16 w-16 rounded-full bg-gradient-to-r opacity-10 blur-xl ${colorClasses.split(" ")[0]} ${colorClasses.split(" ")[1]}`}
+        ></div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Componente para items de tendencia
+function TrendItem({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between p-3 bg-slate-800/30 rounded-md border border-slate-700/30">
+      <span className="text-sm text-slate-300">{label}</span>
+      <div className={`flex items-center text-sm ${value >= 0 ? "text-green-400" : "text-red-400"}`}>
+        {value >= 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
+        {Math.abs(value)}%
+      </div>
+    </div>
+  )
+}
+

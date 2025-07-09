@@ -8,7 +8,7 @@ import { getRenderResumeDataCache } from 'next/dist/server/app-render/work-unit-
 const asignacionSchema = z.object({
   action: z.enum(['asignar', 'desvincular']),
   itemId: z.string().uuid(),
-  itemType: z.enum(['Computador', 'Dispositivo']),
+  itemType: z.enum(['Computador', 'Dispositivo', 'LineaTelefonica']),
   asignarA_id: z.string().uuid().optional(),
   asignarA_type: z.enum(['Usuario', 'Departamento']).optional(),
   notas: z.string().optional(),
@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
               }
             }
           }
-        },        // Incluye el objeto Dispositivo si existe
+        },
+        lineaTelefonica: true,        // Incluye el objeto Dispositivo si existe
         targetUsuario: true,      // Incluye el objeto Usuario si existe
         targetDepartamento: true, // Incluye el objeto Departamento si existe
       },
@@ -65,6 +66,13 @@ export async function GET(request: NextRequest) {
           detalles: {
             tipoDispositivo: a.dispositivo.modelo.tipo,
           },
+        };
+      } else if (a.itemType === 'LineaTelefonica' && a.lineaTelefonica) {
+        itemAsignado = {
+          id: a.lineaTelefonica.id,
+          tipo: 'LineaTelefonica',
+          serial: a.lineaTelefonica.imei,
+          descripcion: `${a.lineaTelefonica.proveedor} - ${a.lineaTelefonica.numero}`,
         };
       }
 
@@ -131,6 +139,7 @@ export async function POST(request: NextRequest) {
             itemType: itemType,
             computadorId: itemType === 'Computador' ? itemId : null,
             dispositivoId: itemType === 'Dispositivo' ? itemId : null,
+            lineaTelefonicaId: itemType === 'LineaTelefonica' ? itemId : null,
             targetType: asignarA_type,
             targetUsuarioId: asignarA_type === 'Usuario' ? asignarA_id : null,
             targetDepartamentoId: asignarA_type === 'Departamento' ? asignarA_id : null,
@@ -166,6 +175,7 @@ export async function POST(request: NextRequest) {
             itemType: itemType,
             computadorId: itemType === 'Computador' ? itemId : null,
             dispositivoId: itemType === 'Dispositivo' ? itemId : null,
+            lineaTelefonicaId: itemType === 'LineaTelefonica' ? itemId : null,
             // Guardamos quién lo devolvió para el historial
             targetType: ultimaAsignacion.targetType,
             targetUsuarioId: ultimaAsignacion.targetUsuarioId,

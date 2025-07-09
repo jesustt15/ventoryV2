@@ -17,7 +17,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 interface Activo {
     value: string; // id
     label: string; // nombre descriptivo
-    type: 'Computador' | 'Dispositivo';
+    type: 'Computador' | 'Dispositivo' | 'LineaTelefonica' ; // tipo de activo
     asignadoA?: string;
 }
 interface Target {
@@ -41,8 +41,15 @@ export default function AsignacionesPage() {
     const [motivo, setMotivo] = useState('');
     const [serialC, setSerialC] = useState('');
     const [modeloC, setModeloC] = useState('');
-    const [ localidad, setLocalidad ] = useState('');   
+    const [ localidad, setLocalidad ] = useState('');
+    // --- NUEVOS ESTADOS PARA LA SELECCIÓN GUIADA ---
+    const [assetType, setAssetType] = useState<'Computador' | 'Dispositivo' | 'LineaTelefonica' | ''>('');
+    const [marcas, setMarcas] = useState<Target[]>([]);
+    const [selectedMarca, setSelectedMarca] = useState<Target | null>(null);
+    const [modelos, setModelos] = useState<Target[]>([]);
+    const [selectedModelo, setSelectedModelo] = useState<Target | null>(null);
 
+  
    const fetchData = useCallback(async () => {
         setLoading(true);
         const equipoId = searchParams.get('equipoId');
@@ -97,6 +104,63 @@ export default function AsignacionesPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+
+    // 1. Cargar datos iniciales (marcas, usuarios, deptos)
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            setLoading(true);
+            try {
+                const [resMarcas, resUsuarios, resDeptos] = await Promise.all([
+                    fetch('/api/marcas'),
+                    fetch('/api/usuarios'),
+                    fetch('/api/departamentos'),
+                ]);
+                setMarcas((await resMarcas.json()).map((m: any) => ({ value: m.id, label: m.nombre })));
+               const usuariosData = await resUsuarios.json();
+                const deptosData = await resDeptos.json();
+                setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
+                setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));
+                } catch (e) { 
+                    showToast.error("Error al cargar los datos.");
+                    console.error("Error fetching data:", e);
+                } finally {
+                    setLoading(false);
+                }
+        };
+        fetchInitialData();
+    }, []);
+
+    // 2. Cargar modelos cuando se selecciona una marca
+    useEffect(() => {
+        if (selectedMarca) {
+            const fetchModelos = async () => {
+                const res = await fetch(`/api/modelos/modeloByMarca?marcaId=${selectedMarca.value}`);
+                setModelos((await res.json()).map((m: any) => ({ value: m.id, label: m.nombre })));
+            };
+            fetchModelos();
+        }
+        // Reiniciar listas dependientes si la marca se deselecciona
+        setSelectedModelo(null);
+        setEquiposDisponibles([]);
+    }, [selectedMarca]);
+
+    // 3. Cargar activos finales cuando se selecciona un modelo
+    useEffect(() => {
+        if (selectedModelo) {
+            const fetchActivos = async () => {
+                // Usamos el tipo de activo para decidir el endpoint
+                const res = await fetch(`/api/${assetType.toLowerCase()}?modeloId=${selectedModelo.value}&asignado=false`);
+                setEquiposDisponibles(await res.json());
+            };
+            fetchActivos();
+        }
+        // Reiniciar lista dependiente
+        setSelectedEquipo(null);
+    }, [selectedModelo, assetType]);
+
+
+// Nota: Necesitarás una lógica similar para 'LineaTelefonica' que use proveedores en lugar de marcas/modelos.
 
         // AÑADIDO: Función para limpiar la preselección
     const handleClearPreselection = () => {
@@ -192,41 +256,75 @@ export default function AsignacionesPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label>1. Selecciona un Equipo</Label>
-                        
-                        {loading ? (
-                            <p>Cargando...</p>
-                        ) : // MODIFICADO: Renderizado condicional del campo de equipo
-                            selectedEquipo && searchParams.get('equipoId') ? (
-                            // Si hay un equipo preseleccionado desde la URL, lo mostramos
-                            <div className="flex items-center justify-between p-3 border border-blue-500 rounded-md bg-slate-800">
-                                <div>
-                                    <p className="font-bold">{selectedEquipo.label}</p>
-                                    <p className="text-xs text-slate-400">Equipo preseleccionado</p>
-                                </div>
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={handleClearPreselection}
-                                    aria-label="Limpiar selección"
-                                >
-                                    <XCircle className="h-5 w-5 text-red-500" />
-                                </Button>
-                            </div>
-                        ) : (
-                            // Si no, mostramos el Select buscable normal
-                            <Select
-                                instanceId="sololo"
-                                options={equiposDisponibles}
-                                value={selectedEquipo}
-                                onChange={setSelectedEquipo}
-                                styles={reactSelectStyles}
-                                placeholder="Buscar por modelo o serial..."
-                                isClearable
-                                isSearchable
-                            />
-                        )}
+                        <Label>1. Selecciona el Tipo de Activo</Label>
+                        <Select
+                            instanceId="asset-type-select"
+                            options={[
+                                { value: "Computador", label: "Computador" },
+                                { value: "Dispositivo", label: "Dispositivo" },
+                                { value: "LineaTelefonica", label: "Línea Telefónica" }
+                            ]}
+                            value={
+                                assetType
+                                    ? { value: assetType, label: assetType === "LineaTelefonica" ? "Línea Telefónica" : assetType }
+                                    : null
+                            }
+                            onChange={(option) => setAssetType(option ? option.value as typeof assetType : '')}
+                            placeholder="Elige un tipo..."
+                            isClearable
+                            styles={reactSelectStyles}
+                        />
                     </div>
+
+                    {/* --- Renderizado Condicional para Computador/Dispositivo --- */}
+                    {(assetType === 'Computador' || assetType === 'Dispositivo') && (
+                        <div className="space-y-4 animate-in fade-in-0">
+                            <div className="space-y-2">
+                                <Label>2. Selecciona la Marca</Label>
+                                <Select
+                                    instanceId="marca-select"
+                                    options={marcas}
+                                    value={selectedMarca}
+                                    onChange={setSelectedMarca}
+                                    placeholder="Buscar marca..."
+                                    isClearable
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>3. Selecciona el Modelo</Label>
+                                <Select
+                                    instanceId="modelo-select"
+                                    options={modelos}
+                                    value={selectedModelo}
+                                    onChange={setSelectedModelo}
+                                    placeholder="Buscar modelo..."
+                                    isClearable
+                                    isDisabled={!selectedMarca}
+                                    styles={reactSelectStyles}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>4. Selecciona el Activo Específico (por Serial)</Label>
+                                <Select
+                                    instanceId="activo-select"
+                                    options={equiposDisponibles}
+                                    value={selectedEquipo}
+                                    onChange={setSelectedEquipo}
+                                    placeholder="Buscar serial..."
+                                    isClearable
+                                    isDisabled={!selectedModelo}
+                                    styles={reactSelectStyles}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- Renderizado Condicional para Líneas Telefónicas (Ejemplo) --- */}
+                    {assetType === 'LineaTelefonica' && (
+                        <div className="space-y-4 animate-in fade-in-0">
+                            {/* Aquí irían los Selects para Proveedor y luego para el Número */}
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label>2. Elige el Destino de la Asignación</Label>

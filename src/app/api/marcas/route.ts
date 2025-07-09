@@ -23,7 +23,11 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const marcas = await prisma.marca.findMany();
+    const marcas = await prisma.marca.findMany({
+      orderBy:{
+        nombre: 'asc',
+      }
+    });
     return NextResponse.json(marcas, { status: 200 });
   } catch (error) {
     console.error(error);

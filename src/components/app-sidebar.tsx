@@ -4,8 +4,9 @@ import React, { useEffect } from 'react';
 import { Sidebar, SidebarHeader, SidebarMenu, SidebarMenuItem, 
          SidebarMenuButton, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { LayoutDashboardIcon, Printer, Tag, Laptop, Factory, 
-         UsersIcon, ClipboardListIcon, SettingsIcon, HelpCircleIcon, 
-         SearchIcon, ArrowUpCircleIcon, LogOutIcon } from 'lucide-react';
+         UsersIcon, ClipboardListIcon,
+          ArrowUpCircleIcon, CardSim
+} from 'lucide-react';
 import Link from 'next/link';
 import { NavMain } from './nav-main';
 import { NavSecondary } from './nav-secondary';
@@ -21,6 +22,7 @@ const navData = {
     { title: "Modelos", url: "/modelos", icon: Tag },
     { title: "Dispositivos", url: "/dispositivos", icon: Printer },
     { title: "Computadores", url: "/computadores", icon: Laptop },
+    { title: "Líneas Telefónicas", url: "/lineas", icon: CardSim },
     { title: "Departamentos", url: "/departamentos", icon: Factory },
     { title: "Usuarios", url: "/usuarios", icon: UsersIcon },
     { title: "Asignaciones", url: "/asignaciones", icon: ClipboardListIcon },

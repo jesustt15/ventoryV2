@@ -220,9 +220,9 @@ const columns: ColumnDef<Asignaciones>[] = [
 
 React.useEffect(() => {
     if (searchQuery) {
-      table.getColumn("asignacion.id")?.setFilterValue(searchQuery)
+      table.getColumn("id")?.setFilterValue(searchQuery)
     } else {
-      table.getColumn("asignacion.id")?.setFilterValue("")
+      table.getColumn("id")?.setFilterValue("")
     }
   }, [table, searchQuery])
 

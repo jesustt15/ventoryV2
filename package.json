@@ -7,7 +7,8 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "scripts": {
-     "db:migrar-usuarios": "node --loader ts-node/esm scripts/migrar-usuarios.ts",
+    "db:migrar-usuarios": "node --loader ts-node/esm scripts/migrar-usuarios.ts",
+    "db:migrar-deptos": "node --loader ts-node/esm scripts/migrar-deptos.ts",
     "db:generar-seed": "node --loader ts-node/esm scripts/generar-seed.ts",
     "dev": "next dev",
     "build": "next build",
@@ -44,7 +45,7 @@
     "csv-parser": "^3.2.0",
     "exceljs": "^4.4.0",
     "jose": "^6.0.11",
-    "lucide-react": "^0.511.0",
+    "lucide-react": "^0.525.0",
     "next": "15.1.8",
     "next-themes": "^0.4.6",
     "nextjs-toast-notify": "^1.38.0",

@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 const gerencias = [
     { nombre: 'Gerencia General' },
     { nombre: 'Gerencia Forestal e Institucional' },
-    { nombre: 'Gerencia de Operaciones Industriales y Sum.' },
-    { nombre: 'Gerencia de Personas, Cultura y Comunicación' },
-    { nombre: 'Gerencia de Administración y Finanzas' },
+    { nombre: 'Gerencia Operaciones Industriales y Sum.' },
+    { nombre: 'Gcia. de Personas,Cultura y Comunicación' },
+    { nombre: 'Gerencia de Administracion y Finanzas' },
     { nombre: 'Gerencia SMS y PCP' },
     { nombre: 'Gerencia de Ventas Nacionales y Mercadeo' },
     { nombre: 'Gerencia Legal' },
