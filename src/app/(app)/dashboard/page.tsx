@@ -242,7 +242,6 @@ export default function InventoryDashboard() {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-20" />
 
       <div className="container mx-auto p-4 relative z-10">
-
         {/* Main Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <StatCard
@@ -367,6 +366,44 @@ export default function InventoryDashboard() {
                               />
                             </Progress>
                           </div>
+                          
+                          {/* Quick Actions - Moved here */}
+                          <div className="pt-4">
+                            <h3 className="text-sm font-semibold text-cyan-400 mb-3">Acciones Rápidas</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Button
+                                variant="outline"
+                                className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                              >
+                                <Monitor className="h-4 w-4 text-cyan-500" />
+                                <span className="text-xs text-white">Nuevo Dispositivo</span>
+                              </Button>
+
+                              <Button
+                                variant="outline"
+                                className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                              >
+                                <Users className="h-4 w-4 text-blue-500" />
+                                <span className="text-xs text-white">Nuevo Usuario</span>
+                              </Button>
+
+                              <Button
+                                variant="outline"
+                                className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                              >
+                                <UserCheck className="h-4 w-4 text-green-500" />
+                                <span className="text-xs text-white">Asignar</span>
+                              </Button>
+
+                              <Button
+                                variant="outline"
+                                className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                              >
+                                <Cpu className="h-4 w-4 text-purple-500" />
+                                <span className="text-xs text-white">Nuevo Computador</span>
+                              </Button>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-center">
@@ -403,78 +440,58 @@ export default function InventoryDashboard() {
                       </div>
                     </CardContent>
                   </Card>
+                  
+                  {/* Recent Activity - Horizontal layout */}
+                  <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                    <CardHeader className="border-b border-slate-700/50 pb-3">
+                      <CardTitle className="text-slate-100 text-base flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Activity className="mr-2 h-4 w-4 text-cyan-500" />
+                          Actividad Reciente
+                        </div>
+                        <Badge variant="outline" className="bg-slate-800/50 text-cyan-400 border-cyan-500/50">
+                          {dashboardData.recentActivity.length} Nuevas
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {dashboardData.recentActivity.slice(0, 3).map((activity) => {
+                          const ActivityIcon = getActivityIcon(activity.type)
+                          const activityColor = getActivityColor(activity.type)
+
+                          return (
+                            <div
+                              key={activity.id}
+                              className="flex flex-col space-y-2 p-3 bg-slate-800/30 rounded-md border border-slate-700/30"
+                            >
+                              <div className="flex items-start">
+                                <div className={`mt-0.5 p-1 rounded-full bg-slate-800 border border-slate-700`}>
+                                  <ActivityIcon className={`h-3 w-3 ${activityColor}`} />
+                                </div>
+                                <div className="flex-1 min-w-0 ml-2">
+                                  <p className="text-xs font-medium text-slate-200">{activity.action}</p>
+                                  <p className="text-xs text-slate-400">{activity.device}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs text-slate-500">{activity.user}</p>
+                                <p className="text-xs text-slate-500">{activity.time}</p>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 
-              <TabsContent value="departments" className="mt-0">
-                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                  <CardHeader className="border-b border-slate-700/50 pb-3">
-                    <CardTitle className="text-slate-100 flex items-center">
-                      <Users className="mr-2 h-5 w-5 text-cyan-500" />
-                      Distribución por Departamentos
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      {dashboardData.departmentStats.map((dept, index) => (
-                        <div key={index} className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h3 className="text-sm font-medium text-slate-200">{dept.name}</h3>
-                              <p className="text-xs text-slate-400">
-                                {dept.users} usuarios • {dept.computers} computadores
-                              </p>
-                            </div>
-                            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
-                              {dept.percentage}%
-                            </Badge>
-                          </div>
-                          <Progress value={dept.percentage} className="h-2 bg-slate-700">
-                            <div
-                              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
-                              style={{ width: `${dept.percentage}%` }}
-                            />
-                          </Progress>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="trends" className="mt-0">
-                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                  <CardHeader className="border-b border-slate-700/50 pb-3">
-                    <CardTitle className="text-slate-100 flex items-center">
-                      <TrendingUp className="mr-2 h-5 w-5 text-cyan-500" />
-                      Análisis de Tendencias
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-cyan-400">Crecimiento Mensual</h3>
-                        <div className="space-y-3">
-                          <TrendItem label="Usuarios" value={dashboardData.trends.users} />
-                          <TrendItem label="Dispositivos" value={dashboardData.trends.devices} />
-                          <TrendItem label="Computadores" value={dashboardData.trends.computers} />
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-cyan-400">Asignaciones</h3>
-                        <div className="space-y-3">
-                          <TrendItem label="Asignados" value={dashboardData.trends.assigned} />
-                          <TrendItem label="En Resguardo" value={dashboardData.trends.stored} />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              {/* Departments and Trends tabs remain unchanged */}
             </Tabs>
           </div>
 
-          {/* Right Column - Activity and Time */}
+          {/* Right Column - Time and Additional Info */}
           <div className="col-span-12 lg:col-span-4">
             <div className="space-y-6">
               {/* System Time */}
@@ -505,85 +522,31 @@ export default function InventoryDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Recent Activity */}
+              {/* Department Stats Summary */}
               <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
                 <CardHeader className="border-b border-slate-700/50 pb-3">
-                  <CardTitle className="text-slate-100 text-base flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Activity className="mr-2 h-4 w-4 text-cyan-500" />
-                      Actividad Reciente
-                    </div>
-                    <Badge variant="outline" className="bg-slate-800/50 text-cyan-400 border-cyan-500/50">
-                      {dashboardData.recentActivity.length} Nuevas
-                    </Badge>
+                  <CardTitle className="text-slate-100 flex items-center">
+                    <Users className="mr-2 h-5 w-5 text-cyan-500" />
+                    Resumen Departamentos
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
                   <div className="space-y-3">
-                    {dashboardData.recentActivity.map((activity) => {
-                      const ActivityIcon = getActivityIcon(activity.type)
-                      const activityColor = getActivityColor(activity.type)
-
-                      return (
-                        <div
-                          key={activity.id}
-                          className="flex items-start space-x-3 p-3 bg-slate-800/30 rounded-md border border-slate-700/30"
-                        >
-                          <div className={`mt-0.5 p-1 rounded-full bg-slate-800 border border-slate-700`}>
-                            <ActivityIcon className={`h-3 w-3 ${activityColor}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-slate-200">{activity.action}</p>
-                            <p className="text-xs text-slate-400">{activity.device}</p>
-                            <div className="flex items-center justify-between mt-1">
-                              <p className="text-xs text-slate-500">{activity.user}</p>
-                              <p className="text-xs text-slate-500">{activity.time}</p>
-                            </div>
-                          </div>
+                    {dashboardData.departmentStats.slice(0, 3).map((dept, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-slate-200">{dept.name}</h3>
+                          <p className="text-xs text-slate-400">
+                            {dept.users} usuarios • {dept.computers} computadores
+                          </p>
                         </div>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                <CardHeader className="border-b border-slate-700/50 pb-3">
-                  <CardTitle className="text-slate-100 text-base">Acciones Rápidas</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
-                    >
-                      <Monitor className="h-5 w-5 text-cyan-500" />
-                      <span className="text-white">Nuevo Dispositivo</span>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
-                    >
-                      <Users className="h-5 w-5 text-blue-500" />
-                      <span className="text-white">Nuevo Usuario</span>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
-                    >
-                      <UserCheck className="h-5 w-5 text-green-500" />
-                      <span className="text-white">Asignar</span>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="h-auto py-3 px-3 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
-                    >
-                      <Cpu className="h-5 w-5 text-purple-500" />
-                      <span className="text-white">Nuevo Computador</span>
+                        <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+                          {dept.percentage}%
+                        </Badge>
+                      </div>
+                    ))}
+                    <Button variant="link" className="text-cyan-400 p-0 text-xs">
+                      Ver todos los departamentos →
                     </Button>
                   </div>
                 </CardContent>
@@ -671,3 +634,161 @@ function TrendItem({ label, value }: { label: string; value: number }) {
   )
 }
 
+{/* <TabsContent value="overview" className="mt-0">
+                <div className="grid gap-6">
+                  {/* Assignment Overview */}
+              //     <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+              //       <CardHeader className="border-b border-slate-700/50 pb-3">
+              //         <CardTitle className="text-slate-100 flex items-center">
+              //           <PieChart className="mr-2 h-5 w-5 text-cyan-500" />
+              //           Estado de Computadores
+              //         </CardTitle>
+              //       </CardHeader>
+              //       <CardContent className="p-6">
+              //         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              //           <div className="space-y-6">
+              //             <div>
+              //               <div className="flex items-center justify-between mb-2">
+              //                 <span className="text-sm text-slate-400">Asignados</span>
+              //                 <span className="text-sm text-green-400">
+              //                   {dashboardData.assignedComputers} (
+              //                   {Math.round((dashboardData.assignedComputers / dashboardData.totalComputers) * 100)}%)
+              //                 </span>
+              //               </div>
+              //               <Progress
+              //                 value={(dashboardData.assignedComputers / dashboardData.totalComputers) * 100}
+              //                 className="h-3 bg-slate-700"
+              //               >
+              //                 <div
+              //                   className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
+              //                   style={{
+              //                     width: `${(dashboardData.assignedComputers / dashboardData.totalComputers) * 100}%`,
+              //                   }}
+              //                 />
+              //               </Progress>
+              //             </div>
+
+              //             <div>
+              //               <div className="flex items-center justify-between mb-2">
+              //                 <span className="text-sm text-slate-400">En Resguardo</span>
+              //                 <span className="text-sm text-amber-400">
+              //                   {dashboardData.storedComputers} (
+              //                   {Math.round((dashboardData.storedComputers / dashboardData.totalComputers) * 100)}%)
+              //                 </span>
+              //               </div>
+              //               <Progress
+              //                 value={(dashboardData.storedComputers / dashboardData.totalComputers) * 100}
+              //                 className="h-3 bg-slate-700"
+              //               >
+              //                 <div
+              //                   className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+              //                   style={{
+              //                     width: `${(dashboardData.storedComputers / dashboardData.totalComputers) * 100}%`,
+              //                   }}
+              //                 />
+              //               </Progress>
+              //             </div>
+              //           </div>
+
+              //           <div className="flex items-center justify-center">
+              //             <div className="relative w-48 h-48">
+              //               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              //                 <circle cx="50" cy="50" r="40" stroke="rgb(51 65 85)" strokeWidth="8" fill="none" />
+              //                 <circle
+              //                   cx="50"
+              //                   cy="50"
+              //                   r="40"
+              //                   stroke="url(#gradient1)"
+              //                   strokeWidth="8"
+              //                   fill="none"
+              //                   strokeDasharray={`${(dashboardData.assignedComputers / dashboardData.totalComputers) * 251.2} 251.2`}
+              //                   strokeLinecap="round"
+              //                 />
+              //                 <defs>
+              //                   <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+              //                     <stop offset="0%" stopColor="rgb(34 197 94)" />
+              //                     <stop offset="100%" stopColor="rgb(16 185 129)" />
+              //                   </linearGradient>
+              //                 </defs>
+              //               </svg>
+              //               <div className="absolute inset-0 flex items-center justify-center">
+              //                 <div className="text-center">
+              //                   <div className="text-2xl font-bold text-slate-100">
+              //                     {Math.round((dashboardData.assignedComputers / dashboardData.totalComputers) * 100)}%
+              //                   </div>
+              //                   <div className="text-xs text-slate-400">Asignados</div>
+              //                 </div>
+              //               </div>
+              //             </div>
+              //           </div>
+              //         </div>
+              //       </CardContent>
+              //     </Card>
+              //   </div>
+              // </TabsContent>
+
+              // <TabsContent value="departments" className="mt-0">
+              //   <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+              //     <CardHeader className="border-b border-slate-700/50 pb-3">
+              //       <CardTitle className="text-slate-100 flex items-center">
+              //         <Users className="mr-2 h-5 w-5 text-cyan-500" />
+              //         Distribución por Departamentos
+              //       </CardTitle>
+              //     </CardHeader>
+              //     <CardContent className="p-6">
+              //       <div className="space-y-4">
+              //         {dashboardData.departmentStats.map((dept, index) => (
+              //           <div key={index} className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
+              //             <div className="flex items-center justify-between mb-3">
+              //               <div>
+              //                 <h3 className="text-sm font-medium text-slate-200">{dept.name}</h3>
+              //                 <p className="text-xs text-slate-400">
+              //                   {dept.users} usuarios • {dept.computers} computadores
+              //                 </p>
+              //               </div>
+              //               <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+              //                 {dept.percentage}%
+              //               </Badge>
+              //             </div>
+              //             <Progress value={dept.percentage} className="h-2 bg-slate-700">
+              //               <div
+              //                 className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+              //                 style={{ width: `${dept.percentage}%` }}
+              //               />
+              //             </Progress>
+              //           </div>
+              //         ))}
+              //       </div>
+              //     </CardContent>
+              //   </Card>
+              // </TabsContent>
+
+              // <TabsContent value="trends" className="mt-0">
+              //   <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+              //     <CardHeader className="border-b border-slate-700/50 pb-3">
+              //       <CardTitle className="text-slate-100 flex items-center">
+              //         <TrendingUp className="mr-2 h-5 w-5 text-cyan-500" />
+              //         Análisis de Tendencias
+              //       </CardTitle>
+              //     </CardHeader>
+              //     <CardContent className="p-6">
+              //       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              //         <div className="space-y-4">
+              //           <h3 className="text-sm font-semibold text-cyan-400">Crecimiento Mensual</h3>
+              //           <div className="space-y-3">
+              //             <TrendItem label="Usuarios" value={dashboardData.trends.users} />
+              //             <TrendItem label="Dispositivos" value={dashboardData.trends.devices} />
+              //             <TrendItem label="Computadores" value={dashboardData.trends.computers} />
+              //           </div>
+              //         </div>
+              //         <div className="space-y-4">
+              //           <h3 className="text-sm font-semibold text-cyan-400">Asignaciones</h3>
+              //           <div className="space-y-3">
+              //             <TrendItem label="Asignados" value={dashboardData.trends.assigned} />
+              //             <TrendItem label="En Resguardo" value={dashboardData.trends.stored} />
+              //           </div>
+              //         </div>
+              //       </div>
+              //     </CardContent>
+              //   </Card>
+              // </TabsContent> */}

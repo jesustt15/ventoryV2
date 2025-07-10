@@ -48,6 +48,9 @@ export default function AsignacionesPage() {
     const [selectedMarca, setSelectedMarca] = useState<Target | null>(null);
     const [modelos, setModelos] = useState<Target[]>([]);
     const [selectedModelo, setSelectedModelo] = useState<Target | null>(null);
+     const [proveedores, setProveedores] = useState<{value: string, label: string}[]>([]);
+    const [selectedProveedor, setSelectedProveedor] = useState<Target | null>(null);
+    const [activosDisponibles, setActivosDisponibles] = useState<Activo[]>([]);
 
   
    const fetchData = useCallback(async () => {
@@ -56,14 +59,17 @@ export default function AsignacionesPage() {
 
         try {
             // Siempre necesitamos los usuarios y departamentos para los dropdowns
-            const [resUsuarios, resDeptos] = await Promise.all([
+            const [resUsuarios, resDeptos, resProveedores] = await Promise.all([
                 fetch('/api/usuarios'),
                 fetch('/api/departamentos'),
+                fetch('/api/proveedores'),
             ]);
             const usuariosData = await resUsuarios.json();
             const deptosData = await resDeptos.json();
+            const proveedoresData = await resProveedores.json();
             setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
             setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));
+            setProveedores(proveedoresData.map((p: any) => ({ value: p.id, label: p.nombre })));
 
             // Lógica condicional para el equipo
             if (equipoId) {
@@ -131,34 +137,36 @@ export default function AsignacionesPage() {
         fetchInitialData();
     }, []);
 
-    // 2. Cargar modelos cuando se selecciona una marca
-    useEffect(() => {
-        if (selectedMarca) {
-            const fetchModelos = async () => {
-                const res = await fetch(`/api/modelos/modeloByMarca?marcaId=${selectedMarca.value}`);
-                setModelos((await res.json()).map((m: any) => ({ value: m.id, label: m.nombre })));
-            };
-            fetchModelos();
-        }
-        // Reiniciar listas dependientes si la marca se deselecciona
-        setSelectedModelo(null);
-        setEquiposDisponibles([]);
+useEffect(() => {
+        if (!selectedMarca) { setModelos([]); return; }
+        const fetchModelos = async () => {
+            const res = await fetch(`/api/modelos?marcaId=${selectedMarca.value}`);
+            setModelos((await res.json()).map((m: any) => ({ value: m.id, label: m.nombre })));
+        };
+        fetchModelos();
     }, [selectedMarca]);
 
-    // 3. Cargar activos finales cuando se selecciona un modelo
+    // 4. Cargar activos finales cuando se selecciona un MODELO
     useEffect(() => {
-        if (selectedModelo) {
-            const fetchActivos = async () => {
-                // Usamos el tipo de activo para decidir el endpoint
-                const res = await fetch(`/api/${assetType.toLowerCase()}?modeloId=${selectedModelo.value}&asignado=false`);
-                setEquiposDisponibles(await res.json());
-            };
-            fetchActivos();
-        }
-        // Reiniciar lista dependiente
-        setSelectedEquipo(null);
-    }, [selectedModelo, assetType]);
+        if (!selectedModelo) { setActivosDisponibles([]); return; }
+        const fetchActivos = async () => {
+            // ¡ESTA ES LA LLAMADA CORRECTA!
+            const res = await fetch(`/api/activos?modeloId=${selectedModelo.value}`);
+            setActivosDisponibles(await res.json());
+        };
+        fetchActivos();
+    }, [selectedModelo]);
 
+    // 5. Cargar líneas telefónicas cuando se selecciona un PROVEEDOR
+    useEffect(() => {
+        if (!selectedProveedor) { setActivosDisponibles([]); return; }
+        const fetchLineas = async () => {
+             // ¡ESTA ES LA LLAMADA CORRECTA!
+            const res = await fetch(`/api/activos?proveedor=${selectedProveedor.value}`);
+            setActivosDisponibles(await res.json());
+        };
+        fetchLineas();
+    }, [selectedProveedor]);
 
 // Nota: Necesitarás una lógica similar para 'LineaTelefonica' que use proveedores en lugar de marcas/modelos.
 
@@ -287,6 +295,7 @@ export default function AsignacionesPage() {
                                     value={selectedMarca}
                                     onChange={setSelectedMarca}
                                     placeholder="Buscar marca..."
+                                    styles={reactSelectStyles}
                                     isClearable
                                 />
                             </div>
