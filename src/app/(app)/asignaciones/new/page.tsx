@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -25,143 +26,123 @@ interface Target {
     label: string; // nombre
 }
 
+interface UsuarioTarget extends Target {
+    cargo: string;
+}
+
 export default function AsignacionesPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [equiposDisponibles, setEquiposDisponibles] = useState<Activo[]>([]);
+        // --- ESTADOS DE DATOS BASE ---
     const [equiposAsignados, setEquiposAsignados] = useState<Activo[]>([]);
-    const [usuarios, setUsuarios] = useState<Target[]>([]);
+    const [usuarios, setUsuarios] = useState<UsuarioTarget[]>([]);
     const [departamentos, setDepartamentos] = useState<Target[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedEquipo, setSelectedEquipo] = useState<Activo | null>(null);
-    const [asignarA, setAsignarA] = useState<'Usuario' | 'Departamento'>('Usuario');
-    const [selectedTarget, setSelectedTarget] = useState<Target | null>(null);
-    const [notas, setNotas] = useState('');
-    const [gerente, setGerente] = useState('');
-    const [motivo, setMotivo] = useState('');
-    const [serialC, setSerialC] = useState('');
-    const [modeloC, setModeloC] = useState('');
-    const [ localidad, setLocalidad ] = useState('');
-    // --- NUEVOS ESTADOS PARA LA SELECCIÓN GUIADA ---
-    const [assetType, setAssetType] = useState<'Computador' | 'Dispositivo' | 'LineaTelefonica' | ''>('');
     const [marcas, setMarcas] = useState<Target[]>([]);
+    const [proveedores, setProveedores] = useState<{value: string, label: string}[]>([]);
+    
+    // --- ESTADOS DEL FORMULARIO Y FLUJO GUIADO ---
+    const [loading, setLoading] = useState(true);
+    const [assetType, setAssetType] = useState<'Computador' | 'Dispositivo' | 'LineaTelefonica' | ''>('');
+    
     const [selectedMarca, setSelectedMarca] = useState<Target | null>(null);
     const [modelos, setModelos] = useState<Target[]>([]);
     const [selectedModelo, setSelectedModelo] = useState<Target | null>(null);
-     const [proveedores, setProveedores] = useState<{value: string, label: string}[]>([]);
+
     const [selectedProveedor, setSelectedProveedor] = useState<Target | null>(null);
+    
     const [activosDisponibles, setActivosDisponibles] = useState<Activo[]>([]);
+    const [selectedEquipo, setSelectedEquipo] = useState<Activo | null>(null);
+    
+    // Estados para campos adicionales del formulario
+    const [asignarA, setAsignarA] = useState<'Usuario' | 'Departamento'>('Usuario');
+    const [selectedTarget, setSelectedTarget] = useState<Target | null>(null);
+    const [notas, setNotas] = useState('');
+    const [selectedGerente, setSelectedGerente] = useState<Target | null>(null);
+    const [motivo, setMotivo] = useState('');
+    const [localidad, setLocalidad] = useState('');
+    const [modeloC, setModeloC] = useState('');
+    const [serialC, setSerialC] = useState('');
 
   
-   const fetchData = useCallback(async () => {
-        setLoading(true);
-        const equipoId = searchParams.get('equipoId');
+    // --- LÓGICA DE CARGA DE DATOS (REFACTORIZADA) ---
 
-        try {
-            // Siempre necesitamos los usuarios y departamentos para los dropdowns
-            const [resUsuarios, resDeptos, resProveedores] = await Promise.all([
-                fetch('/api/usuarios'),
-                fetch('/api/departamentos'),
-                fetch('/api/proveedores'),
-            ]);
-            const usuariosData = await resUsuarios.json();
-            const deptosData = await resDeptos.json();
-            const proveedoresData = await resProveedores.json();
-            setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
-            setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));
-            setProveedores(proveedoresData.map((p: any) => ({ value: p.id, label: p.nombre })));
-
-            // Lógica condicional para el equipo
-            if (equipoId) {
-                // Si hay un ID en la URL, buscamos solo ese equipo.
-                const resEquipo = await fetch(`/api/activos/${equipoId}`);
-                if (!resEquipo.ok) {
-                    showToast.error("El equipo preseleccionado no se encontró o ya está asignado.");
-                    // Limpiamos el parámetro de la URL para evitar bucles
-                    router.replace('/asignaciones', { scroll: false }); 
-                    // Y cargamos la lista normal de disponibles
-                    const resDisponibles = await fetch('/api/activos?estado=disponible');
-                    setEquiposDisponibles(await resDisponibles.json());
-                } else {
-                    const equipoData = await resEquipo.json();
-                    // Ponemos el equipo preseleccionado en el estado `selectedEquipo`
-                    setSelectedEquipo(equipoData);
-                }
-            } else {
-                // Si no hay ID, cargamos todos los equipos disponibles como antes
-                const resDisponibles = await fetch('/api/activos?estado=disponible');
-                if(!resDisponibles.ok) throw new Error("Error cargando activos disponibles");
-                setEquiposDisponibles(await resDisponibles.json());
-            }
-
-            // Siempre cargamos la lista de asignados para la otra pestaña
-            const resAsignados = await fetch('/api/activos?estado=asignado');
-            if(!resAsignados.ok) throw new Error("Error cargando activos asignados");
-            setEquiposAsignados(await resAsignados.json());
-
-        } catch (error) {
-            showToast.error("Error al cargar los datos.");
-            console.error("Error fetching data:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, [searchParams, router]); // Dependemos de searchParams para re-evaluar
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-
-    // 1. Cargar datos iniciales (marcas, usuarios, deptos)
+    // 1. Cargar datos iniciales que son estáticos o para la pestaña "Desvincular"
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
             try {
-                const [resMarcas, resUsuarios, resDeptos] = await Promise.all([
+                const [resMarcas, resProveedores, resUsuarios, resDeptos, resAsignados] = await Promise.all([
                     fetch('/api/marcas'),
+                    fetch('/api/proveedores'),
                     fetch('/api/usuarios'),
                     fetch('/api/departamentos'),
+                    fetch('/api/activos?estado=asignado'),
                 ]);
+
+                // Poblar los estados con los datos iniciales
                 setMarcas((await resMarcas.json()).map((m: any) => ({ value: m.id, label: m.nombre })));
-               const usuariosData = await resUsuarios.json();
-                const deptosData = await resDeptos.json();
-                setUsuarios(usuariosData.map((u: any) => ({ value: u.id, label: `${u.nombre} ${u.apellido}` })));
-                setDepartamentos(deptosData.map((d: any) => ({ value: d.id, label: d.nombre })));
-                } catch (e) { 
-                    showToast.error("Error al cargar los datos.");
-                    console.error("Error fetching data:", e);
-                } finally {
-                    setLoading(false);
-                }
+                setProveedores((await resProveedores.json()).map((p: string) => ({ value: p, label: p })));
+                setUsuarios((await resUsuarios.json()).map((u: any) => ({ 
+                    value: u.id, 
+                    label: `${u.nombre} ${u.apellido}`,
+                    cargo: u.cargo // Guardamos el cargo para poder filtrar
+                })));
+                setDepartamentos((await resDeptos.json()).map((d: any) => ({ value: d.id, label: d.nombre })));
+                setEquiposAsignados(await resAsignados.json());
+
+            } catch (error) {
+                console.error("Error fetching initial data:", error);
+                showToast.error("Error al cargar datos iniciales.");
+            } finally {
+                setLoading(false);
+            }
         };
         fetchInitialData();
-    }, []);
+    }, []); // Se ejecuta solo una vez al montar el componente
 
-useEffect(() => {
-        if (!selectedMarca) { setModelos([]); return; }
+    // 2. Efecto para limpiar selecciones cuando cambia el TIPO de activo
+    useEffect(() => {
+        setSelectedMarca(null);
+        setSelectedModelo(null);
+        setSelectedProveedor(null);
+        // No limpiamos 'activosDisponibles' aquí para evitar un parpadeo, se limpiará en los efectos siguientes
+    }, [assetType]);
+
+    // 3. Cargar MODELOS cuando se selecciona una MARCA
+    useEffect(() => {
+        setActivosDisponibles([]); // Limpiar la lista final
+        setSelectedEquipo(null);   // Limpiar la selección final
+        if (!selectedMarca) {
+            setModelos([]);
+            return;
+        }
         const fetchModelos = async () => {
-            const res = await fetch(`/api/modelos?marcaId=${selectedMarca.value}`);
+            const res = await fetch(`/api/modelos/modeloByMarca?marcaId=${selectedMarca.value}`);
             setModelos((await res.json()).map((m: any) => ({ value: m.id, label: m.nombre })));
         };
         fetchModelos();
     }, [selectedMarca]);
 
-    // 4. Cargar activos finales cuando se selecciona un MODELO
+    // 4. Cargar ACTIVOS ESPECÍFICOS cuando se selecciona un MODELO
     useEffect(() => {
-        if (!selectedModelo) { setActivosDisponibles([]); return; }
+        setActivosDisponibles([]);
+        setSelectedEquipo(null);
+        if (!selectedModelo) return;
+        
         const fetchActivos = async () => {
-            // ¡ESTA ES LA LLAMADA CORRECTA!
             const res = await fetch(`/api/activos?modeloId=${selectedModelo.value}`);
             setActivosDisponibles(await res.json());
         };
         fetchActivos();
     }, [selectedModelo]);
 
-    // 5. Cargar líneas telefónicas cuando se selecciona un PROVEEDOR
+    // 5. Cargar LÍNEAS TELEFÓNICAS cuando se selecciona un PROVEEDOR
     useEffect(() => {
-        if (!selectedProveedor) { setActivosDisponibles([]); return; }
+        setActivosDisponibles([]);
+        setSelectedEquipo(null);
+        if (!selectedProveedor) return;
+
         const fetchLineas = async () => {
-             // ¡ESTA ES LA LLAMADA CORRECTA!
             const res = await fetch(`/api/activos?proveedor=${selectedProveedor.value}`);
             setActivosDisponibles(await res.json());
         };
@@ -190,7 +171,7 @@ useEffect(() => {
             asignarA_id: selectedTarget.value,
             asignarA_type: asignarA,
             notas: notas,
-            gerente: gerente,
+            gerente: selectedGerente ? selectedGerente.label : '',
             motivo: motivo,
             serialC: serialC,
             modeloC: modeloC,
@@ -209,11 +190,17 @@ useEffect(() => {
             setSelectedEquipo(null);
             setSelectedTarget(null);
             setNotas('');
-            fetchData();// Redirigir a la lista
+            // fetchInitialData();// Redirigir a la lista
         } catch (error: any) {
             showToast.error(error.message);
         }
     };
+
+     const listaGerentes = useMemo(() => 
+        usuarios
+            .filter(usuario => usuario.cargo?.toLowerCase().includes('gerente'))
+            .map(gerente => ({ value: gerente.value, label: gerente.label })) // Mapeamos de vuelta al formato que necesita el Select
+    , [usuarios]);
 
     const handleDesvincular = async (equipo: Activo) => {
         const body = {
@@ -235,7 +222,7 @@ useEffect(() => {
             }
             
             showToast.success(`Equipo ${equipo.label} desvinculado con éxito.`);
-            fetchData();
+            // fetchInitialData();
         } catch (error: any) {
             showToast.error(error.message);
         }
@@ -316,9 +303,9 @@ useEffect(() => {
                                 <Label>4. Selecciona el Activo Específico (por Serial)</Label>
                                 <Select
                                     instanceId="activo-select"
-                                    options={equiposDisponibles}
-                                    value={selectedEquipo}
-                                    onChange={setSelectedEquipo}
+                                   options={activosDisponibles} 
+                                   value={selectedEquipo} 
+                                   onChange={setSelectedEquipo}
                                     placeholder="Buscar serial..."
                                     isClearable
                                     isDisabled={!selectedModelo}
@@ -328,12 +315,41 @@ useEffect(() => {
                         </div>
                     )}
 
-                    {/* --- Renderizado Condicional para Líneas Telefónicas (Ejemplo) --- */}
-                    {assetType === 'LineaTelefonica' && (
-                        <div className="space-y-4 animate-in fade-in-0">
-                            {/* Aquí irían los Selects para Proveedor y luego para el Número */}
+                   {assetType === 'LineaTelefonica' && (
+                    <div className="space-y-4 animate-in fade-in-0">
+
+                        {/* --- Dropdown para el Proveedor --- */}
+                        <div className="space-y-2">
+                            <Label>2. Selecciona el Proveedor</Label>
+                            <Select
+                                instanceId="proveedor-select"
+                                options={proveedores}
+                                value={selectedProveedor}
+                                onChange={setSelectedProveedor}
+                                styles={reactSelectStyles}
+                                placeholder="Buscar proveedor..."
+                                isClearable
+                            />
                         </div>
-                    )}
+
+                        {/* --- Dropdown para el Número de Línea --- */}
+                        <div className="space-y-2">
+                            <Label>3. Selecciona la Línea Específica (Número)</Label>
+                            <Select
+                                instanceId="linea-select"
+                                options={activosDisponibles}
+                                value={selectedEquipo}
+                                onChange={setSelectedEquipo}
+                                styles={reactSelectStyles}
+                                placeholder="Elige un número..."
+                                isClearable
+                                // Se deshabilita hasta que se seleccione un proveedor
+                                isDisabled={!selectedProveedor}
+                            />
+                        </div>
+                        
+                    </div>
+                )}
 
                     <div className="space-y-2">
                         <Label>2. Elige el Destino de la Asignación</Label>
@@ -365,11 +381,18 @@ useEffect(() => {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-4">
-                            <Label htmlFor="gerente">Gerente</Label>
-                            <Input id="gerente" value={gerente} onChange={(e) => setGerente(e.target.value)} placeholder="Ej: Carlos Urdaneta..." />
-                        </div>
-
+                        <div className="space-y-2">
+                        <Label htmlFor="gerente">Gerente</Label>
+                        <Select
+                            instanceId="gerente-select"
+                            options={listaGerentes}
+                            value={selectedGerente}
+                            onChange={setSelectedGerente}
+                            styles={reactSelectStyles}
+                            placeholder="Selecciona un gerente..."
+                            isClearable
+                        />
+                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="motivo">Motivo<span className="text-destructive">*</span></Label>
                             <select

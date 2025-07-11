@@ -95,6 +95,10 @@ const columns: ColumnDef<Usuario>[] = [
       accessorKey: "legajo",
       header: "Legajo",
     },
+    {
+      accessorKey: "cargo",
+      header: "Cargo",
+    },
   {
     accessorFn: (row) => row.departamento?.nombre ?? "Sin departamento",
     id: "departamentoNombre",
