@@ -8,6 +8,7 @@
   },
   "scripts": {
     "db:migrar-usuarios": "node --loader ts-node/esm scripts/migrar-usuarios.ts",
+    "db:generar-modelos": "node --loader ts-node/esm scripts/seed-modelos.ts",
     "db:migrar-deptos": "node --loader ts-node/esm scripts/migrar-deptos.ts",
     "db:generar-seed": "node --loader ts-node/esm scripts/generar-seed.ts",
     "dev": "next dev",
