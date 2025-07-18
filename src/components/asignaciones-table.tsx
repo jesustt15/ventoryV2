@@ -10,6 +10,8 @@ import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FilterIcon } from "lucide-react"
 import Link from "next/link";
 import { formatDate } from "@/utils/formatDate";
 
@@ -117,13 +119,64 @@ const columns: ColumnDef<Asignaciones>[] = [
           return <div>{itemNombre || "Sin marca"}</div>;
       },
     },
-    {      accessorKey: "item.serial",
-          header:"Serial",
-    },  
+     {
+    accessorKey: "item.serial",
+    header: ({ column }) => (
+      <div className="flex items-center">
+        <span>Serial</span>
+        <Input
+          placeholder="Buscar serial..."
+          value={(column.getFilterValue() as string) ?? ""}
+          onChange={(e) => column.setFilterValue(e.target.value)}
+          className="h-8 ml-2 w-40"
+        />
+      </div>
+    ),
+  }, 
     {
-      accessorKey: "asignadoA.nombre",
-      header: "Usuario",
+    accessorKey: "asignadoA.nombre",
+    header: ({ column }) => {
+      const isFilterActive = !!column.getFilterValue();
+      
+      return (
+        <div className="flex items-center">
+          <span>Usuario</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+              >
+                <FilterIcon className="h-3 w-3" />
+                {isFilterActive && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2">
+              <Input
+                placeholder="Buscar usuario..."
+                value={(column.getFilterValue() as string) ?? ""}
+                onChange={(e) => column.setFilterValue(e.target.value)}
+                className="h-8"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
     },
+    cell: ({ row }) => {
+      const usuario = row.original.asignadoA;
+      return <div>{`${usuario.nombre}`}</div>;
+    },
+    filterFn: (row, id, value) => {
+      if (!value) return true;
+      const usuario = row.original.asignadoA;
+      const searchStr = `${usuario.nombre}`.toLowerCase();
+      return searchStr.includes(value.toLowerCase());
+    },
+  },
   {
     accessorKey: "date",
     header: "Fecha de Asignación",
@@ -219,12 +272,12 @@ const columns: ColumnDef<Asignaciones>[] = [
   
 
 React.useEffect(() => {
-    if (searchQuery) {
-      table.getColumn("id")?.setFilterValue(searchQuery)
-    } else {
-      table.getColumn("id")?.setFilterValue("")
-    }
-  }, [table, searchQuery])
+  if (searchQuery) {
+    table.getColumn("item.serial")?.setFilterValue(searchQuery);
+  } else {
+    table.getColumn("item.serial")?.setFilterValue("");
+  }
+}, [table, searchQuery]);
 
 return (
     <Card className="border-none shadow-md">

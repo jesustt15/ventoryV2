@@ -10,6 +10,8 @@ import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, Co
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FilterIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DispositivoForm from "./EquipoForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -95,20 +97,106 @@ const columns: ColumnDef<Dispositivo>[] = [
     header: "Serial",
     cell: ({ row }) => <div>{row.getValue("serial")}</div>,
   },
-  {
-    accessorFn: (row) => row.modelo?.marca?.nombre ?? "Sin marca",
-    id: "marcaNombre", // El ID único para la columna sigue siendo importante
-    header: "Marca",
-    // CORRECCIÓN: Usamos `row.original` dentro de la celda para una mayor fiabilidad
-    cell: ({ row }) => {
-        // `row.original` es el objeto `Dispositivo` completo para esta fila
-        const marcaNombre = row.original.modelo?.marca?.nombre;
-        return <div>{marcaNombre || "Sin marca"}</div>;
-    },
+{
+  accessorFn: (row) => row.modelo?.marca?.nombre ?? "Sin marca",
+  id: "marcaNombre",
+  header: ({ column }) => {
+    const isFilterActive = !!column.getFilterValue();
+    
+    // Obtener marcas únicas de los computadores
+    const uniqueMarcas = Array.from(
+      new Set(dispositivos
+        .map(c => c.modelo?.marca?.nombre)
+        .filter(Boolean) as string[]
+      )
+    ).sort();
+
+    return (
+      <div className="flex items-center">
+        <span>Marca</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+            >
+              <FilterIcon className="h-3 w-3" />
+              {isFilterActive && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40 p-2">
+            <select
+              value={(column.getFilterValue() as string) ?? ""}
+              onChange={(e) => column.setFilterValue(e.target.value)}
+              className="h-8 w-full border rounded text-sm px-2 py-1"
+            >
+              <option value="">Todas las marcas</option>
+              {uniqueMarcas.map((marca) => (
+                <option key={marca} value={marca}>
+                  {marca}
+                </option>
+              ))}
+            </select>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
   },
+  cell: ({ row }) => {
+    const marcaNombre = row.original.modelo?.marca?.nombre;
+    return <div>{marcaNombre || "Sin marca"}</div>;
+  },
+},
   {
     accessorKey: "modelo.nombre",
-    header: "Modelo",
+    header: ({ column }) => {
+      const isFilterActive = !!column.getFilterValue();
+      
+      // Obtener modelos únicos de los computadores
+      const uniqueModelos = Array.from(
+        new Set(dispositivos
+          .map(c => c.modelo?.nombre)
+          .filter(Boolean) as string[]
+        )
+      ).sort();
+
+      return (
+        <div className="flex items-center">
+          <span>Modelo</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+              >
+                <FilterIcon className="h-3 w-3" />
+                {isFilterActive && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-2">
+              <select
+                value={(column.getFilterValue() as string) ?? ""}
+                onChange={(e) => column.setFilterValue(e.target.value)}
+                className="h-8 w-full border rounded text-sm px-2 py-1"
+              >
+                <option value="">Todos los modelos</option>
+                {uniqueModelos.map((modelo) => (
+                  <option key={modelo} value={modelo}>
+                    {modelo}
+                  </option>
+                ))}
+              </select>
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    },
   },
   {
      id: "modelo.img",
@@ -127,30 +215,63 @@ const columns: ColumnDef<Dispositivo>[] = [
   },
   {
     accessorKey: "estado",
-    header: "Estado",
+    header: ({ column }) => {
+      const isFilterActive = !!column.getFilterValue();
+      const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "Otro"]; // Ajusta según tus estados
+      
+      return (
+        <div className="flex items-center">
+          <span>Estado</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+              >
+                <FilterIcon className="h-3 w-3" />
+                {isFilterActive && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-2">
+              <select
+                value={(column.getFilterValue() as string) ?? ""}
+                onChange={(e) => column.setFilterValue(e.target.value)}
+                className="h-8 w-full border rounded text-sm px-2 py-1"
+              >
+                <option value="">Todos</option>
+                {estadosUnicos.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {estado}
+                  </option>
+                ))}
+              </select>
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    },
     cell: ({ row }) => {
-      const estado = row.getValue("estado") as string
-
+      const estado = row.getValue("estado") as string;
       return (
         <div className="flex items-center gap-2">
           {estado === "Resguardo" ? (
             <ArchiveRestore className="h-4 w-4 text-blue-300" />
           ) : estado === "En reparación" ? (
             <WrenchIcon className="h-4 w-4 text-amber-500" />
-          ) : estado === "Asignado" ?
-          (
+          ) : estado === "Asignado" ? (
             <User2Icon className="h-4 w-4 text-green-500" />
-          )
-          :
-          (
+          ) : (
             <XCircleIcon className="h-4 w-4 text-destructive" />
           )}
           <span>{estado}</span>
         </div>
-      )
+      );
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      return value.includes(row.getValue(id));
     },
   },
   {

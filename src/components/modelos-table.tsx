@@ -39,6 +39,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { showToast } from "nextjs-toast-notify";
 import ModeloForm from "./ModeloForm"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { FilterIcon } from "lucide-react"
 
 export const modeloSchema = z.object({
   nombre: z.string().min(1, "El nombre es requerido"),
@@ -113,12 +115,66 @@ const columns: ColumnDef<Modelo>[] = [
     header: "Nombre",
   },
   {
-    accessorKey: "marca.nombre",
-    header: "Marca",
+  accessorKey: "marca.nombre",
+  header: ({ column }) => (
+    <div className="flex items-center">
+      <span>Marca</span>
+      <Popover>
+        <PopoverTrigger asChild> 
+          <Button variant="ghost" 
+          size="sm" 
+          className={`h-5 w-5 p-0 ml-1  ${column.getFilterValue() ? "text-cyan-500" : "text-muted-foreground"}`}>
+            <FilterIcon className="h-3 w-3" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-40 p-2">
+          <select
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(e) => column.setFilterValue(e.target.value)}
+            className="h-8 w-full border rounded text-sm px-2 py-1"
+          >
+            <option value="">Todas las marcas</option>
+            {marcas.map((marca) => (
+              <option key={marca.id} value={marca.nombre}>
+                {marca.nombre}
+              </option>
+            ))}
+          </select>
+        </PopoverContent>
+      </Popover>
+    </div>
+  ),
+},
+ {
+  accessorKey: "tipo",
+  header: ({ column }) => {
+    const currentFilter = (column.getFilterValue() as string) ?? "";
+    return (
+      <div className="flex items-center">
+        <span className="text-sm">Tipo</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" 
+              size="sm" 
+              className={`h-5 w-5 p-0 ml-1  ${column.getFilterValue() ? "text-cyan-500" : "text-muted-foreground"}`}>
+              <FilterIcon className="h-3 w-3" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40">
+            <select
+              value={currentFilter}
+              onChange={(e) => column.setFilterValue(e.target.value)}
+              className="w-full p-1 text-xs border rounded"
+            >
+              <option value="">Todos</option>
+              <option value="desktop">Desktop</option>
+              <option value="laptop">Laptop</option>
+            </select>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
   },
-  {
-    accessorKey: "tipo",
-    header: "Tipo",
   },
   {
     accessorKey: "img",

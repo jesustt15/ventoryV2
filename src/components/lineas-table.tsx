@@ -19,6 +19,7 @@ import {
   ColumnsIcon,
   MoreHorizontalIcon,
   PlusIcon,
+  FilterIcon,
 } from "lucide-react"
 import { z } from "zod"
 
@@ -35,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { showToast } from "nextjs-toast-notify";
 import LineaForm from "./LineaForm"
 
@@ -80,6 +82,7 @@ export function LineasTable({ data }: LineasTableProps) {
   const [editingLinea, setEditingLinea] = React.useState<Linea | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("")
   const [lineas, setLineas] = React.useState<Linea[]>([]);
+  const [proveedor, setProveedores] = React.useState<{ id: string; nombre: string }[]>([]);
 
 const columns: ColumnDef<Linea>[] = [
   {
@@ -107,7 +110,34 @@ const columns: ColumnDef<Linea>[] = [
   },
   {
     accessorKey: "proveedor",
-    header: "Proveedor",
+    header: ({ column }) => (
+    <div className="flex items-center">
+      <span>Proveedor</span>
+      <Popover>
+        <PopoverTrigger asChild> 
+          <Button variant="ghost" 
+          size="sm" 
+          className={`h-5 w-5 p-0 ml-1  ${column.getFilterValue() ? "text-cyan-500" : "text-muted-foreground"}`}>
+            <FilterIcon className="h-3 w-3" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-40 p-2">
+          <select
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(e) => column.setFilterValue(e.target.value)}
+            className="h-8 w-full border rounded text-sm px-2 py-1"
+          >
+            <option value="">Todos</option>
+            {proveedor.map((p) => (
+              <option key={p.id} value={p.nombre}>
+                {p.nombre}
+              </option>
+            ))}
+          </select>
+        </PopoverContent>
+      </Popover>
+    </div>
+  ),
   },
   {
     accessorKey: "tipo",
@@ -170,8 +200,16 @@ const columns: ColumnDef<Linea>[] = [
 
 
       const lineasData: Linea[] = await lineasResponse.json();
+      // Extraer proveedores únicos de las líneas
+      const proveedoresUnicos = Array.from(
+        new Set(lineasData.map((linea) => linea.proveedor))
+      ).map((nombre, idx) => ({
+        id: idx.toString(),
+        nombre,
+      }));
 
       setLineas(lineasData);
+      setProveedores(proveedoresUnicos); // <-- Nuevo estado para proveedores únicos
     } catch (error: any) {
       showToast.error("¡Error en Cargar!"+ (error.message), {
           duration: 4000,

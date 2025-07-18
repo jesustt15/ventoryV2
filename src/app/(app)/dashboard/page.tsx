@@ -11,86 +11,42 @@ import {
   TrendingDown,
   Activity,
   PieChart,
-  RefreshCw,
-  Download,
-  Bell,
-  Hexagon,
 } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useQuery } from "@tanstack/react-query"
 
-// Datos de ejemplo para las estadísticas
-const dashboardData = {
-  totalUsers: 245,
-  totalDevices: 892,
-  totalComputers: 456,
-  assignedComputers: 387,
-  storedComputers: 69,
-  trends: {
-    users: 12.5,
-    devices: 8.3,
-    computers: 5.7,
-    assigned: 15.2,
-    stored: -8.4,
-  },
-  recentActivity: [
-    {
-      id: 1,
-      action: "Nuevo dispositivo registrado",
-      device: "Dell OptiPlex 7090",
-      user: "Sistema",
-      time: "Hace 5 min",
-      type: "registration",
-    },
-    {
-      id: 2,
-      action: "Computador asignado",
-      device: "ThinkPad X1 Carbon",
-      user: "Ana Martínez",
-      time: "Hace 12 min",
-      type: "assignment",
-    },
-    {
-      id: 3,
-      action: "Dispositivo en mantenimiento",
-      device: "HP EliteBook 840",
-      user: "Carlos López",
-      time: "Hace 25 min",
-      type: "maintenance",
-    },
-    {
-      id: 4,
-      action: "Usuario registrado",
-      device: "N/A",
-      user: "María González",
-      time: "Hace 1 hora",
-      type: "user",
-    },
-  ],
-  departmentStats: [
-    { name: "Desarrollo", computers: 125, users: 45, percentage: 27.4 },
-    { name: "Ventas", computers: 89, users: 67, percentage: 19.5 },
-    { name: "Marketing", computers: 67, users: 34, percentage: 14.7 },
-    { name: "Finanzas", computers: 45, users: 28, percentage: 9.9 },
-    { name: "RRHH", computers: 34, users: 22, percentage: 7.5 },
-    { name: "Otros", computers: 96, users: 49, percentage: 21.0 },
-  ],
-  monthlyData: [
-    { month: "Ene", devices: 45, computers: 23, users: 12 },
-    { month: "Feb", devices: 52, computers: 28, users: 15 },
-    { month: "Mar", devices: 38, computers: 19, users: 8 },
-    { month: "Abr", devices: 67, computers: 34, users: 22 },
-    { month: "May", devices: 78, computers: 41, users: 28 },
-    { month: "Jun", devices: 89, computers: 45, users: 31 },
-  ],
-}
+const fetchDashboardData = async () => {
+  // La URL debe coincidir con la ruta de tu API.
+  const response = await fetch("/api/dashboard/");
+  if (!response.ok) {
+    throw new Error("Error al cargar los datos del dashboard.");
+  }
+  return response.json();
+};
+
+// --- Componentes para estados de UI ---
+const LoadingSkeleton = () => (
+  <div className="flex items-center justify-center min-h-screen bg-black text-cyan-400">
+    <div className="text-center">
+      <Cpu className="h-12 w-12 mx-auto animate-pulse" />
+      <p className="mt-4 text-lg">Cargando estadísticas del sistema...</p>
+    </div>
+  </div>
+);
+
+const ErrorDisplay = ({ message }: { message: string }) => (
+  <div className="flex items-center justify-center min-h-screen bg-black text-red-500">
+    <div className="text-center">
+      <p className="text-lg font-bold">¡Oops! Algo salió mal.</p>
+      <p className="mt-2">{message}</p>
+    </div>
+  </div>
+);
 
 export default function InventoryDashboard() {
   const [timeRange, setTimeRange] = useState("30d")
@@ -236,6 +192,26 @@ export default function InventoryDashboard() {
     }
   }
 
+   const {
+    data: dashboardData, // Los datos de la API estarán aquí
+    isLoading, // Será `true` mientras se obtienen los datos
+    isError, // Será `true` si la petición falla
+    error, // Contendrá el objeto de error
+  } = useQuery({
+    queryKey: ["dashboardData"], // Clave única para esta consulta
+    queryFn: fetchDashboardData, // Función que se ejecutará para obtener los datos
+    refetchInterval: 300000, // Opcional: Vuelve a cargar los datos cada 5 minutos
+  });
+
+   if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (isError) {
+    return <ErrorDisplay message={error.message} />;
+  }
+  console.log(dashboardData.totalUsers, dashboardData.totalDevices, dashboardData.totalComputers);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
       {/* Background particle effect */}
@@ -282,7 +258,7 @@ export default function InventoryDashboard() {
             trend={dashboardData.trends.stored}
             icon={Shield}
             color="amber"
-            description="Almacenados"
+            description="Resguardados"
           />
         </div>
 
@@ -456,7 +432,14 @@ export default function InventoryDashboard() {
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {dashboardData.recentActivity.slice(0, 3).map((activity) => {
+                        {dashboardData.recentActivity.slice(0, 3).map((activity: {
+                          id: string | number
+                          type: string
+                          action: string
+                          device: string
+                          user: string
+                          time: string
+                        }) => {
                           const ActivityIcon = getActivityIcon(activity.type)
                           const activityColor = getActivityColor(activity.type)
 
@@ -532,7 +515,7 @@ export default function InventoryDashboard() {
                 </CardHeader>
                 <CardContent className="p-4">
                   <div className="space-y-3">
-                    {dashboardData.departmentStats.slice(0, 3).map((dept, index) => (
+                    {dashboardData.departmentStats.slice(0, 3).map((dept: any, index: number) => (
                       <div key={index} className="flex items-center justify-between">
                         <div>
                           <h3 className="text-sm font-medium text-slate-200">{dept.name}</h3>
@@ -621,18 +604,6 @@ function StatCard({
   )
 }
 
-// Componente para items de tendencia
-function TrendItem({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex items-center justify-between p-3 bg-slate-800/30 rounded-md border border-slate-700/30">
-      <span className="text-sm text-slate-300">{label}</span>
-      <div className={`flex items-center text-sm ${value >= 0 ? "text-green-400" : "text-red-400"}`}>
-        {value >= 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
-        {Math.abs(value)}%
-      </div>
-    </div>
-  )
-}
 
 {/* <TabsContent value="overview" className="mt-0">
                 <div className="grid gap-6">
