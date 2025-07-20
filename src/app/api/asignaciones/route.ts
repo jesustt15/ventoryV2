@@ -151,6 +151,33 @@ export async function POST(request: NextRequest) {
             localidad // Guardamos el motivo de la asignación
           },
         });
+            // -- OPERACIÓN 2: Actualizar el estado del activo correspondiente --
+      let activo;
+      switch (itemType) {
+        case 'Computador':
+          activo = await tx.computador.update({
+            where: { id: itemId },
+            data: { estado: 'Asignado' }, // ¡Aquí actualizamos el estado!
+          });
+          break;
+        case 'Dispositivo':
+          activo = await tx.dispositivo.update({
+            where: { id: itemId },
+            data: { estado: 'Asignado' }, // ¡Aquí actualizamos el estado!
+          });
+          break;
+        case 'LineaTelefonica':
+          // Si tu tabla de líneas también tiene un campo "estado", lo actualizas aquí.
+          // Si no, puedes omitir este caso o simplemente devolver el objeto.
+          activo = await tx.lineaTelefonica.findUnique({ where: { id: itemId } });
+          // await tx.lineaTelefonica.update({
+          //   where: { id: itemId },
+          //   data: { estado: 'Asignado' },
+          // });
+          break;
+        default:
+          throw new Error("Tipo de activo no válido.");
+      }
 
       } else { // 'desvincular'
         

@@ -23,8 +23,7 @@ export async function GET() {
       // Un computador está "Asignado" si tiene un usuario vinculado y su estado es "Activo".
       prisma.computador.count({
         where: {
-          usuarioId: { not: null },
-          estado: "Activo", // Puedes ajustar este valor si usas otro (ej: "En Uso")
+          estado: "Asignado", // Puedes ajustar este valor si usas otro (ej: "En Uso")
         },
       }),
       // Un computador está "En Resguardo" si su estado es "Almacenado".

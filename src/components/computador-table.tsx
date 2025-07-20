@@ -415,12 +415,14 @@ return (
               </DropdownMenu>
             </div>
 
+            {session?.user?.role === 'admin' && (
             <Button asChild>
-                <Link href="/computadores/new">
-                      <PlusIcon className="mr-2 h-4 w-4" />
-                      Agregar Computador
-                </Link>
+              <Link href="/computadores/new">
+                <PlusIcon className="mr-2 h-4 w-4" />
+                Agregar Computador
+              </Link>
             </Button>
+          )}
           </div>
         </div>
       </CardHeader>
