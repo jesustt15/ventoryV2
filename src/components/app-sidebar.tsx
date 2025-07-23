@@ -14,6 +14,7 @@ import { NavUser } from './nav-user';
 import type { UserJwtPayload } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { Spinner } from './ui/spinner';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 
 // Define una estructura de datos para la navegación
 const navData = {
@@ -36,6 +37,24 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const router = useRouter();
+  const isAdmin = useIsAdmin();
+
+    // Filtrar los items basado en el rol del usuario
+  const filteredNavMain = navData.navMain.filter(item => {
+    // Si el usuario es admin, mostrar todos los items
+    if (isAdmin) return true;
+    
+    // Si no es admin, excluir ciertos items
+    switch(item.title) {
+      case 'Modelos':
+      case 'Usuarios':
+      case 'Departamentos':
+        return false;
+      default:
+        return true;
+    }
+  });
+  
   
 useEffect(() => {
     if (!user) {
@@ -72,7 +91,7 @@ useEffect(() => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navData.navMain} />
+        <NavMain items={filteredNavMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

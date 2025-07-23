@@ -67,9 +67,42 @@ export async function GET(request: Request) {
             console.log("[Bloque 1] Activos disponibles filtrados y devueltos:", activosDisponibles);
             return NextResponse.json(activosDisponibles);
         }
-        // if (proveedor) {
-        //     return NextResponse.json(/* ... */);
-        // }
+       if (proveedor) {
+            // 1. Encontrar todas las líneas para el proveedor.
+            const lineasDelProveedor = await prisma.lineaTelefonica.findMany({
+                where: { proveedor },
+            });
+
+            const idsLineas = lineasDelProveedor.map(l => l.id);
+            if (idsLineas.length === 0) {
+                return NextResponse.json([]);
+            }
+
+            // 2. Encontrar la última acción solo para esas líneas.
+            const ultimasAcciones = await prisma.asignaciones.findMany({
+                where: { lineaTelefonicaId: { in: idsLineas } },
+                orderBy: { date: 'desc' },
+                distinct: ['lineaTelefonicaId'],
+            });
+
+            const mapaAcciones = new Map(
+                ultimasAcciones.map(a => [a.lineaTelefonicaId, a.actionType])
+            );
+
+            // 3. Filtrar las líneas que están disponibles.
+            const lineasDisponibles = lineasDelProveedor
+                .filter(linea => {
+                    const accion = mapaAcciones.get(linea.id);
+                    return !accion || accion === "Devolucion";
+                })
+                .map(linea => ({
+                    value: linea.id,
+                    label: `Línea ${linea.proveedor} (${linea.numero})`,
+                    type: "LineaTelefonica",
+                }));
+
+            return NextResponse.json(lineasDisponibles);
+        }
 
         // =================================================================================
         // Bloque 3: Lógica principal de filtrado por estado (CON DEBUGGING)

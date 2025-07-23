@@ -71,9 +71,6 @@ export default function DispositivoPage() {
     <div>
       <DispositivoForm onCreateModel={handleCreateModel} />
       <DispositivoTable data={data.length > 0 ? data : []} />
-      {data.length === 0 && (
-        <div>No hay modelos yet.</div>
-      )}
     </div>
   );
 }

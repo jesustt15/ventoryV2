@@ -103,6 +103,21 @@ const columns: ColumnDef<Asignaciones>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+    {
+      id: "serial", // <--- 1. AÑADE UN ID EXPLÍCITO Y SIMPLE
+      accessorKey: "item.serial",
+      header: ({ column }) => (
+        <div className="flex items-center">
+          <span>Serial</span>
+          <Input
+            placeholder="Buscar serial..."
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(e) => column.setFilterValue(e.target.value)}
+            className="h-8 ml-2 w-40"
+          />
+        </div>
+      ),
+    },
   {
     accessorKey: "motivo",
     header: "Motivo",
@@ -119,20 +134,6 @@ const columns: ColumnDef<Asignaciones>[] = [
           return <div>{itemNombre || "Sin marca"}</div>;
       },
     },
-     {
-    accessorKey: "item.serial",
-    header: ({ column }) => (
-      <div className="flex items-center">
-        <span>Serial</span>
-        <Input
-          placeholder="Buscar serial..."
-          value={(column.getFilterValue() as string) ?? ""}
-          onChange={(e) => column.setFilterValue(e.target.value)}
-          className="h-8 ml-2 w-40"
-        />
-      </div>
-    ),
-  }, 
     {
     accessorKey: "asignadoA.nombre",
     header: ({ column }) => {
@@ -272,12 +273,8 @@ const columns: ColumnDef<Asignaciones>[] = [
   
 
 React.useEffect(() => {
-  if (searchQuery) {
-    table.getColumn("item.serial")?.setFilterValue(searchQuery);
-  } else {
-    table.getColumn("item.serial")?.setFilterValue("");
-  }
-}, [table, searchQuery]);
+  table.getColumn("serial")?.setFilterValue(searchQuery ?? "");
+}, [table, searchQuery]);;
 
 return (
     <Card className="border-none shadow-md">

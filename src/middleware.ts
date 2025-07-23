@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decrypt } from '@/lib/auth';
+import { decrypt } from '@/lib/auth'; // Asegúrate que esta ruta sea correcta
 
-const publicRoutes = ['/'];
+// Ruta de login
+const publicRoute = '/'; 
+
+// Rutas que requieren estar logueado (sea user o admin)
 const protectedRoutes = [
   '/dashboard',
   '/asignaciones',
@@ -9,58 +12,59 @@ const protectedRoutes = [
   '/departamentos',
   '/dispositivos',
   '/modelos',
-  '/usuarios'
+  '/usuarios',
+  '/lineas',
 ];
 
-// Rutas exclusivas para admin
+// Rutas que SOLO el admin puede ver
 const adminOnlyRoutes = [
-  '/usuarios/',
-  '/modelos/',
-  '/departamentos/',
-  '/user/',
-  '/lineas/',
+  '/usuarios',
+  '/modelos',
+  '/departamentos',
+  '/user', // Quizás quieras renombrar a /users/ o /gestion-usuarios
+];
+
+// Patrones de rutas que son públicas y no requieren login (Ej: vistas de detalle)
+// cualquiera puede ver los detalles de un equipo, pero no editarlo
+const publicPatterns = [
+    /^\/computadores\/[a-zA-Z0-9-]+\/details$/, // Coincide con /computadores/uuid-123/details
+    /^\/dispositivos\/[a-zA-Z0-9-]+\/details$/, // Coincide con /dispositivos/uuid-456/details
 ];
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  console.log(`[MIDDLEWARE] Ruta solicitada: ${path}`);
-  
-  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
-  const isPublicRoute = publicRoutes.includes(path);
-  const isAdminRoute = adminOnlyRoutes.some(route => path.startsWith(route));
-
-  // Desencriptar el token de la cookie
   const cookie = req.cookies.get('session');
   const session = cookie?.value ? await decrypt(cookie.value) : null;
-  
-  console.log(`[MIDDLEWARE] Sesión:`, session ? 'Activa' : 'Inactiva');
-  console.log(`[MIDDLEWARE] Usuario:`, session?.role|| 'No autenticado');
 
-  // Redirigir si no está autenticado en ruta protegida
+  // 1. ¿La ruta coincide con un patrón público? Si es así, permitir siempre.
+  const isPublicPatternRoute = publicPatterns.some(pattern => pattern.test(path));
+  if (isPublicPatternRoute) {
+    return NextResponse.next();
+  }
+
+  // 2. Determinar el tipo de ruta
+  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
+  const isAdminRoute = adminOnlyRoutes.some(route => path.startsWith(route));
+
+  // 3. Lógica de Redirección
+  // Si intenta acceder a una ruta protegida SIN sesión -> A login
   if (isProtectedRoute && !session) {
-    console.log(`[MIDDLEWARE] Redirigiendo a login desde: ${path}`);
-    return NextResponse.redirect(new URL('/', req.nextUrl));
-  }
-
-  // Redirigir si está autenticado y accede a ruta pública
-  if (isPublicRoute && session) {
-    console.log(`[MIDDLEWARE] Redirigiendo a dashboard desde: ${path}`);
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
-  }
-
-  // Verificar permisos de admin
-  if (isAdminRoute && session?.role !== 'admin') {
-    console.log(`[MIDDLEWARE] Acceso denegado a ruta admin: ${path}`);
-    // Puedes redirigir a una página de no autorizado o al dashboard
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
-    // O también podrías mostrar una página 403:
-    // return NextResponse.rewrite(new URL('/403', req.nextUrl));
+    return NextResponse.redirect(new URL(publicRoute, req.nextUrl));
   }
   
-  console.log(`[MIDDLEWARE] Continuando a: ${path}`);
+  // Si tiene sesión y trata de ir al login -> Al dashboard
+  if (path === publicRoute && session) {
+    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+  }
+
+  // Si es una ruta de admin y el usuario NO es admin -> Al dashboard
+  if (isAdminRoute && session?.role !== 'admin') {
+    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+  }
+  
   return NextResponse.next();
 }
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}
+};

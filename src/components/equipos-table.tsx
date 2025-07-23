@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import DispositivoForm from "./EquipoForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export const dispositivoSchema = z.object({
   id: z.string().optional(), // Es buena idea tener el id en el schema para la lógica unificada
@@ -71,6 +72,7 @@ export function DispositivoTable({}: DispositivoTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [dispositivos, setDispositivos] = React.useState<Dispositivo[]>([]);
   const [modelos, setModelos] = React.useState<{ id: string; nombre: string }[]>([]);
+  const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Dispositivo>[] = [
   {
@@ -288,7 +290,12 @@ const columns: ColumnDef<Dispositivo>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(dispositivo.serial.toString())}>
+            <DropdownMenuItem onClick={() => {
+                          navigator.clipboard.writeText(dispositivo.serial.toString());
+                            showToast.success("¡Serial copiado!", { progress: false,
+                                              position: "bottom-center",
+                                              transition: "popUp"});
+                        }}>
               Copiar Serial
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -296,11 +303,17 @@ const columns: ColumnDef<Dispositivo>[] = [
                 Ver detalles
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-            onClick={() => handleOpenEditModal(dispositivo)}
-            >Editar equipo</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+            { isAdmin && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => handleOpenEditModal(dispositivo)}
+                >
+                  Editar equipo
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -476,11 +489,12 @@ return (
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-                          <PlusIcon className="mr-2 h-4 w-4" />
-                          Agregar Dispositivo
-                        </Button>
+                {isAdmin && (
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                      <PlusIcon className="mr-2 h-4 w-4" />
+                      Agregar Dispositivo
+                    </Button>
+                )}            
           </div>
         </div>
       </CardHeader>

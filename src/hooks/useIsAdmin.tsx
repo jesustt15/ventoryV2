@@ -1,7 +1,7 @@
+// hooks/useIsAdmin.ts
+'use client';
 
-
-import { decrypt } from '@/lib/auth';
-import { useSession } from 'next-auth/react';
+import { useSession } from './useSession';
 
 export const useIsAdmin = () => {
   const { data: session } = useSession();

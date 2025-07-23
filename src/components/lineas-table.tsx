@@ -22,7 +22,6 @@ import {
   FilterIcon,
 } from "lucide-react"
 import { z } from "zod"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -39,6 +38,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { showToast } from "nextjs-toast-notify";
 import LineaForm from "./LineaForm"
+import { useIsAdmin } from "@/hooks/useIsAdmin"
 
 export const lineaSchema = z.object({
   numero: z.string().min(1, "El número es requerido"),
@@ -49,11 +49,24 @@ export const lineaSchema = z.object({
 export type LineaFormData = z.infer<typeof lineaSchema>
 
 // Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
+export interface Asignacion {
+  actionType: string;
+  targetType: string;
+  targetUsuario?: {
+    nombre: string;
+    apellido: string;
+  };
+  targetDepartamento?: {
+    nombre: string;
+  };
+}
+
 export interface Linea {
   id: string; // Or number, depending on your API
   numero: string;
   proveedor: string;
   imei?: string | null;
+  asignaciones?: Asignacion[];
   // Add any other fields that come from your API
 }
 
@@ -83,6 +96,7 @@ export function LineasTable({ data }: LineasTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [lineas, setLineas] = React.useState<Linea[]>([]);
   const [proveedor, setProveedores] = React.useState<{ id: string; nombre: string }[]>([]);
+  const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Linea>[] = [
   {
@@ -139,10 +153,28 @@ const columns: ColumnDef<Linea>[] = [
     </div>
   ),
   },
-  {
-    accessorKey: "tipo",
-    header: "Tipo",
-  },
+    {
+      id: "asignadoA", // Un ID único para la columna
+      header: "Asignado a",
+      cell: ({ row }) => {
+        const linea = row.original;
+        const ultimaAsignacion = linea.asignaciones?.[0]; // Obtenemos la primera (y única) asignación
+
+        if (!ultimaAsignacion || ultimaAsignacion.actionType === 'Devolución') {
+          return <span className="text-muted-foreground">Sin Asignar</span>;
+        }
+
+        if (ultimaAsignacion.targetType === "Usuario" && ultimaAsignacion.targetUsuario) {
+          return `${ultimaAsignacion.targetUsuario.nombre} ${ultimaAsignacion.targetUsuario.apellido}`;
+        }
+
+        if (ultimaAsignacion.targetType === "Departamento" && ultimaAsignacion.targetDepartamento) {
+          return `Dpto: ${ultimaAsignacion.targetDepartamento.nombre}`;
+        }
+
+        return <span className="text-muted-foreground">No disponible</span>;
+      },
+    },
   {
     id: "actions",
     header: "Acciones",
@@ -159,10 +191,14 @@ const columns: ColumnDef<Linea>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleOpenEditModal(linea)}
-              >Editar Linea</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar Linea</DropdownMenuItem>
+            {isAdmin && (
+              <>
+                 <DropdownMenuItem onClick={() => handleOpenEditModal(linea)}
+                  >Editar Linea</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive">Eliminar Linea</DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -235,7 +271,6 @@ const columns: ColumnDef<Linea>[] = [
     try{
         const response = await fetch('/api/lineas', {
             method: 'POST',
-            // --- CAMBIO AQUÍ: Prepara el body como JSON ---
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -370,11 +405,12 @@ const columns: ColumnDef<Linea>[] = [
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-                          <PlusIcon className="mr-2 h-4 w-4" />
-                          Agregar Linea
-                        </Button>
+            {isAdmin && (
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Agregar Linea
+                </Button>
+            )}
           </div>
         </div>
       </CardHeader>

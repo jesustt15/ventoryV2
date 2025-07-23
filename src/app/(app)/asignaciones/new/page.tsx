@@ -412,15 +412,19 @@ export default function AsignacionesPage() {
                             </select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="modeloC">Modelo Cargador (Opcional)</Label>
-                        <Input id="modeloC" value={modeloC} onChange={(e) => setModeloC(e.target.value)} placeholder="Ej: Lenovo" />
-                    </div>
+                    {assetType === 'Computador' && (
+                        <>
+                            <div className="space-y-2 animate-in fade-in-0">
+                                <Label htmlFor="modeloC">Modelo Cargador (Opcional)</Label>
+                                <Input id="modeloC" value={modeloC} onChange={(e) => setModeloC(e.target.value)} placeholder="Ej: Lenovo" />
+                            </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="serialC">Serial Cargador(Opcional)</Label>
-                        <Input id="serialC" value={serialC} onChange={(e) => setSerialC(e.target.value)} placeholder="Ej:CHNN45GHJJ" />
-                    </div>
+                            <div className="space-y-2 animate-in fade-in-0">
+                                <Label htmlFor="serialC">Serial Cargador (Opcional)</Label>
+                                <Input id="serialC" value={serialC} onChange={(e) => setSerialC(e.target.value)} placeholder="Ej: CHNN45GHJJ" />
+                            </div>
+                        </>
+                    )}
 
                     
                     <div className="space-y-2">

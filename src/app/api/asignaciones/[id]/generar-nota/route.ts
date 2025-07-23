@@ -43,9 +43,9 @@ export async function GET(
             },
             usuario: true,
             departamento: true,
-            lineas: true, // Si tiene líneas telefónicas asociadas
           },
         },
+        lineaTelefonica:true,
         targetUsuario: {
           include: {
             departamento: {
@@ -128,9 +128,8 @@ export async function GET(
         worksheet.getCell('E13').value = asignacion.computador?.sisOperativo || 'N/A';
         worksheet.getCell('E15').value = asignacion.computador?.sapVersion || 'N/A';
         worksheet.getCell('E14').value = asignacion.computador?.officeVersion || 'N/A';
+        worksheet.getCell('B24').value = asignacion.notes || 'Sin notas.';
     } else if (asignacion.itemType === 'Dispositivo') {
-      // Si hay líneas telefónicas, puedes listarlas o poner la primera
-      // Limpiar celdas de computador si el equipo es un dispositivo
       worksheet.getCell('B6').value = asignacion.dispositivo?.nsap || '';
       worksheet.getCell('B14').value = asignacion.dispositivo?.modelo.tipo || '';
       worksheet.getCell('E4').value = `${asignacion.dispositivo?.modelo.marca.nombre} ${asignacion.dispositivo?.modelo.nombre}`; // Marca
@@ -138,11 +137,13 @@ export async function GET(
       worksheet.getCell('E6').value = '';
       worksheet.getCell('E7').value = '';
       worksheet.getCell('E8').value = '';
- 
+      worksheet.getCell('B24').value = asignacion.notes || 'Sin notas.';
+    } else if (asignacion.itemType === 'LineaTelefonica') {
+      worksheet.getCell('B24').value = `${asignacion.lineaTelefonica?.proveedor} ${asignacion.lineaTelefonica?.numero}`;
+      worksheet.getCell('B14').value = 'Linea Telefonica';
     }
 
-    // Notas de la asignación
-    worksheet.getCell('B24').value = asignacion.notes || 'Sin notas.';
+
 
 
     // 4. Escribir el archivo Excel a un buffer

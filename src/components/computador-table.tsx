@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+
 
 export const computadorSchema = z.object({
     serial: z.string().min(1, "El nombre es requerido"),
@@ -69,6 +71,7 @@ export function ComputadorTable({}: ComputadorTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [searchQuery, setSearchQuery] = React.useState("")
   const [computadores, setComputadores] = React.useState<Computador[]>([]);
+  const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Computador>[] = [
   {
@@ -286,7 +289,14 @@ const columns: ColumnDef<Computador>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(computador.serial.toString())}>
+          <DropdownMenuItem
+            onClick={() => {
+              navigator.clipboard.writeText(computador.serial.toString());
+                showToast.success("¡Serial copiado!", { progress: false,
+                                  position: "bottom-center",
+                                  transition: "popUp"});
+            }}
+          >
               Copiar Serial
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -294,13 +304,18 @@ const columns: ColumnDef<Computador>[] = [
                 Ver detalles
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/computadores/${computador.id}/editar`}>
-                  Editar equipo
-              </Link>
-              </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+            { isAdmin && (
+              <>
+                <DropdownMenuItem asChild>
+                  <Link href={`/computadores/${computador.id}/editar`}>
+                      Editar equipo
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+              </>
+            )}
+            
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -415,7 +430,7 @@ return (
               </DropdownMenu>
             </div>
 
-            {session?.user?.role === 'admin' && (
+            {isAdmin && (
             <Button asChild>
               <Link href="/computadores/new">
                 <PlusIcon className="mr-2 h-4 w-4" />

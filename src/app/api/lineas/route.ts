@@ -3,7 +3,28 @@ import  prisma  from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const lineas = await prisma.lineaTelefonica.findMany();
+     const lineas = await prisma.lineaTelefonica.findMany({
+    include: {
+      // Incluimos las asignaciones relacionadas
+      asignaciones: {
+        // Ordenamos por fecha descendente para obtener la más reciente primero
+        orderBy: {
+          date: 'desc',
+        },
+        // Solo necesitamos la más reciente
+        take: 1,
+        // Incluimos los datos del usuario o departamento al que fue asignada
+        include: {
+          targetUsuario: {
+            select: { nombre: true, apellido: true } // Solo trae los campos que necesitas
+          },
+          targetDepartamento: {
+            select: { nombre: true } // Solo trae el nombre del departamento
+          },
+        },
+      },
+    },
+  });
     return NextResponse.json(lineas, { status: 200 });
   } catch (error) {
     console.error(error);
