@@ -285,7 +285,11 @@ const columns: ColumnDef<Usuario>[] = [
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.legajo.toString())}>
               Copiar Legajo
             </DropdownMenuItem>
-            <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/usuarios/${usuario.id}/asigned`}>
+                Ver Asignados
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href={`/usuarios/${usuario.id}/editar`}>
                   Editar Usuario
@@ -311,7 +315,6 @@ const columns: ColumnDef<Usuario>[] = [
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    globalFilter: searchQuery,
     state: {
       sorting,
       columnFilters,

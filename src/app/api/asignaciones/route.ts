@@ -116,6 +116,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log("[API/ASIGNACIONES] Body recibido:", body);
     const validation = asignacionSchema.safeParse(body);
 
     if (!validation.success) {
@@ -126,6 +127,18 @@ export async function POST(request: NextRequest) {
       gerente, serialC, modeloC, motivo, localidad
      } = validation.data;
 
+     const prismaModelMapping = {
+      Computador: 'computador',
+      Dispositivo: 'dispositivo',
+      LineaTelefonica: 'lineaTelefonica'
+    };
+    
+    const prismaModelName = prismaModelMapping[itemType];
+
+    if (!prismaModelName) {
+        throw new Error(`Tipo de item inválido proporcionado: ${itemType}`);
+    }
+    console.log(`[API/ASIGNACIONES] Acción: ${action} sobre ${prismaModelName} con ID: ${itemId}`);
     const result = await prisma.$transaction(async (tx) => {
       if (action === 'asignar') {
         if (!asignarA_id || !asignarA_type) {
@@ -152,32 +165,28 @@ export async function POST(request: NextRequest) {
           },
         });
             // -- OPERACIÓN 2: Actualizar el estado del activo correspondiente --
-      let activo;
+      const updateData = {
+      estado: 'Asignado',
+      usuarioId: asignarA_type === 'Usuario' ? asignarA_id : null,
+      departamentoId: asignarA_type === 'Departamento' ? asignarA_id : null,
+    };
       switch (itemType) {
-        case 'Computador':
-          activo = await tx.computador.update({
-            where: { id: itemId },
-            data: { estado: 'Asignado' }, // ¡Aquí actualizamos el estado!
-          });
-          break;
-        case 'Dispositivo':
-          activo = await tx.dispositivo.update({
-            where: { id: itemId },
-            data: { estado: 'Asignado' }, // ¡Aquí actualizamos el estado!
-          });
-          break;
-        case 'LineaTelefonica':
-          // Si tu tabla de líneas también tiene un campo "estado", lo actualizas aquí.
-          // Si no, puedes omitir este caso o simplemente devolver el objeto.
-          activo = await tx.lineaTelefonica.findUnique({ where: { id: itemId } });
-          // await tx.lineaTelefonica.update({
-          //   where: { id: itemId },
-          //   data: { estado: 'Asignado' },
-          // });
-          break;
-        default:
-          throw new Error("Tipo de activo no válido.");
-      }
+      case 'Computador':
+        await tx.computador.update({
+          where: { id: itemId },
+          data: updateData, // ¡Actualiza usuarioId/departamentoId!
+        });
+        break;
+      case 'Dispositivo':
+        await tx.dispositivo.update({
+          where: { id: itemId },
+          data: updateData, // ¡Actualiza usuarioId/departamentoId!
+        });
+        break;
+      case 'LineaTelefonica':
+        // No requiere actualización directa
+        break;
+    }
 
       } else { // 'desvincular'
         
