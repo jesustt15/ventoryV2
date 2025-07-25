@@ -236,7 +236,345 @@ const datosDeInventario = [
             img: '/uploads/modelos/35972.jpg',
         },
     ]
-  }
+  },{
+    nombre: '3com',
+    modelos : [
+      {
+        nombre: '3C16471',
+        tipo: 'Switch',
+        img: '/uploads/modelos/3CRWE154G72.jpg',
+      },
+      {
+        nombre: 'OffiConnect',
+        tipo: 'Switch',
+        img: '/uploads/modelos/officonnect.jpg',
+      },
+    ]
+  },
+  {
+    nombre: 'Allied Telesis',
+    modelos: [
+      {
+        nombre: 'ATFS5716L',
+        tipo: 'Switch',
+        img: '/uploads/modelos/ATFS5716L.jpg',
+      },
+      {
+        nombre: 'ATFS708',
+        tipo: 'Switch',
+        img: '/uploads/modelos/ATFS708.jpg',
+      },
+      {
+        nombre: 'ATMC101XL',
+        tipo: 'Switch',
+        img: '/uploads/modelos/ATMC101XL.jpg',
+      },
+    ]
+  },
+  {
+    nombre: 'CDP',
+    modelos: [
+      {
+        nombre: 'R-UPR1008',
+        tipo: 'UPS',
+        img: '/uploads/modelos/UPS-CDP-R-UPR1008.jpg',
+      },
+    ]
+  },
+  {    nombre: 'Cisco',
+    modelos: [
+      {
+        nombre: '2811',
+        tipo: 'Router',
+        img: '/uploads/modelos/cisco-2811-router.jpg',
+      },
+      {
+        nombre: '2851',
+        tipo: 'Router',
+        img: '/uploads/modelos/CISCO-2851-V.jpg',
+      },
+      {
+        nombre: '3845',
+        tipo: 'Router',
+        img: '/uploads/modelos/Cisco_3845__96413.jpg',
+      },
+      {
+        nombre: '1200Aironet',
+        tipo: 'AP',
+        img: '/uploads/modelos/715sXZFp0sL._SL1500_.jpg',
+      },
+      {
+        nombre: 'Catalyst 2960',
+        tipo: 'Router',
+        img: '/uploads/modelos/catalyst-2960.jpg',
+      },
+      {
+        nombre: 'Catalyst 3560',
+        tipo: 'Router',
+        img: '/uploads/modelos/cisco-catalyst-3560.jpg',
+      },
+      {
+        nombre: 'Linksys SFE2000',
+        tipo: 'Switch',
+        img: '/uploads/modelos/sfe2000.jpg',
+      },
+      {
+        nombre: 'Linksys WRT310N',
+        tipo: 'Router',
+        img: '/uploads/modelos/linksys-wireless.jpg',
+      },
+      {
+        nombre: 'SF220-24',
+        tipo: 'Switch',
+        img: '/uploads/modelos/SF220-24.jfif',
+      },
+      {
+        nombre: 'SF220-48P',
+        tipo: 'Switch',
+        img: '/uploads/modelos/SF220-48P.png',
+      },
+      {
+        nombre: 'SF300-48',
+        tipo: 'Switch',
+        img: '/uploads/modelos/SF300-48PP.jpg',
+      },
+      {
+        nombre: 'SFE2000P',
+        tipo: 'Switch',
+        img: '/uploads/modelos/SFE2000P.jpg',
+      },
+      {
+        nombre: 'SR224',
+        tipo: 'Switch',
+        img: '/uploads/modelos/SR224-EU_1.jpg',
+      }
+    ]
+  },
+  {
+    nombre: 'D-Link',
+    modelos: [
+      {
+        nombre: 'DES-1008D',
+        tipo: 'Switch',
+        img: '/uploads/modelos/DES1008D.png',
+      },
+      {
+        nombre: 'DMC-300SC',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/DMC-300SC.png',
+      },
+    ]
+  },
+  {
+    nombre: 'Echolife',
+    modelos: [
+      {
+        nombre: 'EG8814V5',
+        tipo: 'Router',
+        img: '/uploads/modelos/EG8145V5-1.jpg',
+      },
+    ]
+  },
+  {
+    nombre: 'Fortinet',
+    modelos: [
+      {
+        nombre: 'FortiGate 60F',
+        tipo: 'Firewall',
+        img: '/uploads/modelos/FortiGate60F.jpg',
+      },
+      {
+        nombre: 'FortiGate 200F',
+        tipo: 'Firewall',
+        img: '/uploads/modelos/200f.jfif',
+      },
+      {
+        nombre: 'FortiGate 40F',
+        tipo: 'Firewall',
+        img: '/uploads/modelos/40f.jfif',
+      },
+      {
+        nombre: 'FS124FFOE',
+        tipo: 'Switch',
+        img: '/uploads/modelos/124f.png',
+      },
+      {
+        nombre: 'FS148FFPOE',
+        tipo: 'Switch',
+        img: '/uploads/modelos/148f.jpg',
+      },
+    ]
+  },
+  {
+    nombre: 'Forza',
+    modelos: [
+      {
+        nombre: 'NT-751',
+        tipo: 'UPS',
+        img: '/uploads/modelos/nt751.jpg',
+      },
+    ]
+  },
+  {
+    nombre: 'HYUNDAI',
+    modelos: [
+      {
+        nombre: 'HD2120',
+        tipo: 'UPS',
+        img: '/uploads/modelos/ups-online-hyundai.jpg',
+      },
+
+    ]
+  },
+  {
+    nombre: 'MASRIVA',
+    modelos: [      
+      {
+        nombre: 'MR-US3K',
+        tipo: 'UPS',
+        img: '/uploads/modelos/marsriva-mr-us3k_1-700x700.jpg',
+      },
+    ]
+  },
+  {
+    nombre: 'Mikrotik',
+    modelos: [
+        {
+          nombre: 'CSS610-8P-2S+IN',
+          tipo: 'Switch',
+          img: '/uploads/modelos/css610-8p-2sin.jpg',
+        }
+    ]
+  },
+    {
+    nombre: 'Nera',
+    modelos: [{
+        nombre: 'R1C',
+        tipo: 'Switch',
+        img: '/uploads/modelos/nera-v3.jpg',
+    }]
+  },
+    {
+    nombre: 'Netlink',
+    modelos: [
+      {
+        nombre: 'HTB-3100A',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/htv.jpg',
+      },
+      {
+        nombre: 'HTB-3100B',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/HTB-3100B.jpg',
+      },
+      {
+        nombre: 'HTBG503A',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/Grandstream-HT503-1.jpg',
+      },
+    ]
+  },
+    {
+    nombre: 'Planet',
+    modelos: [
+      {
+        nombre: 'GT802',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/gt802.jpg',
+      },
+      {
+        nombre: 'XGS3-24242',
+        tipo: 'Switch',
+        img: '/uploads/modelos/Managed-Telecom-Switch-PLANET_XGS3-24242.jpg',
+      },
+    ]
+  },
+{
+    nombre: 'TP-LINK',
+    modelos: [
+      {
+        nombre: 'LS1008G',
+        tipo: 'Switch',
+        img: '/uploads/modelos/tp-link-ls1008.jpg',
+      },
+      {
+        nombre: 'PHAROS CPE210',
+        tipo: 'AP',
+        img: '/uploads/modelos/pharos.jpg',
+      },
+      {
+        nombre: 'TLSF1005D',
+        tipo: 'Switch',
+        img: '/uploads/modelos/TLSF1005D.jfif',
+      },
+      {
+        nombre: 'TLWR845N',
+        tipo: 'Router',
+        img: '/uploads/modelos/tlwr.jfif',
+      },
+    ]
+  },
+  {
+    nombre: 'Transition Networks',
+    modelos: [
+      {
+        nombre: 'J/FE-CF-03(SC)',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/s-l400.jpg',
+      }
+    ]
+  },
+    {
+    nombre: 'TrenNet',
+    modelos: [
+      {
+        nombre: 'TFC110MSC',
+        tipo: 'Transceiver',
+        img: '/uploads/modelos/tfc110.jfif',
+      }
+    ]
+  },
+  {
+    nombre: 'Ubiquiti',
+    modelos: [
+      {
+        nombre: 'Litebeam5AC',
+        tipo: 'AP',
+        img: '/uploads/modelos/5ac.png',
+      },
+      {
+        nombre: 'Litebeam5C',
+        tipo: 'AP',
+        img: '/uploads/modelos/5c.png',
+      },
+      {
+        nombre: 'NanoStationLocoM2',
+        tipo: 'AP',
+        img: '/uploads/modelos/nanostation-2-loco-ubiquiti.jpg',
+      },
+      {
+        nombre: 'U6-LR',
+        tipo: 'AP',
+        img: '/uploads/modelos/efa6c5fb-ubiquiti_unifi6-min.jpg',
+      },
+      {
+        nombre: 'U6-PRO',
+        tipo: 'AP',
+        img: '/uploads/modelos/u6pro.jpg',
+      },
+            {
+        nombre: 'UAP',
+        tipo: 'AP',
+        img: '/uploads/modelos/u6pro.jpg',
+      },
+      {
+        nombre: 'UAP-AC-LR',
+        tipo: 'AP',
+        img: '/uploads/modelos/u6pro.jpg',
+      },
+    ]
+  },
+
   // Agrega más marcas y modelos aquí
 ];
 

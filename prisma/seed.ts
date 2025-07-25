@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 const gerencias = [
     { nombre: 'Gerencia General' },
@@ -11,6 +11,20 @@ const gerencias = [
     { nombre: 'Gerencia Legal' },
     // Agrega más gerencias según tu necesidad
 ];
+
+const users = [
+    { username: 'adminti', password: 'maveit2013', role: Role.admin },
+    { username: 'monitor', password: 'Masisa,.2025', role: Role.user },
+];
+
+// Agregar usuarios al modelo
+async function seedUsers(prisma: PrismaClient) {
+    for (const user of users) {
+        await prisma.user.create({
+            data: user,
+        });
+    }
+}
 const prisma = new PrismaClient();
 
 async function main() {
