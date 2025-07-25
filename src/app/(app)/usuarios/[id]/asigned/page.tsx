@@ -17,6 +17,7 @@ import {
   Download,
   RefreshCw,
   Hexagon,
+  PhoneIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -192,20 +193,20 @@ export default function UserProfile() {
     })
   }
 
-  const getDeviceIcon = (tipo: string) => {
-    switch (tipo.toLowerCase()) {
-      case "tablet":
-        return Smartphone
-      case "monitor":
-        return Monitor
-      case "móvil":
-        return Smartphone
-      case "fijo":
-        return Phone
-      default:
-        return Monitor
-    }
-  }
+//   const getDeviceIcon = (tipo: string) => {
+//     switch (tipo.toLowerCase()) {
+//       case "tablet":
+//         return Smartphone
+//       case "monitor":
+//         return Monitor
+//       case "móvil":
+//         return Smartphone
+//       case "fijo":
+//         return Phone
+//       default:
+//         return Monitor
+//     }
+//   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
@@ -330,7 +331,7 @@ export default function UserProfile() {
           <TabsContent value="devices" className="mt-0">
             <div className="grid gap-6">
               {userData.dispositivos.map((dispositivo) => {
-                const DeviceIcon = getDeviceIcon(dispositivo.tipo)
+                // No DeviceIcon needed
                 return (
                   <Card key={dispositivo.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
                     <CardContent className="p-6">
@@ -345,7 +346,7 @@ export default function UserProfile() {
                         <div className="lg:col-span-2">
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
-                              <DeviceIcon className="h-6 w-6 text-cyan-500 mr-2" />
+                              <PhoneIcon className="h-6 w-6 text-cyan-500 mr-2" />
                               <div>
                                 <h3 className="text-lg font-semibold text-slate-100">
                                   {dispositivo.marca} {dispositivo.modelo}
@@ -383,7 +384,7 @@ export default function UserProfile() {
           <TabsContent value="phones" className="mt-0">
             <div className="grid gap-6">
               {userData.lineasTelefonicas.map((linea) => {
-                const PhoneIcon = getDeviceIcon(linea.tipo)
+
                 return (
                   <Card key={linea.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
                     <CardContent className="p-6">
