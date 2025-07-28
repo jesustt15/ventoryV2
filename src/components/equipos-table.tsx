@@ -17,6 +17,9 @@ import DispositivoForm from "./EquipoForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import TableRowSkeleton from "@/utils/loading";
+
 
 export const dispositivoSchema = z.object({
   id: z.string().optional(), // Es buena idea tener el id en el schema para la lógica unificada
@@ -72,6 +75,7 @@ export function DispositivoTable({}: DispositivoTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [dispositivos, setDispositivos] = React.useState<Dispositivo[]>([]);
   const [modelos, setModelos] = React.useState<{ id: string; nombre: string }[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true); 
   const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Dispositivo>[] = [
@@ -282,40 +286,61 @@ const columns: ColumnDef<Dispositivo>[] = [
       const dispositivo = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => {
-                          navigator.clipboard.writeText(dispositivo.serial.toString());
-                            showToast.success("¡Serial copiado!", { progress: false,
-                                              position: "bottom-center",
-                                              transition: "popUp"});
-                        }}>
-              Copiar Serial
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/dispositivos/${dispositivo.id}/details`}>
-                Ver detalles
-              </Link>
-            </DropdownMenuItem>
-            { isAdmin && (
-              <>
-                <DropdownMenuItem
-                  onClick={() => handleOpenEditModal(dispositivo)}
-                >
-                  Editar equipo
+        <AlertDialog>
+          <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Abrir menú</span>
+                  <MoreHorizontalIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => {
+                              navigator.clipboard.writeText(dispositivo.serial.toString());
+                                showToast.success("¡Serial copiado!", { progress: false,
+                                                  position: "bottom-center",
+                                                  transition: "popUp"});
+                            }}>
+                  Copiar Serial
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <DropdownMenuItem asChild>
+                  <Link href={`/dispositivos/${dispositivo.id}/details`}>
+                    Ver detalles
+                  </Link>
+                </DropdownMenuItem>
+                { isAdmin && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => handleOpenEditModal(dispositivo)}
+                    >
+                      Editar equipo
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                  Esta acción no se puede deshacer. Esto eliminará permanentemente el departamento
+                  y borrará sus datos de nuestros servidores.
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                  disabled={isLoading}
+                  onClick={() => handleDelete({ id: dispositivo.id! })}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                  {isLoading ? "Eliminando..." : "Sí, eliminar"}
+                  </AlertDialogAction>
+              </AlertDialogFooter>
+              </AlertDialogContent>
+        </AlertDialog>
       )
     },
   },
@@ -340,8 +365,30 @@ const columns: ColumnDef<Dispositivo>[] = [
     },
   });
 
-   const fetchAllData = async () => {
+  const handleDelete = async ({id}: {id: string}) => {
+      setIsLoading(true);
       try {
+          const response = await fetch(`/api/dispositivos/${id}`, {
+          method: 'DELETE',
+          });
+  
+          if (!response.ok) {
+          throw new Error('Error al eliminar el depto.');
+          }
+  
+          showToast.success("Departamento eliminado correctamente.");
+          fetchAllData();
+      } catch (error) {
+          console.error(error);
+          showToast.error("No se pudo eliminar el depto.");
+      } finally {
+          setIsLoading(false);
+      }
+      };
+
+   const fetchAllData = async () => {
+    setIsLoading(true);  
+    try {
         // Hacemos ambas peticiones en paralelo para mejorar la velocidad
         const [dispositivosResponse, modelosResponse] = await Promise.all([
             fetch('/api/dispositivos'),
@@ -360,6 +407,7 @@ const columns: ColumnDef<Dispositivo>[] = [
         
         setDispositivos(dispositivosData);
         setModelos(modelosData); // CAMBIO 2: Guarda la lista de modelos en el estado
+        setIsLoading(false);
   
       } catch (error: any) {
         showToast.error("¡Error en Cargar!"+ (error.message), {
@@ -514,22 +562,33 @@ return (
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No se encontraron resultados.
-                  </TableCell>
-                </TableRow>
-              )}
+              <TableBody>
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                    <TableRowSkeleton 
+                        key={`skeleton-${index}`} 
+                        columnCount={columns.length || 5} 
+                />
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
+                        // Mostrar datos cuando están cargados
+                        table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                            {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                            ))}
+                        </TableRow>
+                        ))
+                    ) : (
+                        // Mostrar mensaje si no hay resultados
+                        <TableRow>
+                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                            {searchQuery ? "No se encontraron departamentos con ese filtro." : "No hay departamentos registrados."}
+                        </TableCell>
+                        </TableRow>
+                    )}
             </TableBody>
           </Table>
         </div>

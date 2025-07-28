@@ -16,6 +16,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
+import TableRowSkeleton from "@/utils/loading";
 
 
 export const computadorSchema = z.object({
@@ -71,6 +73,7 @@ export function ComputadorTable({}: ComputadorTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [searchQuery, setSearchQuery] = React.useState("")
   const [computadores, setComputadores] = React.useState<Computador[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Computador>[] = [
@@ -281,47 +284,93 @@ const columns: ColumnDef<Computador>[] = [
       const computador = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => {
-              navigator.clipboard.writeText(computador.serial.toString());
-                showToast.success("¡Serial copiado!", { progress: false,
-                                  position: "bottom-center",
-                                  transition: "popUp"});
-            }}
-          >
-              Copiar Serial
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/computadores/${computador.id}/details`}>
-                Ver detalles
-              </Link>
-            </DropdownMenuItem>
-            { isAdmin && (
-              <>
-                <DropdownMenuItem asChild>
-                  <Link href={`/computadores/${computador.id}/editar`}>
-                      Editar equipo
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
-              </>
-            )}
-            
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AlertDialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menú</span>
+                <MoreHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => {
+                navigator.clipboard.writeText(computador.serial.toString());
+                  showToast.success("¡Serial copiado!", { progress: false,
+                                    position: "bottom-center",
+                                    transition: "popUp"});
+              }}
+            >
+                Copiar Serial
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/computadores/${computador.id}/details`}>
+                  Ver detalles
+                </Link>
+              </DropdownMenuItem>
+              { isAdmin && (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/computadores/${computador.id}/editar`}>
+                        Editar equipo
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        Eliminar departamento
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </>
+              )}
+              
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás segur@?</AlertDialogTitle>
+                <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente el computador
+                y borrará sus datos de nuestros servidores.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                  disabled={isLoading}
+                  onClick={() => handleDelete({ id: computador.id })}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                  {isLoading ? "Eliminando..." : "Sí, eliminar"}
+                  </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
       )
     },
   },
 ]
+
+const handleDelete = async ({id}: {id: string}) => {
+    setIsLoading(true);
+    try {
+        const response = await fetch(`/api/computador/${id}`, {
+        method: 'DELETE',
+        });
+
+        if (!response.ok) {
+        throw new Error('Error al eliminar el depto.');
+        }
+
+        showToast.success("Departamento eliminado correctamente.");
+        fetchAllData();
+    } catch (error) {
+        console.error(error);
+        showToast.error("No se pudo eliminar el depto.");
+    } finally {
+        setIsLoading(false);
+    }
+    };
 
   const table = useReactTable({
     data: computadores,
@@ -343,6 +392,7 @@ const columns: ColumnDef<Computador>[] = [
   });
 
     const fetchAllData = async () => {
+    setIsLoading(true);
       try {
         const computadoresResponse = await fetch('/api/computador');
 
@@ -354,6 +404,7 @@ const columns: ColumnDef<Computador>[] = [
         const computadoresData: Computador[] = await computadoresResponse.json();
         
         setComputadores(computadoresData);
+        setIsLoading(false);
 
       } catch (error: any) {
         showToast.error("¡Error en Cargar!"+ (error.message), {
@@ -457,22 +508,33 @@ return (
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No se encontraron resultados.
-                  </TableCell>
-                </TableRow>
-              )}
+              <TableBody>
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                    <TableRowSkeleton 
+                        key={`skeleton-${index}`} 
+                        columnCount={columns.length || 5} 
+                />
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
+                        // Mostrar datos cuando están cargados
+                        table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                            {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                            ))}
+                        </TableRow>
+                        ))
+                    ) : (
+                    // Mostrar mensaje si no hay resultados
+                    <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        {searchQuery ? "No se encontraron departamentos con ese filtro." : "No hay departamentos registrados."}
+                    </TableCell>
+                    </TableRow>
+                )}
             </TableBody>
           </Table>
         </div>

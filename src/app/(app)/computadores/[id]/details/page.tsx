@@ -46,6 +46,7 @@ import { Spinner } from "@/components/ui/spinner"
 import Link from "next/link"
 import { formatDate } from "@/utils/formatDate"
 import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
+import { useIsAdmin } from "@/hooks/useIsAdmin"
 
 
 interface HistorialEntry {
@@ -125,13 +126,12 @@ const statusConfig = {
 
 export default function EquipmentDetails() {
   const [activeTab, setActiveTab] = useState("overview")
-
-      const router = useRouter();
       const params = useParams();
       const { id } = params;
   
       const [equipo, setEquipo] = useState<ComputadorDetallado| null>(null);
       const [loading, setLoading] = useState(true);
+      const isAdmin = useIsAdmin();
   
      useEffect(() => {
         if (id) {
@@ -184,7 +184,12 @@ const departamentoTag = (
     const { serial, sisOperativo, procesador, arquitectura, ram, 
       almacenamiento, sapVersion, officeVersion, estado, macEthernet, macWifi } = equipo;
 
-    const currentStatus = statusConfig[estado as keyof typeof statusConfig] || statusConfig.operational;
+    const currentStatus = statusConfig[estado as keyof typeof statusConfig] || {
+      label: "Desconocido",
+      color: "gray",
+      bgColor: "bg-gray-500/20",
+      textColor: "text-gray-400"
+    };  
 
   const specs: Record<string, string> = {
     Serial:       serial ?? "—",
@@ -238,19 +243,23 @@ const departamentoTag = (
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-slate-800 border-slate-700" align="end">
-                <DropdownMenuItem className="hover:bg-slate-700">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar Equipo
-                </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem className="hover:bg-slate-700">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar Equipo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-slate-700 text-red-400">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuItem className="hover:bg-slate-700">
                   <QrCode className="h-4 w-4 mr-2" />
                   Generar QR
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-slate-700" />
-                <DropdownMenuItem className="hover:bg-slate-700 text-red-400">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Eliminar
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

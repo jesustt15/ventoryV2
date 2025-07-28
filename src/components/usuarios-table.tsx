@@ -2,10 +2,18 @@
 
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
-import React from "react";
+import React, { useState } from "react";
 import {z} from "zod";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
+import { AlertDialog, AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { FilterIcon } from "lucide-react";
 import { ArchiveRestore, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
@@ -14,7 +22,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
+import TableRowSkeleton from "@/utils/loading";
 
 export const usuarioSchema = z.object({
     nombre: z.string().min(1, "El nombre es requerido"),
@@ -51,6 +60,32 @@ export function UsuarioTable({}: UsuarioTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [searchQuery, setSearchQuery] = React.useState("")
   const [usuarios, setUsuarios] = React.useState<Usuario[]>([]);
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+
+  // Función para manejar la eliminación
+  const handleDelete = async ({id}: {id: string}) => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/usuarios/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el usuario.');
+      }
+
+      showToast.success("Usuario eliminado correctamente.");
+      fetchAllData();
+      router.refresh(); // Refresca los datos en la página actual (App Router)
+    } catch (error) {
+      console.error(error);
+      showToast.error("No se pudo eliminar el usuario.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
 const columns: ColumnDef<Usuario>[] = [
   {
@@ -274,31 +309,58 @@ const columns: ColumnDef<Usuario>[] = [
       const usuario = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.legajo.toString())}>
-              Copiar Legajo
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/usuarios/${usuario.id}/asigned`}>
-                Ver Asignados
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/usuarios/${usuario.id}/editar`}>
-                  Editar Usuario
-              </Link>
+        <AlertDialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menú</span>
+                <MoreHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(usuario.legajo.toString())}>
+                Copiar Legajo
               </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem asChild>
+                <Link href={`/usuarios/${usuario.id}/asigned`}>
+                  Ver Asignados
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/usuarios/${usuario.id}/editar`}>
+                    Editar Usuario
+                </Link>
+                </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}>
+                  Eliminar Usuario
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* Contenido del Diálogo de Confirmación */}
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente al usuario
+                y borrará sus datos de nuestros servidores.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isDeleting}
+                onClick={() => handleDelete({ id: usuario.id })}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Eliminando..." : "Sí, eliminar"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
       )
     },
   },
@@ -333,6 +395,7 @@ const columns: ColumnDef<Usuario>[] = [
   });
 
     const fetchAllData = async () => {
+      setLoading(true);
       try {
         const usuariosResponse = await fetch('/api/usuarios');
 
@@ -344,6 +407,7 @@ const columns: ColumnDef<Usuario>[] = [
         const usuariosData: Usuario[] = await usuariosResponse.json();
         
         setUsuarios(usuariosData);
+        setLoading(false);
 
       } catch (error: any) {
         showToast.error("¡Error en Cargar!"+ (error.message), {
@@ -439,23 +503,34 @@ return (
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No se encontraron resultados.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+                <TableBody>
+                    {isLoading ? (
+                        Array.from({ length: 5 }).map((_, index) => (
+                        <TableRowSkeleton 
+                            key={`skeleton-${index}`} 
+                            columnCount={columns.length || 5} 
+                    />
+                      ))
+                  ) : table.getRowModel().rows?.length ? (
+                      // Mostrar datos cuando están cargados
+                      table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                          {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                          ))}
+                      </TableRow>
+                      ))
+                  ) : (
+                      // Mostrar mensaje si no hay resultados
+                      <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                          {searchQuery ? "No se encontraron departamentos con ese filtro." : "No hay departamentos registrados."}
+                      </TableCell>
+                      </TableRow>
+                  )}
+              </TableBody>
           </Table>
         </div>
         <div className="flex items-center justify-between space-x-2 py-4 px-4">

@@ -9,7 +9,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { cn } from "@/lib/utils";
 
 export function NavMain({
   items,
@@ -21,6 +22,7 @@ export function NavMain({
   }[]
 }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
@@ -31,23 +33,33 @@ export function NavMain({
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton 
-                tooltip={item.title}
-                onClick={(e) => {
-                  console.log(`Botón clickeado: ${item.title}`);
-                  handleClick(e, item.url);
-                }}
-                asChild
-              >
-                <Link href={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const isActive = pathname.startsWith(item.url);
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton 
+                  className={cn(
+                    // Clases base para todos los botones
+                    "transition-colors duration-150",
+                    // Clases para el estado ACTIVO
+                    isActive && "bg-primary text-primary-foreground",
+                    // Clases para el estado HOVER (cuando NO está activo)
+                    !isActive && "hover:bg-accent hover:text-accent-foreground"
+                  )}
+                  tooltip={item.title}
+                  onClick={(e) => {
+                    handleClick(e, item.url);
+                  }}
+                  asChild
+                >
+                  <Link href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

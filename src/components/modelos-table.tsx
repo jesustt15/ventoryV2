@@ -41,6 +41,8 @@ import { showToast } from "nextjs-toast-notify";
 import ModeloForm from "./ModeloForm"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { FilterIcon } from "lucide-react"
+import { useIsAdmin } from "@/hooks/useIsAdmin"
+import TableRowSkeleton from "@/utils/loading"
 
 export const modeloSchema = z.object({
   nombre: z.string().min(1, "El nombre es requerido"),
@@ -89,6 +91,8 @@ export function ModelosTable({}: EquiposTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [modelos, setModelos] = React.useState<Modelo[]>([]);
   const [marcas, setMarcas] = React.useState<{ id: string; nombre: string }[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Modelo>[] = [
   {
@@ -206,10 +210,14 @@ const columns: ColumnDef<Modelo>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleOpenEditModal(modelo)}
-              >Editar modelo</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar modelo</DropdownMenuItem>
+            {isAdmin && (
+              <>
+                <DropdownMenuItem onClick={() => handleOpenEditModal(modelo)}
+                >Editar modelo</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive">Eliminar modelo</DropdownMenuItem>
+              </>      
+              )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -238,6 +246,7 @@ const columns: ColumnDef<Modelo>[] = [
   });
 
   const fetchAllData = async () => {
+    setIsLoading(true);
     try {
       const modelosResponse = await fetch('/api/modelos');
       const marcasResponse = await fetch('/api/marcas');
@@ -255,6 +264,7 @@ const columns: ColumnDef<Modelo>[] = [
 
       setModelos(modelosData);
       setMarcas(marcasData);
+      setIsLoading(false);
     } catch (error: any) {
       showToast.error("¡Error en Cargar!"+ (error.message), {
           duration: 4000,
@@ -310,13 +320,32 @@ const columns: ColumnDef<Modelo>[] = [
     }
   };
 
+   const handleDelete = async ({id}: {id: string}) => {
+      setIsLoading(true);
+      try {
+          const response = await fetch(`/api/modelos/${id}`, {
+          method: 'DELETE',
+          });
+  
+          if (!response.ok) {
+          throw new Error('Error al eliminar el modelo.');
+          }
+  
+          showToast.success("Modelo eliminado correctamente.");
+          fetchAllData();
+      } catch (error) {
+          console.error(error);
+          showToast.error("No se pudo eliminar el Modelo.");
+      } finally {
+          setIsLoading(false);
+      }
+      };
+
   // No se usa
      const handleUpdateModel = async (data: FormData) => {
     if (!editingModelo) return;
 
     try {
-
-
       // 2. Realiza la petición fetch
       const response = await fetch(`/api/modelos/${editingModelo.id}`, {
         method: 'PUT',
@@ -437,21 +466,32 @@ const columns: ColumnDef<Modelo>[] = [
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No se encontraron resultados.
-                  </TableCell>
-                </TableRow>
-              )}
+              {isLoading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                  <TableRowSkeleton 
+                      key={`skeleton-${index}`} 
+                      columnCount={columns.length || 5} 
+              />
+                      ))
+                  ) : table.getRowModel().rows?.length ? (
+                      // Mostrar datos cuando están cargados
+                      table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                          {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                          ))}
+                      </TableRow>
+                      ))
+                  ) : (
+                      // Mostrar mensaje si no hay resultados
+                      <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                          {searchQuery ? "No se encontraron departamentos con ese filtro." : "No hay departamentos registrados."}
+                      </TableCell>
+                      </TableRow>
+                  )}
             </TableBody>
           </Table>
         </div>

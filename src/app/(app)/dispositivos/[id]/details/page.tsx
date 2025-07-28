@@ -109,6 +109,7 @@ const statusConfig = {
   repair: { label: "En Reparación", color: "orange", bgColor: "bg-orange-500/20", textColor: "text-orange-400" },
   Asignado: { label: "Asignado", color: "blue", bgColor: "bg-blue-500/20", textColor: "text-blue-400" },
   Baja: { label: "De Baja", color: "red", bgColor: "bg-red-500/20", textColor: "text-red-400" },
+  Desconocido: { label: "Desconocido", color: "gray", bgColor: "bg-gray-500/20", textColor: "text-gray-400" },
 }
 
 export default function EquipmentDetails() {
@@ -170,9 +171,8 @@ const departamentoTag = (
     }
   
     const { serial,  estado, mac } = equipo;
-
-    const currentStatus = statusConfig[estado as keyof typeof statusConfig] || statusConfig.operational;
-
+    
+    const currentStatus = statusConfig[estado as keyof typeof statusConfig] || statusConfig.Desconocido;
   const specs: Record<string, string> = {
     Serial:       serial ?? "—",
     mac: mac ?? "—",

@@ -39,6 +39,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { showToast } from "nextjs-toast-notify";
 import LineaForm from "./LineaForm"
 import { useIsAdmin } from "@/hooks/useIsAdmin"
+import TableRowSkeleton from "@/utils/loading"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog"
 
 export const lineaSchema = z.object({
   numero: z.string().min(1, "El número es requerido"),
@@ -96,6 +98,7 @@ export function LineasTable({ data }: LineasTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [lineas, setLineas] = React.useState<Linea[]>([]);
   const [proveedor, setProveedores] = React.useState<{ id: string; nombre: string }[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   const isAdmin = useIsAdmin();
 
 const columns: ColumnDef<Linea>[] = [
@@ -182,25 +185,50 @@ const columns: ColumnDef<Linea>[] = [
       const linea = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Ver detalles</DropdownMenuItem>
-            {isAdmin && (
-              <>
-                 <DropdownMenuItem onClick={() => handleOpenEditModal(linea)}
-                  >Editar Linea</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive">Eliminar Linea</DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Abrir menú</span>
+                  <MoreHorizontalIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem onClick={() => handleOpenEditModal(linea)}
+                      >Editar Linea</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-destructive">Eliminar Linea</DropdownMenuItem>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                            Eliminar Linea
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                  Esta acción no se puede deshacer. Esto eliminará permanentemente la línea
+                  y borrará sus datos de nuestros servidores.
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                  disabled={isLoading}
+                  onClick={() => handleDelete({ id: linea.id })}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                  {isLoading ? "Eliminando..." : "Sí, eliminar"}
+                  </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>  
       )
     },
   },
@@ -227,6 +255,7 @@ const columns: ColumnDef<Linea>[] = [
   });
 
   const fetchAllData = async () => {
+    setIsLoading(true);
     try {
       const lineasResponse = await fetch('/api/lineas');
 
@@ -245,7 +274,8 @@ const columns: ColumnDef<Linea>[] = [
       }));
 
       setLineas(lineasData);
-      setProveedores(proveedoresUnicos); // <-- Nuevo estado para proveedores únicos
+      setProveedores(proveedoresUnicos);
+      setIsLoading(false); // <-- Nuevo estado para proveedores únicos
     } catch (error: any) {
       showToast.error("¡Error en Cargar!"+ (error.message), {
           duration: 4000,
@@ -303,7 +333,27 @@ const columns: ColumnDef<Linea>[] = [
     }
   };
 
-  // No se usa
+  const handleDelete = async ({id}: {id: string}) => {
+      setIsLoading(true);
+      try {
+          const response = await fetch(`/api/lineas/${id}`, {
+          method: 'DELETE',
+          });
+  
+          if (!response.ok) {
+          throw new Error('Error al eliminar el depto.');
+          }
+  
+          showToast.success("Departamento eliminado correctamente.");
+          fetchAllData();
+      } catch (error) {
+          console.error(error);
+          showToast.error("No se pudo eliminar el depto.");
+      } finally {
+          setIsLoading(false);
+      }
+      };
+
     const handleUpdateModel = async (data: LineaFormData) => {
       if (!editingLinea) return;
   
@@ -430,22 +480,33 @@ const columns: ColumnDef<Linea>[] = [
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No se encontraron resultados.
-                  </TableCell>
-                </TableRow>
-              )}
+              <TableBody>
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                    <TableRowSkeleton 
+                        key={`skeleton-${index}`} 
+                        columnCount={columns.length || 5} 
+                  />
+                        ))
+                    ) : table.getRowModel().rows?.length ? (
+                        // Mostrar datos cuando están cargados
+                        table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                            {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                            ))}
+                        </TableRow>
+                        ))
+                    ) : (
+                        // Mostrar mensaje si no hay resultados
+                        <TableRow>
+                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                            {searchQuery ? "No se encontraron departamentos con ese filtro." : "No hay departamentos registrados."}
+                        </TableCell>
+                        </TableRow>
+                    )}
             </TableBody>
           </Table>
         </div>

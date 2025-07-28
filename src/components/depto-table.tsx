@@ -1,5 +1,5 @@
 import React, { FormEvent, useEffect, useState } from 'react';
-import { z } from 'zod';
+import { set, z } from 'zod';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -37,6 +37,9 @@ import { Label } from "@/components/ui/label";
 import CreatableSelect from 'react-select/creatable'; // For CreatableSelect
 import { ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react"; // Assuming lucide-react for icons
 import { toast as showToast } from "sonner"; // Assuming sonner for toasts
+import TableRowSkeleton from '@/utils/loading';
+import { AlertDialog } from '@radix-ui/react-alert-dialog';
+import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 
 // Zod Schema for form validation
 export const deptoSchema = z.object({
@@ -253,7 +256,8 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
     const [editingDepartamento, setEditingDepartamento] = React.useState<Departamento | null>(null);
     const [searchQuery, setSearchQuery] = React.useState("")
     const [departamentos, setDepartamentos] = React.useState<Departamento[]>([]);
-    const [gerencias, setGerencias] = React.useState<Gerencia[]>([]); // Gerencia[] type
+    const [gerencias, setGerencias] = React.useState<Gerencia[]>([]);
+    const [isLoading, setLoading] = React.useState(false) // Gerencia[] type
 
     // API Data type for Departamento if gerencia is just an ID from backend
     interface DepartamentoFromAPI {
@@ -309,7 +313,8 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
             cell: ({ row }) => {
                 const depto = row.original;
                 return (
-                    <DropdownMenu>
+                    <AlertDialog>
+                        <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
                                 <span className="sr-only">Abrir menú</span>
@@ -322,11 +327,33 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
                                 Editar departamento
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                                Eliminar departamento
-                            </DropdownMenuItem>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                    Eliminar departamento
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
                         </DropdownMenuContent>
                     </DropdownMenu>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                            Esta acción no se puede deshacer. Esto eliminará permanentemente el departamento
+                            y borrará sus datos de nuestros servidores.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                            disabled={isLoading}
+                            onClick={() => handleDelete({ id: depto.id })}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                            {isLoading ? "Eliminando..." : "Sí, eliminar"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                        </AlertDialogContent>
+                </AlertDialog>
                 );
             },
         },
@@ -356,6 +383,7 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
     });
 
     const fetchAllData = async () => {
+        setLoading(true);
         try {
             const [departamentosResponse, gerenciasResponse] = await Promise.all([
                 fetch('/api/departamentos'),
@@ -386,6 +414,7 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
 
             setDepartamentos(processedDepartamentos);
             setGerencias(gerenciasData);
+            setLoading(false);
         } catch (error: any) {
             showToast.error(`¡Error al cargar datos!: ${error.message}`, {
                 duration: 4000, position: "top-right",
@@ -396,6 +425,28 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
     React.useEffect(() => {
         fetchAllData();
     }, []);
+
+    const handleDelete = async ({id}: {id: string}) => {
+    setLoading(true);
+    try {
+        const response = await fetch(`/api/departamentos/${id}`, {
+        method: 'DELETE',
+        });
+
+        if (!response.ok) {
+        throw new Error('Error al eliminar el depto.');
+        }
+
+        showToast.success("Departamento eliminado correctamente.");
+        fetchAllData();
+    } catch (error) {
+        console.error(error);
+        showToast.error("No se pudo eliminar el depto.");
+    } finally {
+        setLoading(false);
+    }
+    };
+    
 
     const handleOpenEditModal = (departamento: Departamento) => {
         setEditingDepartamento(departamento);
@@ -515,25 +566,36 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
                                     ))}
                                 </TableRow>
                             ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            Array.from({ length: 5 }).map((_, index) => (
+                            <TableRowSkeleton 
+                                key={`skeleton-${index}`} 
+                                columnCount={columns.length || 5} 
+                        />
+                                ))
+                            ) : table.getRowModel().rows?.length ? (
+                                // Mostrar datos cuando están cargados
                                 table.getRowModel().rows.map((row) => (
-                                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                                        ))}
-                                    </TableRow>
+                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                                    {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </TableCell>
+                                    ))}
+                                </TableRow>
                                 ))
                             ) : (
+                                // Mostrar mensaje si no hay resultados
                                 <TableRow>
-                                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                                        No se encontraron resultados.
-                                    </TableCell>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    {searchQuery ? "No se encontraron departamentos con ese filtro." : "No hay departamentos registrados."}
+                                </TableCell>
                                 </TableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                    </TableBody>
+                </Table>
                 </div>
                 <div className="flex items-center justify-between space-x-2 py-4 px-4">
                     <div className="flex-1 text-sm text-muted-foreground">
