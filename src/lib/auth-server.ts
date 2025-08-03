@@ -29,7 +29,7 @@ export async function createSession(userId: string, role: 'user' | 'admin') {
   (await cookies()).set('session', session, {
     expires,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NEXT_PUBLIC_URL?.startsWith('https'),
     path: '/',
   });
 

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { AlertCircle, ArrowRight, Cpu, Eye, EyeOff, Lock, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import Loading from '@/utils/loading';
+import { LoadingLogin } from '@/utils/LoadingLogin';
 
 
 
@@ -151,7 +151,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         // Redirección al dashboard si el login es exitoso
-        router.push('/dashboard');
+        window.location.href = '/dashboard'; 
         router.refresh(); // Refresca la página para que el middleware actúe
       } else {
         const data = await res.json();
@@ -293,7 +293,7 @@ export default function LoginPage() {
 
       {/* Loading overlay */}
       {isLoading && (
-          <Loading  message='AUTENTICANDO...' />
+          <LoadingLogin  message='AUTENTICANDO...' />
       )}
 
       {/* Floating elements */}

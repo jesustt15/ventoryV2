@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma'; // Asegúrate que la ruta a tu cliente Prisma sea correcta
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest
 ) {
-  const { id } = params;
+  await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[4];
 
   try {
     // Paso 1: Verificar si el usuario existe y obtener sus datos básicos.

@@ -19,6 +19,14 @@ async function fetchData() {
   }
 }
 
+interface ModeloContainerProps {
+  onCreateModel: (formData: FormData) => Promise<void>;
+  children?: React.ReactNode;
+}
+function ModeloContainer({ onCreateModel, children }: ModeloContainerProps) {
+  return <div>{children}</div>;
+}
+
 export default function ModeloPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +69,7 @@ export default function ModeloPage() {
 
 
   if (loading) {
-    return <Loading message="Cargando modelos..." />;
+    return <Loading />;
   }
 
   if (error) {
@@ -69,9 +77,8 @@ export default function ModeloPage() {
   }
 
   return (
-    <div>
-      <ModeloForm onCreateModel={handleCreateModel} />
+    <ModeloContainer onCreateModel={handleCreateModel}>
       <ModelosTable data={data.length > 0 ? data : []} />
-    </div>
+    </ModeloContainer>
   );
 }

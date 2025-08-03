@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../../../utils/database';
+import { NextRequest, NextResponse } from 'next/server';
+import  prisma  from '@/lib/prisma';
 
-interface Params {
-  id: string;
-}
 
-export async function GET(request: Request, { params }: { params: Params }) {
+
+export async function GET(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     const linea = await prisma.lineaTelefonica.findUnique({
       where: {
         id: id,
@@ -23,9 +22,10 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: Params }) {
+export async function PUT(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     const body = await request.json();
     const updatedLinea = await prisma.lineaTelefonica.update({
       where: {
@@ -40,9 +40,10 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Params }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     await prisma.lineaTelefonica.delete({
       where: {
         id: id,

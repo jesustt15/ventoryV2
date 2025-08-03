@@ -2,8 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { DispositivoTable } from "@/components/equipos-table";
-import DispositivoForm from "@/components/EquipoForm";
-import { Spinner } from "@/components/ui/spinner";
+import  Loading  from "@/utils/loading";
+
+interface DispositivoContainerProps {
+  onCreateModel: (formData: FormData) => Promise<void>;
+  children?: React.ReactNode;
+}
+function DispositivoContainer({ onCreateModel, children }: DispositivoContainerProps) {
+  return <div>{children}</div>;
+}
 
 async function fetchData() {
   try {
@@ -60,7 +67,7 @@ export default function DispositivoPage() {
 
 
   if (loading) {
-    return <Spinner size="sm" className="bg-black dark:bg-white" />;
+    return <Loading />;
   }
 
   if (error) {
@@ -68,9 +75,8 @@ export default function DispositivoPage() {
   }
 
   return (
-    <div>
-      <DispositivoForm onCreateModel={handleCreateModel} />
+    <DispositivoContainer onCreateModel={handleCreateModel}>
       <DispositivoTable data={data.length > 0 ? data : []} />
-    </div>
+    </DispositivoContainer>
   );
 }

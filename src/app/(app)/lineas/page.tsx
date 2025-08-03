@@ -18,6 +18,14 @@ async function fetchData() {
   }
 }
 
+interface LineasContainerProps {
+  onCreateModel: (formData: FormData) => Promise<void>;
+  children?: React.ReactNode;
+}
+function LineasContainer({ onCreateModel, children }: LineasContainerProps) {
+  return <div>{children}</div>;
+}
+
 export default function LineaPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +68,7 @@ export default function LineaPage() {
 
 
   if (loading) {
-    return <Loading message="Cargando Líneas..." />;
+    return <Loading  />;
   }
 
   if (error) {
@@ -68,9 +76,8 @@ export default function LineaPage() {
   }
 
   return (
-    <div>
-      <LineaForm onCreateModel={handleCreateModel} />
+    <LineasContainer onCreateModel={handleCreateModel}>
       <LineasTable data={data.length > 0 ? data : []} />
-    </div>
+    </LineasContainer>
   );
 }

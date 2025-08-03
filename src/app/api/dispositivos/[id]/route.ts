@@ -1,16 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { dispositivoSchema } from '@/components/equipos-table';
 
-interface Params {
-    params: {
-        id: string;
-    };
-}
+
 
 // --- GET (Obtener un equipo por ID) ---
-export async function GET(request: Request, { params }: Params) {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const asignado = searchParams.get('asignado');
 
@@ -39,7 +35,8 @@ export async function GET(request: Request, { params }: Params) {
   
   console.log(`[API/COMPUTADOR] Cláusula 'where' de Prisma construida:`, JSON.stringify(where, null, 2));
   try {
-        const { id } = await params;
+        await Promise.resolve();
+        const id = request.nextUrl.pathname.split('/')[3];
         const dispositivo = await prisma.dispositivo.findUnique({
             where: { id },
             include: {
@@ -108,8 +105,9 @@ export async function GET(request: Request, { params }: Params) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
-     const { id } = await params;
+export async function PUT(request: NextRequest) {
+     await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     try {
         const equipoExistente = await prisma.dispositivo.findUnique({ where: { id } });
 
@@ -143,8 +141,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 
 // --- DELETE (Eliminar un equipo por ID) ---
-export async function DELETE(request: Request, { params }: Params) {
-    const { id } = await params;
+export async function DELETE(request: NextRequest) {
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     try {
         // 1. Obtener el equipo para saber la ruta de su imagen (si tiene)
         const equipoExistente = await prisma.dispositivo.findUnique({

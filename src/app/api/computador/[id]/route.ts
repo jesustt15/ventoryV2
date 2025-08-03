@@ -1,12 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
-interface Params {
-  id: string;
-}
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const asignado = searchParams.get('asignado');
 
@@ -35,7 +32,9 @@ export async function GET(request: Request, { params }: { params: Params }) {
   
   console.log(`[API/COMPUTADOR] Cláusula 'where' de Prisma construida:`, JSON.stringify(where, null, 2));
   try {
-        const { id } = await params;
+          await Promise.resolve();
+  
+        const id = request.nextUrl.pathname.split('/')[3];
         const computador = await prisma.computador.findUnique({
             where: { id },
             include: {
@@ -104,9 +103,10 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: Params }) {
+export async function PUT(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     const body = await request.json();
     const {
       serial,
@@ -166,9 +166,10 @@ const updatedEquipo = await prisma.computador.update({
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Params }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     await prisma.computador.delete({
       where: {
         id: id,

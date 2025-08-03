@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir, stat, unlink } from 'fs/promises'; // Añadimos unlink
 import path from 'path';
 
@@ -38,8 +38,9 @@ async function deletePreviousImage(imagePath: string | null | undefined) {
 }
 
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const {id} = await params;
+export async function GET(request: NextRequest) {
+  await Promise.resolve();
+  const id = request.nextUrl.pathname.split('/')[3];
 
   try {
     const modelo = await prisma.modeloDispositivo.findUnique({
@@ -62,8 +63,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PUT(request: NextRequest) {
+  await Promise.resolve();
+  const id = request.nextUrl.pathname.split('/')[3];
   try {
     // 1. Buscar el modelo existente
     const existingModelo = await prisma.modeloDispositivo.findUnique({
@@ -164,8 +166,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  const {id }= await params;
+export async function DELETE(request: NextRequest) {
+  await Promise.resolve();
+  const id = request.nextUrl.pathname.split('/')[3];
 
   try {
     // Fetch the modelo to get the image URL

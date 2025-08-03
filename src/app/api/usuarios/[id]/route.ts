@@ -1,13 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
 
-interface Params {
-  id: string;
-}
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     const usuario = await prisma.usuario.findUnique({
       where: {
         id: id,
@@ -30,8 +28,9 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function PUT(request: NextRequest) {
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     try {
         const body = await request.json();
 
@@ -70,9 +69,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: Params }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     await prisma.usuario.delete({
       where: {
         id: id,

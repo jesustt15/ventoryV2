@@ -5,6 +5,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { DepartamentoTable } from "@/components/depto-table";
 import Loading from "@/utils/loading";
 
+interface DepartamentoContainerProps {
+  onCreateModel: (formData: FormData) => Promise<void>;
+  children?: React.ReactNode;
+}
+function DepartamentoContainer({ onCreateModel, children }: DepartamentoContainerProps) {
+  return <div>{children}</div>;
+}
+
 async function fetchData() {
   try {
     const response = await fetch("/api/departamentos");
@@ -60,7 +68,7 @@ export default function DepartamentoPage() {
 
 
   if (loading) {
-    return <Loading message="Cargando departamentos..." />;
+    return <Loading  />;
   }
 
   if (error) {
@@ -68,9 +76,8 @@ export default function DepartamentoPage() {
   }
 
   return (
-    <div>
-      <div onCreateModel={handleCreateDepartamento} />
-      <DepartamentoTable data={data.length > 0 ? data : []} />
-    </div>
+    <DepartamentoContainer onCreateModel={handleCreateDepartamento}>
+      <DepartamentoTable />
+    </DepartamentoContainer>
   );
 }

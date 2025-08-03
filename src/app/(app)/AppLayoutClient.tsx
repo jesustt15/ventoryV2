@@ -6,8 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ReactNode } from "react";
-// import { User } from "@/types"; // Asegúrate de tener este tipo definido
-import type { UserJwtPayload } from "@/types"; // Adjust the import path as needed
+import type { UserJwtPayload } from "@/lib/auth"; // Adjust the import path as needed
 
 type AppLayoutClientProps = {
   children: ReactNode;

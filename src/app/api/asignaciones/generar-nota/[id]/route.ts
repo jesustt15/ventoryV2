@@ -1,23 +1,29 @@
 import prisma from '@/lib/prisma';
 import ExcelJS from 'exceljs';
 import path from 'path';
-
-
+import { PassThrough } from 'stream';
 import { NextRequest, NextResponse } from 'next/server';
 
-
+interface Params {
+  id: string;
+}
 
 export async function GET(
-  request: NextRequest, 
-  { params }: { params: { id: string } }
+  request: NextRequest  // Formato correcto
 ) {
+  await Promise.resolve();
   
-  // CORREGIDO: Accedemos al `id` directamente desde `params`.
-  // No se usa `await` y se accede como una propiedad simple.
-  const { id } = params;
+ const id = request.nextUrl.pathname.split('/')[4];
 
-  // Para depuración, puedes ver si el ID llega correctamente
-  console.log("API: Recibido ID de asignación:", id)
+
+  // Validación del ID
+  const assignmentId = parseInt(id);
+  if (isNaN(assignmentId)) {
+    return NextResponse.json(
+      { message: 'ID de asignación inválido' },
+      { status: 400 }
+    );
+  }
      try {
     // 1. Obtener los datos de la asignación y sus relaciones
     const asignacion = await prisma.asignaciones.findUnique({
@@ -83,9 +89,6 @@ export async function GET(
       return NextResponse.json({ message: 'Excel worksheet not found.' }, { status: 500 });
     }
 
-    // Datos de la Asignación
-    // worksheet.getCell('B2').value = asignacion.id; // ID de la Asignación
-     // Fecha de Asignación
 
     // Datos del Usuario/Departamento Asignado (Target)
     if (asignacion.targetType === 'Usuario') {
@@ -147,7 +150,16 @@ export async function GET(
 
 
     // 4. Escribir el archivo Excel a un buffer
-    const buffer = await workbook.xlsx.writeBuffer();
+    const stream = new PassThrough();
+    await workbook.xlsx.write(stream);
+  
+    // Convert the stream to a buffer
+    const buffer = await new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on('error', reject);
+    });
 
     // 5. Enviar el archivo como respuesta
     return new NextResponse(buffer, {

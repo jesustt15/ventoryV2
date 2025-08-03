@@ -175,7 +175,7 @@ export default function UserProfile() {
   }, []);
 
   if (loading) {
-    return <Loading message="Cargando Asignados..." />;
+    return <Loading  />;
   }
 
   if (!userData) {

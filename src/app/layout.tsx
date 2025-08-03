@@ -1,6 +1,7 @@
 import { ThemeProvider } from "../components/theme-provider";
 import { ReactNode } from "react";
 import './globals.css';
+import { Providers } from "../app/(app)/providers";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -19,8 +20,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
             enableSystem
             disableTransitionOnChange
           >
-            {/* El RootLayout ahora solo renderiza sus hijos directamente */}
+            <Providers>
             {children}
+            </Providers>
+            {/* El RootLayout ahora solo renderiza sus hijos directamente */}
+
           </ThemeProvider>
         </body>
       </html>

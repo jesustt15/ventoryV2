@@ -58,7 +58,7 @@ export default function ComputadorPage() {
 
 
   if (loading) {
-    return <Loading message="Cargando computadores..." />;
+    return <Loading  />;
   }
 
   if (error) {

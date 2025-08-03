@@ -43,7 +43,7 @@ export default function asignacionesPage() {
  
 
   if (loading) {
-    return <Loading message="Cargando asignaciones..." />;
+    return <Loading />;
   }
 
   if (error) {

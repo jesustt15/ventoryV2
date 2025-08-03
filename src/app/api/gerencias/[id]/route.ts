@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
 
 interface Params {
   id: string;
 }
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     const gerencia = await prisma.gerencia.findUnique({
       where: {
         id: id,
@@ -23,9 +24,10 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: Params }) {
+export async function PUT(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     const body = await request.json();
     const updatedGerencia = await prisma.gerencia.update({
       where: {
@@ -40,9 +42,10 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Params }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { id } = await params;
+    await Promise.resolve();
+    const id = request.nextUrl.pathname.split('/')[3];
     await prisma.gerencia.delete({
       where: {
         id: id,

@@ -59,7 +59,7 @@ export default function usuariosPage() {
 
 
   if (loading) {
-    return <Loading message="Cargando usuarios..." />;
+    return <Loading />;
   }
 
   if (error) {

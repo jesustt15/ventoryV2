@@ -56,7 +56,7 @@ export function AsignacionesTable({}: AsignacionesTableProps) {
 
     try {
       // La URL incluye el ID de la asignación.
-      const response = await fetch(`/api/asignaciones/${assignmentId}/generar-nota/`);
+      const response = await fetch(`/api/asignaciones/generar-nota/${assignmentId}`);
 
       if (!response.ok) {
         const errorData = await response.json();
