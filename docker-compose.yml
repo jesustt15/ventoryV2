@@ -5,7 +5,7 @@ services:
     build: .
     ports:
       # La IP fija es para exponer el servicio a tu red local, está bien.
-      - "10.32.80.3:3000:3000"
+      - "3000:3000"
     environment:
       # Asegúrate de que estas variables se cargan desde un archivo .env
       - DATABASE_URL=${DATABASE_URL}

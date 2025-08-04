@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Prisma, Role } from '@prisma/client';
 
 const gerencias = [
     { nombre: 'Gerencia General' },
