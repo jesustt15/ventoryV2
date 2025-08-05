@@ -8,6 +8,8 @@ import { AlertCircle, ArrowRight, Cpu, Eye, EyeOff, Lock, User } from 'lucide-re
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LoadingLogin } from '@/utils/LoadingLogin';
+import { useTheme } from 'next-themes';
+
 
 
 
@@ -24,117 +26,50 @@ type Particle = {
 
 
 export default function LoginPage() {
+  const router = useRouter();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const { theme, systemTheme } = useTheme();
+  
 
 
-   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
+  const currentTheme = theme === "system" ? systemTheme : theme;
 
-    // Nos aseguramos que el canvas y el contexto existan antes de continuar
-    if (!canvas || !ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles: Particle[] = [];
-    const particleCount = 150;
-
-    class ParticleImpl implements Particle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      color: string;
-      opacity: number;
-
-      constructor() {
-        this.x = Math.random() * canvas!.width;
-        this.y = Math.random() * canvas!.height;
-        this.size = Math.random() * 2 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 0.8;
-        this.speedY = (Math.random() - 0.5) * 0.8;
-        this.opacity = Math.random() * 0.5 + 0.2;
-
-        const colors = [
-          `rgba(6, 182, 212, ${this.opacity})`,   // cyan
-          `rgba(59, 130, 246, ${this.opacity})`,  // blue
-          `rgba(147, 51, 234, ${this.opacity})`, // purple
-          `rgba(16, 185, 129, ${this.opacity})`,  // emerald
-        ];
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-      }
-
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.x > (canvas?.width ?? 0)) this.x = 0;
-        if (this.x < 0) this.x = canvas?.width ?? 0;
-        if (this.y > (canvas?.height ?? 0)) this.y = 0;
-        if (this.y < 0) this.y = canvas?.height ?? 0;
-      }
-
-      draw(context: CanvasRenderingContext2D, allParticles: Particle[]) {
-        context.fillStyle = this.color;
-        context.beginPath();
-        context.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        context.fill();
-
-        allParticles.forEach((particle) => {
-          const dx = this.x - particle.x;
-          const dy = this.y - particle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 100) {
-            context.strokeStyle = `rgba(6, 182, 212, ${0.1 * (1 - distance / 100)})`;
-            context.lineWidth = 0.5;
-            context.beginPath();
-            context.moveTo(this.x, this.y);
-            context.lineTo(particle.x, particle.y);
-            context.stroke();
-          }
-        });
-      }
-    }
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new ParticleImpl());
-    }
-
-    let animationFrameId: number;
-    function animate() {
-      if (!canvas) return;
-      ctx!.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const particle of particles) {
-        particle.update();
-        particle.draw(ctx!, particles);
-      }
-
-      animationFrameId = requestAnimationFrame(animate);
-    }
-    animate();
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(animationFrameId); // Limpiamos la animación
-    };
+    useEffect(() => {
+    setMounted(true);
   }, []);
+
+  if (!mounted) {
+    // Puedes devolver un loader o null mientras se determina el tema
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
+
+  
+
+   const isDarkMode = currentTheme === "dark";
+
+  // Estilos condicionales
+  const backgroundStyles = isDarkMode 
+    ? "bg-gradient-to-br from-black via-slate-900 to-slate-800"
+    : "bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200";
+
+  const cardStyles = isDarkMode
+    ? "bg-slate-900/80 border-slate-700/50"
+    : "bg-white/90 border-slate-200/80";
+
+  const textColor = isDarkMode ? "text-slate-300" : "text-slate-700";
+  const mutedTextColor = isDarkMode ? "text-slate-400" : "text-slate-500";
+  const inputBorder = isDarkMode ? "border-slate-700" : "border-slate-300";
+  const inputBackground = isDarkMode ? "bg-slate-800" : "bg-white";
 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -165,13 +100,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className={`min-h-screen ${backgroundStyles} flex items-center justify-center p-4 relative overflow-hidden`}>
       {/* Background particle effect */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-40" />
+      <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full ${isDarkMode ? 'opacity-40' : 'opacity-20'}`} />
 
       {/* Geometric background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className={`absolute top-1/4 left-1/4 w-64 h-64 ${
+          isDarkMode 
+            ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10' 
+            : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20'
+        } rounded-full blur-3xl animate-pulse`}></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-2xl animate-pulse delay-500"></div>
       </div>
@@ -189,7 +128,7 @@ export default function LoginPage() {
       ></div>
 
       {/* Login Card */}
-      <Card className="w-full max-w-md bg-slate-900/80 border-slate-700/50 backdrop-blur-xl shadow-2xl relative z-10">
+      <Card className={`w-full max-w-md ${cardStyles} backdrop-blur-xl shadow-2xl relative z-10`}>
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
             <div className="relative">
@@ -209,11 +148,11 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-slate-300 text-sm font-medium">
+              <Label htmlFor="username" className={`${textColor} text-sm font-medium`}>
                 Nombre de Usuario
               </Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${mutedTextColor}`}/>
                 <Input
                   id="username"
                   type="text"
@@ -221,18 +160,18 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   placeholder="Ingrese su usuario"
-                  className="pl-10"
+                  className={`pl-10 ${inputBorder} ${inputBackground}`}
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-300 text-sm font-medium">
+              <Label htmlFor="password" className={`${textColor} text-sm font-medium`}>
                 Contraseña
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${mutedTextColor}`} />
                 <Input
                   id="password"
                   value={password}
@@ -240,7 +179,7 @@ export default function LoginPage() {
                   required
                   type={showPassword ? "text" : "password"}
                   placeholder="Ingrese su contraseña"
-                  className="pl-10 pr-10"
+                  className={`pl-10 pr-10 ${inputBorder} ${inputBackground} `}
                 />
                 <button
                   type="button"
@@ -304,5 +243,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-

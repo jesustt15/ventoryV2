@@ -6,7 +6,7 @@ import React from "react";
 import {z} from "zod";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { ArchiveRestore, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
+import { ArchiveRestore, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon, EyeIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -75,6 +75,8 @@ export function ComputadorTable({}: ComputadorTableProps) {
   const [computadores, setComputadores] = React.useState<Computador[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const isAdmin = useIsAdmin();
+  const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
+  const [currentImage, setCurrentImage] = React.useState<string | null>(null);
 
 const columns: ColumnDef<Computador>[] = [
   {
@@ -206,16 +208,27 @@ const columns: ColumnDef<Computador>[] = [
        id: "modelo.img",
       header: "Imagen",
       accessorFn: (row) => row.modelo?.img,
-      cell: ({ row }) => (
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Avatar className="col-span-3 w-24 h-24">
-            <AvatarImage src={row.getValue("modelo.img")} alt="Imagen Modelo" />
-            <AvatarFallback>
-              <ImageIcon className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const imageUrl = row.getValue("modelo.img") as string | undefined;
+        return (
+          <div className="flex items-center justify-center">
+            {imageUrl ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setCurrentImage(imageUrl);
+                  setIsImageModalOpen(true);
+                }}
+              >
+                <EyeIcon className="h-5 w-5 text-primary" />
+              </Button>
+            ) : (
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+            )}
+          </div>
+        );
+      },
     },
   {
   accessorKey: "estado",
@@ -558,7 +571,24 @@ return (
           </div>
         </div>
       </CardContent>
+      {/* Modal para mostrar la imagen */}
+      <AlertDialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+        <AlertDialogContent className="max-w-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Imagen del Modelo</AlertDialogTitle>
+            <AlertDialogDescription>
+              {currentImage ? (
+                <img src={currentImage} alt="Imagen del Modelo" className="max-w-full h-auto object-contain" />
+              ) : (
+                "No hay imagen disponible."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsImageModalOpen(false)}>Cerrar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
-
 }

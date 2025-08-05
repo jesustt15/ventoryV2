@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
   
   
   export const handleGenerateAndDownloadQR = async ({equipoId}: { equipoId: string}) => {
-    console.log("presionandoooo");
     const url = `http://localhost:3000/computadores/${equipoId}/details`;
 
     try {
