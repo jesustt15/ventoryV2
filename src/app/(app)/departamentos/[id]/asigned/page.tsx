@@ -2,27 +2,48 @@
 
 import { useState, useRef, useEffect } from "react"
 import {
+  ArrowLeft,
   Monitor,
+  Smartphone,
+  Phone,
+  Calendar,
   MapPin,
   Building,
+  Mail,
+  Shield,
+  Activity,
+  Edit,
+  MoreHorizontal,
+  Download,
+  RefreshCw,
+  Hexagon,
   PhoneIcon,
 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useParams } from "next/navigation"
 import Loading from "@/utils/loading"
 import { formatDate } from "@/utils/formatDate"
 
 
-interface UserProfileData {
+interface DeptoProfileData {
   id: string;
   nombre: string;
-  apellido: string;
-  cargo: string;
-  departamento: string;
   gerencia: string;
+  ceco: string;
+  sociedad: string;
   estadisticas: {
     totalComputadores: number;
     totalDispositivos: number;
@@ -47,21 +68,21 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("computers")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const params = useParams();
-  const userId = params.id; // Obtiene el ID del usuario desde la URL
+  const deptoId = params.id; // Obtiene el ID del usuario desde la URL
 
-  const [userData, setUserData] = useState<UserProfileData | null>(null);
+  const [deptoData, setDeptoData] = useState<DeptoProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (userId) {
-      const fetchUserData = async () => {
+    if (deptoId) {
+      const fetchDeptoData = async () => {
         try {
-          const response = await fetch(`/api/usuarios/${userId}/asigned`);
+          const response = await fetch(`/api/departamentos/${deptoId}/asigned`);
           if (!response.ok) {
             throw new Error('No se pudo cargar la información del usuario.');
           }
           const data = await response.json();
-          setUserData(data);
+          setDeptoData(data);
         } catch (error) {
           console.error(error);
           // Manejar el error, quizás mostrar un toast o un mensaje
@@ -69,9 +90,9 @@ export default function UserProfile() {
           setLoading(false);
         }
       };
-      fetchUserData();
+      fetchDeptoData();
     }
-  }, [userId]);
+  }, [deptoId]);
 
    useEffect(() => {
     const canvas = canvasRef.current
@@ -157,8 +178,8 @@ export default function UserProfile() {
     return <Loading  />;
   }
 
-  if (!userData) {
-    return <div>Usuario no encontrado.</div>;
+  if (!deptoData) {
+    return <div>Departamento no encontrado.</div>;
   }
 
 
@@ -169,9 +190,9 @@ export default function UserProfile() {
 
       <div className="container mx-auto p-4 relative z-10">
 
-        {/* User Info Section */}
+        {/* depto Info Section */}
         <div className="grid grid-cols-12 gap-6 mb-8">
-          {/* User Profile Card */}
+          {/* depto Profile Card */}
           <div className="col-span-12 lg:col-span-4">
             <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm overflow-hidden">
               <CardContent className="p-0">
@@ -179,27 +200,13 @@ export default function UserProfile() {
                   <div className="flex flex-col items-center text-center">
                     <Avatar className="h-24 w-24 mb-4 border-2 border-cyan-500/50">
                       <AvatarFallback className="bg-slate-700 text-cyan-500 text-2xl">
-                        {userData.nombre[0]}
-                        {userData.apellido[0]}
+                        {deptoData.nombre[0]}
                       </AvatarFallback>
                     </Avatar>
                     <h2 className="text-xl font-bold text-slate-100 mb-1">
-                      {userData.nombre} {userData.apellido}
+                      {deptoData.nombre}
                     </h2>
-                    <p className="text-sm text-slate-400 mb-2">{userData.cargo}</p>
-                    <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">{userData.departamento}</Badge>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <Building className="h-4 w-4 text-slate-400 mr-3" />
-                      <span className="text-sm text-slate-300">{userData.gerencia}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <MapPin className="h-4 w-4 text-slate-400 mr-3" />
-                      <span className="text-sm text-slate-300">{userData.departamento}</span>
-                    </div>
+                    <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">{deptoData.gerencia}</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -211,7 +218,7 @@ export default function UserProfile() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <StatCard
                 title="Total Activos"
-                value={userData.estadisticas.totalActivos}
+                value={deptoData.estadisticas.totalActivos}
                 icon={Monitor}
                 color="cyan"
                 description="Asignados"
@@ -227,19 +234,19 @@ export default function UserProfile() {
               value="computers"
               className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
             >
-              Computadores ({userData.computadores.length})
+              Computadores ({deptoData.computadores.length})
             </TabsTrigger>
             <TabsTrigger value="devices" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
-              Dispositivos ({userData.dispositivos.length})
+              Dispositivos ({deptoData.dispositivos.length})
             </TabsTrigger>
             <TabsTrigger value="phones" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
-              Líneas Telefónicas ({userData.lineasTelefonicas.length})
+              Líneas Telefónicas ({deptoData.lineasTelefonicas.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="computers" className="mt-0">
             <div className="grid gap-6">
-              {userData.computadores.map((computador) => (
+              {deptoData.computadores.map((computador) => (
                 <Card key={computador.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -273,6 +280,17 @@ export default function UserProfile() {
                             <p className="text-xs text-slate-400 mb-1">Ubicación</p>
                             <p className="text-sm text-slate-200">{computador.ubicacion}</p>
                           </div>
+                          <div>
+                            <p className="text-xs text-slate-400 mb-1">Asignado A</p>
+                            <p className="text-sm text-slate-200 font-semibold">
+                              {/* Lógica condicional para mostrar el asignado */}
+                              {computador.usuario 
+                                ? `${computador.usuario.nombre} ${computador.usuario.apellido}`
+                                : computador.departamentoId 
+                                  ? `Asignado directamente al departamento`
+                                  : "En resguardo / Sin asignar"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -284,7 +302,7 @@ export default function UserProfile() {
 
           <TabsContent value="devices" className="mt-0">
             <div className="grid gap-6">
-              {userData.dispositivos.map((dispositivo) => {
+              {deptoData.dispositivos.map((dispositivo) => {
                 // No DeviceIcon needed
                 return (
                   <Card key={dispositivo.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
@@ -325,6 +343,16 @@ export default function UserProfile() {
                               <p className="text-xs text-slate-400 mb-1">Ubicación</p>
                               <p className="text-sm text-slate-200">{dispositivo.ubicacion}</p>
                             </div>
+                            <div>
+                            <p className="text-xs text-slate-400 mb-1">Asignado A</p>
+                            <p className="text-sm text-slate-200 font-semibold">
+                              {dispositivo.usuario 
+                                ? `${dispositivo.usuario.nombre} ${dispositivo.usuario.apellido}`
+                                : dispositivo.departamentoId 
+                                  ? `Asignado directamente al departamento`
+                                  : "En resguardo / Sin asignar"}
+                            </p>
+                          </div>
                           </div>
                         </div>
                       </div>
@@ -337,7 +365,7 @@ export default function UserProfile() {
 
           <TabsContent value="phones" className="mt-0">
             <div className="grid gap-6">
-              {userData.lineasTelefonicas.map((linea) => {
+              {deptoData.lineasTelefonicas.map((linea) => {
 
                 return (
                   <Card key={linea.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
@@ -414,5 +442,3 @@ function StatCard({
     </Card>
   )
 }
-
-

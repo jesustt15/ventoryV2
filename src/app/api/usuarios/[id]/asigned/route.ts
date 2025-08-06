@@ -5,8 +5,7 @@ export async function GET(
   request: NextRequest
 ) {
   await Promise.resolve();
-    const id = request.nextUrl.pathname.split('/')[4];
-
+    const id = request.nextUrl.pathname.split('/')[3];
   try {
     // Paso 1: Verificar si el usuario existe y obtener sus datos básicos.
     const usuario = await prisma.usuario.findUnique({

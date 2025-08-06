@@ -40,6 +40,7 @@ import { toast as showToast } from "sonner"; // Assuming sonner for toasts
 import TableRowSkeleton from '@/utils/loading';
 import { AlertDialog } from '@radix-ui/react-alert-dialog';
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import Link from 'next/link';
 
 // Zod Schema for form validation
 export const deptoSchema = z.object({
@@ -322,7 +323,11 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href={`/departamentos/${depto.id}/asigned`}>
+                                    Ver Asignados
+                                </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleOpenEditModal(depto)}>
                                 Editar departamento
                             </DropdownMenuItem>
