@@ -86,6 +86,21 @@ model Computador {
   sapVersion String?
   officeVersion String?
   asignaciones Asignaciones[]
+  historialModificaciones HistorialModificaciones[]
+}
+
+model HistorialModificaciones {
+  id              String   @id @default(uuid())
+  fecha           DateTime @default(now()) // La fecha en que se hizo el cambio
+  campo           String   // El campo que se modificó, ej: "ram", "procesador"
+  valorAnterior   String?  // El valor que tenía antes del cambio
+  valorNuevo      String?  // El nuevo valor
+  
+  // Relación con el computador modificado
+  computadorId    String
+  computador      Computador @relation(fields: [computadorId], references: [id], onDelete: Cascade)
+
+  @@index([computadorId])
 }
 
 // Renombrado de Equipos a Dispositivo para mayor claridad y evitar colisión de nombres

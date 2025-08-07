@@ -13,6 +13,7 @@ import {
   HardDrive,
   Hash,
   History,
+  Info,
   Landmark,
   MapPin,
   Monitor,
@@ -23,6 +24,7 @@ import {
   Trash2,
   Users,
   Wifi,
+  Wrench,
   Zap,
 } from "lucide-react"
 
@@ -49,17 +51,33 @@ import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
 import { useIsAdmin } from "@/hooks/useIsAdmin"
 
 
-interface HistorialEntry {
-    id: number;
-    type: string;
-    targetType: string;
-    date: string;
-    notes?: string | null;
-    // Puedes añadir más campos si los incluiste en la API, ej:
-    targetUsuario?: { nombre: string, apellido: string } | null;
-    targetDepartamento?: { nombre: string } | null;
+// Define la interfaz para una entrada de modificación
+interface HistorialModificacionEntry {
+  id: string;
+  fecha: string;
+  campo: string;
+  valorAnterior: string | null;
+  valorNuevo: string | null;
 }
 
+// Define la interfaz para una entrada de asignación
+interface HistorialAsignacionEntry {
+  id: number;
+  motivo: string; // Ej: 'Assignment' o 'Return'
+  targetType: string;
+  date: string;
+  actionType: string,
+  targetUsuario?: { nombre: string; apellido: string } | null;
+  targetDepartamento?: { nombre: string } | null;
+}
+
+// Interfaz para una entrada en el historial combinado
+interface HistorialCombinadoEntry {
+  id: string;
+  tipo: 'asignacion' | 'modificacion'; // El campo clave para diferenciar
+  fecha: string;
+  detalle: HistorialAsignacionEntry | HistorialModificacionEntry;
+}
 interface ComputadorDetallado {
     id: string;
     serial: string;
@@ -76,7 +94,7 @@ interface ComputadorDetallado {
     procesador?: string | null;
     sapVersion?: string | null;
     officeVersion?: string | null; 
-    historial: HistorialEntry[];  
+    historial: HistorialCombinadoEntry[];  
     modelo: { // El modelo ahora es un objeto
         id: string;
         nombre: string;
@@ -139,6 +157,7 @@ export default function EquipmentDetails() {
                 setLoading(true); // Asegurarse de poner loading en true al empezar
                 try {
                     const response = await fetch(`/api/computador/${id}`);
+                    console.log(id);
                     if (!response.ok) throw new Error("No se pudo cargar el computador.");
                     const data = await response.json();
                     setEquipo(data);
@@ -569,7 +588,6 @@ const departamentoTag = (
                             </div>
                             <div className="text-right">
                                 <p className="text-xs text-slate-400">Asignado desde</p>
-                                {/* Suponiendo que la fecha de asignación está en 'ultimaAsignacion' */}
                                 <p className="text-sm text-slate-200">
                                     {equipo.ultimaAsignacion ? new Date(equipo.ultimaAsignacion.date).toLocaleDateString() : 'N/A'}
                                 </p>
@@ -622,54 +640,89 @@ const departamentoTag = (
               </TabsContent>
 
               <TabsContent value="history" className="mt-0">
-                  <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                      <CardHeader className="border-b border-slate-700/50 pb-3">
-                          <CardTitle className="text-slate-100 flex items-center">
-                              <History className="mr-2 h-5 w-5 text-cyan-500" />
-                              Historial de Movimientos
-                          </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-6">
-                          <div className="space-y-4">
-                              {equipo.historial && equipo.historial.length > 0 ? (
-                                  equipo.historial.map((entry, index) => {
-                                      const isLast = index === equipo.historial.length - 1;
-                                      const actionLabel = entry.type === 'Assignment' ? 'Asignado' : 'Devuelto';
-                                      const targetName = entry.targetUsuario 
-                                          ? `${entry.targetUsuario.nombre} ${entry.targetUsuario.apellido}`
-                                          : entry.targetDepartamento?.nombre || 'N/A';
+                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader className="border-b border-slate-700/50 pb-3">
+                    <CardTitle className="text-slate-100 flex items-center">
+                      <History className="mr-2 h-5 w-5 text-cyan-500" />
+                      Historial Completo
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {equipo.historial && equipo.historial.length > 0 ? (
+                        equipo.historial.map((entry, index) => {
+                          const isLast = index === equipo.historial.length - 1;
 
-                                      return (
-                                          <div key={entry.id} className="flex items-start space-x-4">
-                                              <div className="flex flex-col items-center">
-                                                  <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700">
-                                                      <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
-                                                  </div>
-                                                  {!isLast && (
-                                                      <div className="w-px h-16 bg-slate-700 mt-2"></div>
-                                                  )}
-                                              </div>
-                                              <div className="flex-1 min-w-0 pt-1">
-                                                  <div className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
-                                                      <div className="flex items-center justify-between mb-2">
-                                                          <h3 className="text-sm font-medium text-slate-200">{actionLabel} a {entry.targetType}</h3>
-                                                          <p className="text-xs text-slate-400">{formatDate(entry.date)}</p>
-                                                      </div>
-                                                      <p className="text-sm text-slate-300 mb-2">Destino: <span className="font-semibold">{targetName}</span></p>
-                                                      {entry.notes && (
-                                                          <p className="text-xs text-slate-400 border-l-2 border-slate-600 pl-2">Nota: {entry.notes}</p>
-                                                      )}
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      );
-                                  })
-                              ) : (
-                                  <p className="text-center text-slate-400">No hay historial de movimientos para este equipo.</p>
-                              )}
-                          </div>
-                      </CardContent>
-                  </Card>
+                          return (
+                            <div key={entry.id} className="flex items-start space-x-4">
+                              {/* Timeline decorator (punto y línea) */}
+                              <div className="flex flex-col items-center">
+                                <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center border border-slate-700">
+                                  <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                                </div>
+                                {!isLast && <div className="w-px h-24 bg-slate-700 mt-2"></div>}
+                              </div>
+
+                              {/* Contenido de la tarjeta */}
+                              <div className="flex-1 min-w-0 pt-1">
+                                <div className="bg-slate-800/50 rounded-md p-4 border border-slate-700/50">
+                                  {/* RENDERIZADO CONDICIONAL BASADO EN el TIPO */}
+
+                                  {entry.tipo === 'modificacion' && (() => {
+                                    const modificacion = entry.detalle as HistorialModificacionEntry;
+                                    return (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                          <h3 className="text-sm font-medium text-slate-200 flex items-center">
+                                            <Wrench className="mr-2 h-4 w-4 text-amber-400" />
+                                            Modificación de Componente
+                                          </h3>
+                                          <p className="text-xs text-slate-400">{formatDate(entry.fecha)}</p>
+                                        </div>
+                                        <p className="text-sm text-slate-300">
+                                          Se actualizó el campo <span className="font-semibold text-amber-400">{modificacion.campo}</span>.
+                                        </p>
+                                        <p className="text-xs text-slate-400 mt-1">
+                                          Valor anterior: <span className="font-mono bg-slate-700 px-1 rounded">{modificacion.valorAnterior || 'Vacío'}</span>
+                                        </p>
+                                        <p className="text-xs text-slate-400 mt-1">
+                                          Valor nuevo: <span className="font-mono bg-slate-700 px-1 rounded">{modificacion.valorNuevo || 'Vacío'}</span>
+                                        </p>
+                                      </div>
+                                    );
+                                  })()}
+
+                                  {entry.tipo === 'asignacion' && (() => {
+                                    const asig = entry.detalle as HistorialAsignacionEntry;
+                                    const actionLabel = asig.motivo;
+                                    const targetName = asig.targetUsuario
+                                      ? `${asig.targetUsuario.nombre} ${asig.targetUsuario.apellido}`
+                                      : asig.targetDepartamento?.nombre || 'N/A';
+
+                                    return (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                          <h3 className="text-sm font-medium text-slate-200 flex items-center">
+                                            <Info className="mr-2 h-4 w-4 text-green-400"/>
+                                            {actionLabel}
+                                            </h3>
+                                          <p className="text-xs text-slate-400">{formatDate(entry.fecha)}</p>
+                                        </div>
+                                        <p className="text-sm text-slate-300 mb-2">Destino: <span className="font-semibold">{targetName}</span></p>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-center text-slate-400">No hay historial de movimientos para este equipo.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>

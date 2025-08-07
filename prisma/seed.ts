@@ -35,8 +35,8 @@ async function main() {
     }
     console.log('Gerencias insertadas correctamente');
 }
-
 main()
+
     .catch((e) => {
         console.error(e);
         process.exit(1);

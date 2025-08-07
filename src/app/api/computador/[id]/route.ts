@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import  prisma  from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, HistorialModificaciones } from '@prisma/client';
 
 
 export async function GET(request: NextRequest) {
@@ -43,6 +43,12 @@ export async function GET(request: NextRequest) {
                         marca: true // Dentro de 'modelo', incluye también la 'marca'
                     }
                 },
+                asignaciones: {
+                  include: {
+                    targetUsuario: true,
+                    targetDepartamento: true
+                  }
+                },
                 usuario: {
                   include:{
                       departamento: true // Incluye el objeto 'departamento' del usuario asignado (si existe)
@@ -53,6 +59,11 @@ export async function GET(request: NextRequest) {
                     gerencia: true, // Incluye la 'gerencia' del departamento (si existe)
                   }
                 },
+                historialModificaciones: {
+                  orderBy: {
+                      fecha: 'desc' // Ordenar por fecha, el más reciente primero
+                  }
+              }
             }
         });
 
@@ -60,40 +71,31 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ message: 'Computador no encontrado' }, { status: 404 });
         }
 
-        const historial = await prisma.asignaciones.findMany({
-            where: {
-                computadorId: id,// Importante para no mezclar con dispositivos
-            },
-            orderBy: {
-                date: 'desc' // El más reciente primero
-            },
-          include: {
-            targetUsuario: {
-              select: { nombre: true, apellido: true }
-            },
-            targetDepartamento: {
-              select: { nombre: true }
-            }
-          }
-        });
+      const historialDeAsignaciones = computador.asignaciones.map(a => ({
+      id: `asig-${a.id}`, // Prefijo para evitar colisión de IDs
+      tipo: 'asignacion', // Tipo para identificarlo en el frontend
+      fecha: a.date,
+      detalle: a, // Mantenemos el objeto original anidado
+    }));
 
-        // --- PASO 3: Combinar los datos para enviar al frontend ---
+    const historialDeModificaciones = computador.historialModificaciones.map(m => ({
+      id: `mod-${m.id}`, // Prefijo para evitar colisión de IDs
+      tipo: 'modificacion', // Tipo para identificarlo en el frontend
+      fecha: m.fecha,
+      detalle: m, // Mantenemos el objeto original anidado
+    }));
 
-        // Tomamos el primer elemento del historial (el más reciente) para la "última asignación"
-        const ultimaAsignacion = historial.length > 0 ? {
-            id: historial[0].id,
-            type: historial[0].motivo,
-            targetType: historial[0].targetType,
-            
-            date: historial[0].date.toISOString(),
-        } : null;
+    // Combinar y ordenar el historial final
+    const historialCombinado = [...historialDeAsignaciones, ...historialDeModificaciones]
+      .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 
         // Construimos el objeto de respuesta final
         const responseData = {
             ...computador,      // Todos los datos del computador
-            historial,          // El array de historial que consultamos por separado
-            ultimaAsignacion    // El objeto simplificado del último movimiento
+            historial: historialCombinado,          // El array de historial que consultamos por separado
+         // El objeto simplificado del último movimiento
         };
+
 
         return NextResponse.json(responseData, { status: 200 });
 
@@ -105,63 +107,74 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];
     const body = await request.json();
-    const {
-      serial,
-      estado,
-      modeloId,
-      usuarioId,
-      departamentoId,
-      nsap,
-      host,
-      ubicacion,
-      sisOperativo,
-      arquitectura,
-      ram,
-      almacenamiento,
-      procesador,
-      sapVersion,
-      officeVersion,
-  } = body;
 
-const updatedEquipo = await prisma.computador.update({
-  where: { id },
-  data: {
-    // simple scalars
-    serial,
-    estado,
-    nsap,
-    host,
-    ubicacion,
-    sisOperativo,
-    arquitectura,
-    ram,
-    almacenamiento,
-    procesador,
-    sapVersion,
-    officeVersion,
+    // --- PASO 1: OBTENER EL ESTADO ACTUAL DEL COMPUTADOR ---
+    const computadorActual = await prisma.computador.findUnique({
+      where: { id },
+    });
 
-    // relation: connect an existing Modelo by its ID
-    modelo: {
-      connect: { id: modeloId },
-    },
+    if (!computadorActual) {
+      return NextResponse.json({ message: 'Computador no encontrado' }, { status: 404 });
+    }
 
-    // relation: if usuarioId is present, connect; if null, disconnect
-    ...(usuarioId
-      ? { usuario: { connect: { id: usuarioId } } }
-      : { usuario: { disconnect: true } }),
+    const modificaciones: Prisma.HistorialModificacionesCreateManyInput[] = [];
+    const camposAComparar: Array<keyof typeof computadorActual> = [
+      'ram', 'almacenamiento', 'procesador', 'estado', 'nsap',
+      'host', 'ubicacion', 'sisOperativo', 'arquitectura', 'sapVersion', 'officeVersion'
+    ];
 
-    // relation: connect Departamento
-    departamento: {
-      connect: { id: departamentoId },
-    },
-  },
-})
+    // --- PASO 2: COMPARAR VALORES Y PREPARAR HISTORIAL ---
+    for (const campo of camposAComparar) {
+      if (body[campo] !== undefined && computadorActual[campo] !== body[campo]) {
+        modificaciones.push({
+          computadorId: id,
+          campo: campo,
+          valorAnterior: computadorActual[campo] || "N/A",
+          valorNuevo: body[campo],
+        });
+      }
+    }
+
+    // --- PASO 3: EJECUTAR ACTUALIZACIÓN Y CREACIÓN DE HISTORIAL EN UNA TRANSACCIÓN ---
+    const updatedEquipo = await prisma.$transaction(async (tx) => {
+      // Si hay modificaciones, las creamos
+      if (modificaciones.length > 0) {
+        await tx.historialModificaciones.createMany({
+          data: modificaciones,
+        });
+      }
+
+      // Actualizamos el computador con todos los datos del body
+      const equipoActualizado = await tx.computador.update({
+        where: { id },
+        data: {
+            serial: body.serial,
+            estado: body.estado,
+            nsap: body.nsap,
+            host: body.host,
+            ubicacion: body.ubicacion,
+            sisOperativo: body.sisOperativo,
+            arquitectura: body.arquitectura,
+            ram: body.ram,
+            almacenamiento: body.almacenamiento,
+            procesador: body.procesador,
+            sapVersion: body.sapVersion,
+            officeVersion: body.officeVersion,
+            modelo: body.modeloId ? { connect: { id: body.modeloId } } : undefined,
+            usuario: body.usuarioId ? { connect: { id: body.usuarioId } } : { disconnect: true },
+            departamento: body.departamentoId ? { connect: { id: body.departamentoId } } : undefined, // Ajusta según tu lógica si puede ser null
+        },
+      });
+
+      return equipoActualizado;
+    });
+
     return NextResponse.json(updatedEquipo, { status: 200 });
+
   } catch (error) {
-    console.error(error);
+    console.error("[PUT /api/computador]", error);
     return NextResponse.json({ message: 'Error al actualizar equipo' }, { status: 500 });
   }
 }

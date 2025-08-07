@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import TableRowSkeleton from "@/utils/loading";
+import { handleGenerateAndDownloadSticker } from "@/utils/sticker";
 
 
 export const computadorSchema = z.object({
@@ -57,7 +58,7 @@ export interface Computador {
     procesador?: string;
     sapVersion?: string;
     officeVersion?: string;  
-   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Assuming 'marca' is an object in the fetched data
+   modelo: { id: string; nombre: string; img?: string; marca: { nombre: string } }; // Assuming 'marca' is an object in the fetched data
 }
 
 
@@ -77,6 +78,7 @@ export function ComputadorTable({}: ComputadorTableProps) {
   const isAdmin = useIsAdmin();
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
 
 const columns: ColumnDef<Computador>[] = [
   {
@@ -320,6 +322,12 @@ const columns: ColumnDef<Computador>[] = [
                 <Link href={`/computadores/${computador.id}/details`}>
                   Ver detalles
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleGenerateAndDownloadSticker(computador.id,computador.modelo?.marca.nombre,  computador.serial, computador.modelo)}
+                disabled={loading} // Se deshabilita mientras carga
+              >
+                {loading ? 'Generando...' : 'Descargar Sticker'}
               </DropdownMenuItem>
               { isAdmin && (
                 <>
