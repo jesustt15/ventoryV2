@@ -62,9 +62,24 @@ export default function AsignacionesPage() {
     const [localidad, setLocalidad] = useState('');
     const [modeloC, setModeloC] = useState('');
     const [serialC, setSerialC] = useState('');
-
+    const [listaGerentes, setListaGerentes] = useState<Target[]>([]);
   
     // --- LÓGICA DE CARGA DE DATOS (REFACTORIZADA) ---
+    
+
+    useEffect(() => {
+    const fetchGerentes = async () => {
+        try {
+        const res = await fetch('/api/gerentes');
+        if (!res.ok) throw new Error('Error al cargar gerentes');
+        const data = await res.json();
+        setListaGerentes(data);
+        } catch (e) {
+        console.error(e);
+        }
+    };
+    fetchGerentes();
+    }, []);
 
     // 1. Cargar datos iniciales que son estáticos o para la pestaña "Desvincular"
     useEffect(() => {
@@ -149,6 +164,30 @@ export default function AsignacionesPage() {
         fetchLineas();
     }, [selectedProveedor]);
 
+    useEffect(() => {
+    const fetchGerenteDefault = async () => {
+    if (!selectedTarget) {
+      setSelectedGerente(null);
+      return;
+    }
+    try {
+      const params = new URLSearchParams({
+        type: asignarA,
+        id: selectedTarget.value,
+      });
+      const res = await fetch(`/api/asignaciones/gerente-default?${params.toString()}`);
+      if (!res.ok) throw new Error('No se pudo obtener el gerente por defecto');
+      const data = await res.json();
+      setSelectedGerente(data.gerente ?? null);
+    } catch (e) {
+      console.error('Error al obtener gerente por defecto:', e);
+      setSelectedGerente(null);
+    }
+  };
+
+    fetchGerenteDefault();
+    }, [asignarA, selectedTarget]);
+
 // Nota: Necesitarás una lógica similar para 'LineaTelefonica' que use proveedores en lugar de marcas/modelos.
 
         // AÑADIDO: Función para limpiar la preselección
@@ -171,7 +210,8 @@ export default function AsignacionesPage() {
             asignarA_id: selectedTarget.value,
             asignarA_type: asignarA,
             notas: notas,
-            gerente: selectedGerente ? selectedGerente.label : '',
+           gerenteId: selectedGerente?.value ?? null,     // <-- NUEVO: ID del gerente seleccionado
+            gerenteNombre: selectedGerente?.label ?? null,
             motivo: motivo,
             serialC: serialC,
             modeloC: modeloC,
@@ -189,18 +229,14 @@ export default function AsignacionesPage() {
             showToast.success(`Equipo asignado a ${selectedTarget.label} con éxito.`);
             setSelectedEquipo(null);
             setSelectedTarget(null);
+            setSelectedGerente(null);
             setNotas('');
-            // fetchInitialData();// Redirigir a la lista
+            router.push('/asignaciones')// Redirigi
         } catch (error: any) {
             showToast.error(error.message);
         }
     };
 
-     const listaGerentes = useMemo(() => 
-        usuarios
-            .filter(usuario => usuario.cargo?.toLowerCase().includes('gerente'))
-            .map(gerente => ({ value: gerente.value, label: gerente.label })) // Mapeamos de vuelta al formato que necesita el Select
-    , [usuarios]);
 
     const handleDesvincular = async (equipo: Activo) => {
         const body = {

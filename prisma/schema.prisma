@@ -33,7 +33,15 @@ model ModeloDispositivo {
 model Gerencia {
   id            String         @id @default(uuid())
   nombre        String
+  gerenteId      String?
+  gerente       Usuario?        @relation(fields: [gerenteId], references: [id])
   departamentos Departamento[]
+}
+
+model Configuracion {
+  id                Int     @id @default(1)
+  gerenteGeneralId  String? @unique
+  gerenteGeneral    Usuario? @relation(fields: [gerenteGeneralId], references: [id])
 }
 
 model Departamento {
@@ -59,7 +67,10 @@ model Usuario {
   departamento   Departamento @relation(fields: [departamentoId], references: [id])
   computadores   Computador[]
   dispositivos   Dispositivo[]
-  asignaciones Asignaciones[] // Renombrado de Equipos a Dispositivo
+  asignaciones   Asignaciones[] // Renombrado de Equipos a Dispositivo
+  gerencias      Gerencia[]     // Opposite relation field
+  configuracion  Configuracion? // Opposite relation field for gerenteGeneral
+  targetAsignaciones Asignaciones[] @relation("targetUsuario") // Opposite relation field for targetUsuario
 }
 
 
@@ -157,7 +168,7 @@ model Asignaciones {
   targetType           String // "Usuario" o "Departamento"
   
   targetUsuarioId      String?
-  targetUsuario        Usuario?      @relation(fields: [targetUsuarioId], references: [id])
+  targetUsuario        Usuario?      @relation(fields: [targetUsuarioId], references: [id], name: "targetUsuario")
   
   targetDepartamentoId String?
   targetDepartamento   Departamento? @relation(fields: [targetDepartamentoId], references: [id])
@@ -174,4 +185,6 @@ model Asignaciones {
 
   lineaTelefonicaId    String?
   lineaTelefonica      LineaTelefonica? @relation(fields: [lineaTelefonicaId], references: [id])
+  gerenteId            String?
+   gerenteUsuario       Usuario? @relation(fields: [gerenteId], references: [id])
 }

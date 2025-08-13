@@ -1,572 +1,546 @@
 legajo;ced;nombre;apellido;cargo;departamento_nombre
-20079;10554446; Marielys Del Carmen;Sanchez ;Gerente de Personas, Cultura y Comunicac;Gcia. de Personas,Cultura y Comunicacion
-21114;18665993; Thais Del Valle;Belo ;Coord. Senior de Comunicaciones;Gcia. de Personas,Cultura y Comunicacion
-20759;13965886; Nancy Andreina;Arias ;Jefe Admon. de Personal;Jefatura Administracion de Personal
-21209;18593392; Margit Carolina;Basante ;Jefe de Beneficios;Jefatura de Beneficios
-21594;18900915; Dagnery;Brazon ;Analista de Beneficios;Jefatura de Beneficios
-21657;17883708; Karen Cecilia;Marquez ;Analista de Beneficios;Jefatura de Beneficios
-21328;14432951; Nellys Maria;Mota ;Jefe  de Compensaciones y Presupuesto;Jefatura de Compensaciones y Presupuesto
-21388;13837515; Mariotsis Carolina;Aguilera ;Analista de Compensaciones;Jefatura de Compensaciones y Presupuesto
-21684;6320271; Reina Josefina;Dominguez ;Jefe de Seleccion y Desarrollo;Jefatura de Seleccion y Desarrollo
-20643;11513206; Cesar Enrique;Diaz ;Jefe RRII y Servicios Externos;Jefatura RRII y Servicios Externos
-20051;10551385; Wendis Fabiola;Torres ;Analista Front Capital Humano;Subgerencia de Administracion y RRII
-20437;10392839; Jesus Salvador;Reyes ;Subgerente de Administracion y RRII;Subgerencia de Administracion y RRII
-20013;12128228; Norelys Del Carmen;Villarroel ;Subgerente de Talento y Compensaciones;Subgerencia de Talento y Compensaciones
-21696;33447770; Joeynier Francisco;Delgado ;Aprendiz Inces;Subgerencia de Talento y Compensaciones
-21645;12053522; Yolis Yamilee;Salazar ;Supervisor de Remuneraciones;Supervision de Remuneraciones
-21673;20284244; Mary Argelia;Marchan ;Analista de Remuneraciones;Supervision de Remuneraciones
-20505;11514639; Selena Antonia;Zambrano ;Asistente de Seleccion y Desarrollo;Supervision de Seleccion y Desarrollo
-21685;18451904; Katiuska Carolina;Lugo ;Supervisor de Seleccion y Desarrollo;Supervision de Seleccion y Desarrollo
-20335;10554115; Jose Gregorio;Rodriguez ;Supervisor de RRII y Transporte;Supervision RRII y Servicios Externos
-21622;12007494; Jose Pilar;Pacheco ;Analista Integral Servicios Externos;Supervision RRII y Servicios Externos
-21692;19128027; Loraima Stephany;Pantoja ;Analista Administrativo;Gerencia de Administracion y Finanzas
-21694;6976114; Gustavo Enrique;Lozada ;Gerente Administracion y Finanzas;Gerencia de Administracion y Finanzas
-20169;12013519; Zulema Del Valle;Mata ;Jefe  Control Costos Ind. y Forestales;Jefatura Costos Industriales y Forestale
-21407;16797047; Sonibert Maria;Cordero ;Coordinador de Costos Ind y Forestales;Jefatura Costos Industriales y Forestale
-30040;11518317; Noemy Rafaela;Marcial ;Coordinador de Costos Ind y forestales;Jefatura Costos Industriales y Forestale
-21624;15907277; Luis Alberto;Tamaroni ;Analista de Costos;Jefatura de Contabilidad y Costos
-21626;11532711; Lesbia Maria;Pinacel ;Jefe de Contabilidad y Costos;Jefatura de Contabilidad y Costos
-21651;14761058; Gina Jarman;Roman ;Analista Contable;Jefatura de Contabilidad y Costos
-21666;15571925; Luis Alejandro;Gonzalez ;Analista de Costos;Jefatura de Contabilidad y Costos
-21671;15555262; Jose Ramon;Pomonti ;Coordinador de Costos;Jefatura de Contabilidad y Costos
-20137;10926093; Manuel Jose;Velasquez ;Coordinador de Control Interno;Jefatura de Control Interno
-21427;15542691; Johanna Gabriela;Lugo Silva ;Analista de Control Interno;Jefatura de Control Interno
-21544;25277515; Anele Asoid;Torrealba ;Analista de Control Interno;Jefatura de Control Interno
-20209;10393290; Mirian Del Carmen;Parra ;Jefe de Facturacion, Credito y Cobranzas;Jefatura de Credito y Cobranzas
-21389;26656329; Daniela Beatriz;Navas ;Analista de Facturacion y Cobranzas;Jefatura de Credito y Cobranzas
-21409;26138297; Greilis Josefina;Farias ;Coordinador Fact., Credito y Cobranzas;Jefatura de Credito y Cobranzas
-21697;32707876; Rosmilys del Valle;Morillo ;Aprendiz Inces;Jefatura de Credito y Cobranzas
-20056;11532446; Maritza Del Carmen;Jimenez ;Analista de Cuentas por Pagar;Jefatura de Cuentas por Pagar
-20970;13546621; Alba Rosa de las Nieves;Garcia ;Jefe de Cuentas por Pagar;Jefatura de Cuentas por Pagar
-21423;18076040; Ender Rafael;Salazar ;Analista de Cuentas por Pagar;Jefatura de Cuentas por Pagar
-21698;32095168; Victoria del Valle;Marquez ;Aprendiz Inces;Jefatura de Cuentas por Pagar
-20119;11516867; Makerys Josefina;Pinto ;Coordinador de Operaciones Cambiarias;Jefatura de Finanzas
-20297;15520341; Yosneida del Carmen;Gonzalez ;Coordinador de Tesoreria;Jefatura de Finanzas
-21373;27765589; Alberto Valentino;Coa ;Analista de Tesoreria;Jefatura de Finanzas
-50134;26839168; Rosseanny del Valle;Blasini ;Analista de Tesoreria;Jefatura de Finanzas
-20046;10390817; Adriana Josefina;Guevara ;Jefe de Gestion y Presupuesto;Jefatura de Gestion y Ppto
-21618;23502754; Nelitzis Alejandra;Hipolito ;Coordinador de Gestion y Presupuesto;Jefatura de Gestion y Ppto
-21656;19332474; Oriana Jose;Martinez ;Analista de Gestion y Prespuesto;Jefatura de Gestion y Ppto
-21416;24039334; Anyi Yasmin;Villarreal ;Coordinador de Impuestos;Jefatura de Impuestos
-21546;17289288; Mercedes Alicia;Gutiérrez ;Analista de Impuesto;Jefatura de Impuestos
-21619;16475184; Diego Fernando;Graterol ;Jefe de Impuestos;Jefatura de Impuestos
-21703;32193022; Dianis Alejandra;Padrino ;Aprendiz Inces;Jefatura de Impuestos
-20988;16221324; Eduardo Jose;Somoza ;Ingeniero Redes y Comunicaciones;Jefatura de IT & Comunicaciones
-21679;18078713; Darwin Starlyng;Infante ;Ingeniero de Infraestructura IT;Jefatura de IT & Comunicaciones
-50086;15186119; Eliceth Del Valle;Raschery ;Coordinador Gestion y Aplicaciones IT;Jefatura de IT & Comunicaciones
-20298;13544071; Mairys del Carmen;Millan ;Subgerente de Administracion;Subgerencia de Administracion
-20525;6097387; Arturo;Carusso ;Asistente de Finanzas;Subgerencia de Finanzas
-21672;13994962; Dariana;Boccardo ;Subgerente de Finanzas;Subgerencia de Finanzas
-21249;10537783; Alberto;Fandiño ;Gerente de Ventas Nacionales y Mercadeo;Gerencia de Ventas Nacionales y Mercadeo
-20374;10796732; Luis Miguel;Franco ;Jefe Regional de Ventas;Jefatura Regional de Ventas
-21215;11790819; Ruben Dario;Alvarez ;Jefe de Ventas;Jefatura Regional de Ventas
-21695;23533413; Miguel Oswaldo;Alcala ;Jefe de Ventas;Jefatura Regional de Ventas
-21705;13781594; Carina Chiquinquira;Lobo ;Jefe de Ventas;Jefatura Regional de Ventas
-20417;13610874; Evelin Carolina;Gonzalez ;Coordinador Servicio al Cliente;Jefatura Servicio al Cliente/Exportacion
-20675;11928182; Liz Claudimar;Marcano ;Jefe Atencion al Cliente y Exportacion;Jefatura Servicio al Cliente/Exportacion
-21628;13693106; Josmar Alejandra;Rondon ;Coordinador Servicio al Cliente;Jefatura Servicio al Cliente/Exportacion
-20027;10491802; Ana Teresa;Barrera ;Analista Administrativo;Gerencia  Forestal e Institucional
-50005;6275641; Jose Luis;Quiaragua ;Gerente Forestal e Institucional;Gerencia  Forestal e Institucional
-50079;14653394; Dankly Jose;Garcia ;Supervisor de Cosecha y Calidad;Jefatura Cosecha Forestal
-50143;25935105; Cesar Enrique;Valdez ;Supervisor de Cosecha y Calidad;Jefatura Cosecha Forestal
-50147;13906145; Jose Manuel;Jaimes ;Jefe de Cosecha Forestal;Jefatura Cosecha Forestal
-50107;16163944; Tomas Enrique;Villasana ;Supervisor de Recepcion;Jefatura de Abastecimiento Forestal
-50119;16636591; Aldo Felipe;Heredia ;Jefe de Planificacion;Jefatura de Planificacion
-50128;18207443; Yerly Nathaly;Escalante ;Supervisor de Operaciones;Jefatura de Planificacion
-50084;10926788; Ysmael Antonio;Maraguacare ;Supervisor de Operaciones;Jefatura de Proteccion Forestal
-50087;16655242; Paul;Rojas ;Jefe Proteccion Forestal;Jefatura de Proteccion Forestal
-50105;16176683; Johvanny Jose;Brito ;Obrero Forestal;Jefatura de Proteccion Forestal
-50044;16039860; Alba Marina;Rosales ;Jefe Operaciones Silvicola;Jefatura Operaciones Silvicolas
-50046;13098804; Christian Antonio Luis;Durand ;Coordinador Unidad Operaciones Silvicola;Jefatura Operaciones Silvicolas
-50148;32277067; Joselin del Carmen;Morillo ;Aprendiz Inces;Jefatura Operaciones Silvicolas
-50059;15620317; Jose Leonardo;Davila ;Jefe Produccion de Plantas;Jefatura Produccion de Plantas
-50149;34406462; Diana Carolina;Farfan ;Aprendiz Inces;Jefatura Produccion de Plantas
-50007;5758103; Ana Isabel;Valera ;Subgerente de Patrimonio;Subgerencia de Patrimonio
-20408;17155379; Alejandra Desiree;Vera ;Supervisor de Abastecimiento Forestal;Supervision Abastecimiento Forestal
-50064;25744413; Efrain;Niño ;Obrero Forestal;Supervision Produccion de Plantas
-50065;24442780; Emel de Jesus;Sierra ;Obrero Forestal;Supervision Produccion de Plantas
-50067;12127781; Jesus Antonio;Salazar ;Capataz de Produccion de Plantas;Supervision Produccion de Plantas
-50072;13016549; Yanitza Leonor;Rodriguez ;Supervisor de Operaciones;Supervision Produccion de Plantas
-50076;14402056; Alberto Ramon;Rivas ;Obrero Forestal;Supervision Produccion de Plantas
-50091;14254289; Felix Manuel;Castro ;Analista de Informacion;Supervision Produccion de Plantas
-50096;13025173; Alexander Gregorio;Rivero ;Analista de Informacion;Supervision Produccion de Plantas
-50129;11014547; Jorge Luis;Barcenas ;Obrero Forestal;Supervision Produccion de Plantas
-50130;10042618; Neris Del Valle;Vasquez ;Obrero Forestal;Supervision Produccion de Plantas
-50137;18697959; Jose Gregorio;Acero ;Supervisor de Proteccion Forestal;Supervision Produccion de Plantas
-50138;27476557; Ronny del Valle;Bugarito Ibarra ;Analista de Informacion;Supervision Produccion de Plantas
-50063;15520986; Abel Josue;Espinoza ;Analista de Informacion;Supervisor de Proteccion Forestal
-50089;8895097; Jose Esteban;Bolivar ;Obrero Forestal;Supervisor de Proteccion Forestal
-50090;14254801; Henry Alexander;Brito ;Obrero Forestal;Supervisor de Proteccion Forestal
-50092;22716168; Richard Rafael;Clevier ;Obrero Forestal;Supervisor de Proteccion Forestal
-50093;17542653; Francisco Jose;Crescenzi ;Supervisor de Operaciones;Supervisor de Proteccion Forestal
-50095;8886800; Mario Jose;Matute ;Obrero Forestal;Supervisor de Proteccion Forestal
-50099;15815702; Jose Rafael;Marin ;Obrero Forestal;Supervisor de Proteccion Forestal
-50100;15593575; Julio Ramon;Mendez ;Obrero Forestal;Supervisor de Proteccion Forestal
-50101;25578997; Eduardo Michael;Rodriguez ;Obrero Forestal;Supervisor de Proteccion Forestal
-50103;19402714; Alexis Euclides;Gonzalez ;Obrero Forestal;Supervisor de Proteccion Forestal
-50139;17055955; Jose Alexander;Olivares ;Supervisor de Operaciones;Supervisor de Proteccion Forestal
-21680;6911127; Carlos Alberto;Urdaneta ;Gerente General Venezuela;Gerencia General Venezuela
-20486;4351359; Leonardo;Miralles ;Gerente Legal;Gerencia Legal
-30200;14837863; Jose Miguel;Carrasco ;Afilador de Turno;Afilado
-30262;15072856; Victor Antonio;Valero ;Afilador de Turno;Afilado
-30376;10393144; Eliazar;Vasquez ;Afilador de Turno;Afilado
-30414;16617918; Ardemaro Javier;Perez ;Afilador de Turno;Afilado
-30495;19128079; Omar Alexander;Gomez ;Afilador de Turno;Afilado
-30506;12053357; Frank Carlos;Silveira ;Afilador de Turno;Afilado
-20337;11511134; Jesus Alexander;Sira ;Coordinador de Despacho BPT;Bodega de Producto Terminado
-20816;18000340; Orlando de Jesus;Parra ;Analista de Recepcion PT;Bodega de Producto Terminado
-30081;12128233; Julio Rafael;Villarroel ;Coordinador de Despacho BPT;Bodega de Producto Terminado
-20292;12006782; Yoangel Cecilio;Guanipa ;Coordinador de Despacho BPT;Bodega de Producto Terminado (Five)
-30023;11510585; Joaquin Jose;Cabrera ;Supervisor Prod. Cancha y Descortezado;Cancha y Descortezado
-30192;12004284; Marielvys Del Valle;Gonzalez ;Jefe de Produccion Cancha y Descortezado;Cancha y Descortezado
-30253;15570170; Carlos Eduardo;Morales ;Operador II;Cancha y Descortezado
-30309;13443203; Angel Jesus;Jimenez ;Operario Cancha de Riego;Cancha y Descortezado
-30325;17657659; Julio Cesar;Vasquez ;Operario Cancha de Riego;Cancha y Descortezado
-30335;12130257; Julio Cesar;Chacare ;Operario Cancha de Riego;Cancha y Descortezado
-30513;32094544; Yainmar Marianny;Romero ;Aprendiz Inces;Cancha y Descortezado
-30034;15853558; Nestor Jose;Sarmiento ;Controlador de la Produccion;Control de Produccion
-20016;12649504; Diogenes Alexander;Muziotti ;Gerente Operaciones Tableros;Gerencia de Operaciones Tableros
-20761;19621541; Junior Alberto;Gonzalez ;Coordinador de Produccion;Gerencia de Operaciones Tableros
-21413;18700664; Rosielis Maliuth;Flores ;Ingeniero de Procesos;Gerencia de Operaciones Tableros
-21489;17430050; Cirmalis del Valle;Villalba ;Coordinador de Control y Gestion de Oper;Gerencia de Operaciones Tableros
-20117;12301925; Gaye Nahin;Zambrano ;Gerente Operaciones Industriales y Sumin;Gerencia Operaciones Industriales y Sum.
-30461;18666149; Gisvel Josefina;Olivero ;Analista Administrativo;Gerencia Operaciones Industriales y Sum.
-30106;12007746; Angel Alfredo;Perez ;Gerente Operaciones Madera;Gerencia Operaciones Madera
-30078;14402298; Ronald Jose;Pereira ;Jefe Bodega Planta;Jefatura Bodega Planta
-30059;12050532; Victor Orlando;Bermudez ;Jefe de Abastecimiento Forestal;Jefatura de Abastecimiento Forestal
-20501;20223356; Mairelys Omaira;Espinoza ;Comprador;Jefatura de Compras
-21623;13995408; Yannely Rosalin;Morillo ;Comprador;Jefatura de Compras
-21665;14024102; Yessi Yuglenis;Suarez ;Jefe de Compras;Jefatura de Compras
-21688;26623244; Franyelis Everilde;Benitez ;Comprador;Jefatura de Compras
-30367;18441668; Julianny De Jesus;Morales ;Comprador;Jefatura de Compras
-30510;34690723; Ahsley Alejandra;Sanchez ;Aprendiz Inces;Jefatura de Empaque
-30011;8532430; Freddy Rafael;Ortuño ;Supervisor de Integridad Mecanica;Jefatura de Equipos Moviles
-30061;17654097; Carlos Javier;Hernandez ;Coordinador de Equipos Moviles;Jefatura de Equipos Moviles
-30208;13121812; Raimel Jose;Monrroy ;Operador de Equipos Moviles;Jefatura de Equipos Moviles
-30209;13647109; Humberto Antonio;Rivero ;Operador de Equipos Moviles;Jefatura de Equipos Moviles
-30255;8963691; Jose Rosario;Vasquez ;Operador de Equipos Moviles;Jefatura de Equipos Moviles
-30380;14088763; Victor Jose;Camacho ;Coordinador de Equipos Moviles;Jefatura de Equipos Moviles
-21284;16391125; Esly Eduardo;Romero ;Tecnico Integridad Mecanica;Jefatura de Ingeniería y Proyectos
-30146;15852950; Mario Jose;Brito ;Jefe de Ingeniería y Proyectos;Jefatura de Ingeniería y Proyectos
-30147;13837868; Oscar Enrique;David ;Tecnico Integridad Mecanica;Jefatura de Ingeniería y Proyectos
-20223;12650274; Orlando Antonio;Linares ;Mecanico;Jefatura de Mantenimiento Mecanico
-20227;11513624; Jose Luis;Leon ;Mecanico;Jefatura de Mantenimiento Mecanico
-20537;12887536; Jose Leonardo;Rodriguez Alfonzo ;Mecanico;Jefatura de Mantenimiento Mecanico
-20539;12650555; Wilmer Gregorio;Ruiz ;Mecanico;Jefatura de Mantenimiento Mecanico
-20549;9948353; Alberto Jose;Larez ;Mecanico;Jefatura de Mantenimiento Mecanico
-20551;13121676; Luis Alfredo;Aleman ;Mecanico;Jefatura de Mantenimiento Mecanico
-20574;11519666; Luis Vedo;Bello ;Mecanico;Jefatura de Mantenimiento Mecanico
-20575;11887114; Neudys Enrique;Lugo ;Mecanico;Jefatura de Mantenimiento Mecanico
-20853;11519229; Belaunder Jose;Padron ;Mecanico;Jefatura de Mantenimiento Mecanico
-21288;13846529; Gary Youssef;Partidas ;Jefe de Mantto. Mecanico;Jefatura de Mantenimiento Mecanico
-30026;13798093; Hendry Evaristo;Garcia ;Mecanico;Jefatura de Mantenimiento Mecanico
-30082;8535417; Alfredo Manuel;Cedeño ;Mecanico;Jefatura de Mantenimiento Mecanico
-30085;14505915; Danny Alexander;Yanez ;Mecanico;Jefatura de Mantenimiento Mecanico
-30161;14118721; Henry Del Carmen;Tovar ;Mecanico;Jefatura de Mantenimiento Mecanico
-30284;13570893; Jesus Antonio;Ruiz ;Mecanico;Jefatura de Mantenimiento Mecanico
-30291;15893415; Dannis Jose;Guerra ;Mecanico;Jefatura de Mantenimiento Mecanico
-40138;20013402; Christhian Jose;Corrales ;Mecanico;Jefatura de Mantenimiento Mecanico
-40165;17933335; Carlos Armando;Rangel ;Mecanico;Jefatura de Mantenimiento Mecanico
-40166;19419611; Daniel Jose;Fuenmayor ;Mecanico;Jefatura de Mantenimiento Mecanico
-20149;8951783; Pablo Antonio;Gordona ;Jefe de Mantenimiento Electrico;Jefatura de Mantto Electrico
-20151;12052145; Ruben Dario;Brito ;Electricista;Jefatura de Mantto Electrico
-21429;14836208; Johennys Reinaldo;Coro ;Electricista;Jefatura de Mantto Electrico
-21431;15894150; Antonio Jose;Castillo ;Electricista;Jefatura de Mantto Electrico
-21534;19085866; Daniel Santos;Lopez ;Electricista;Jefatura de Mantto Electrico
-21627;14170894; Luis Enrique;Martinez ;Electricista;Jefatura de Mantto Electrico
-21635;18521616; Enmanuel de Jesus;Canduri ;Electricista;Jefatura de Mantto Electrico
-21642;23732028; Jordan Alejandro;Maurera ;Electricista;Jefatura de Mantto Electrico
-21683;15155507; Jose Gregorio;Mata ;Electricista;Jefatura de Mantto Electrico
-21699;25040057; Jorvins Jose;Sevillla ;Electricista;Jefatura de Mantto Electrico
-21700;13089066; Joel Jose;Noguera ;Electricista;Jefatura de Mantto Electrico
-21704;18138168; Douglas Antonio;Blanca ;Electricista;Jefatura de Mantto Electrico
-21712;25595349; Ender de Jesus;Coa ;Electricista;Jefatura de Mantto Electrico
-30290;16024168; Wilfredo Alexis;Peña ;Electricista;Jefatura de Mantto Electrico
-30411;18883066; Carlos Roy;Smerck ;Electricista;Jefatura de Mantto Electrico
-30493;22587348; Ricardo Jose;Zacarias ;Electricista;Jefatura de Mantto Electrico
-40129;17381391; Enmanuel Jose;Gonzalez ;Jefe Linea de Produccion Planta Quimica;Jefatura de Produccion Planta Quimica
-40134;18886060; Maira Alejandra;Guacaran ;Coordinador de Produccion Resinas;Jefatura de Produccion Planta Quimica
-40170;32085632; Mariluz Andreina;Marquez ;Aprendiz Inces;Jefatura de Produccion Planta Quimica
-30019;10104706; Alexis Ramon;Romero ;Jefe de Turno Secado;Jefatura de Secado
-30111;13570019; Juan Pablo;Obando ;Jefe de Turno Secado;Jefatura de Secado
-30115;13335455; Jose Daniel;Salas ;Jefe de Turno Secado;Jefatura de Secado
-30201;10928458; Serbando;Natera ;Ayudante de Secado;Jefatura de Secado
-30266;13838870; Jorge Luis;Dominguez ;Ayudante de Secado;Jefatura de Secado
-30272;11206862; William Dager;Monroy ;Ayudante de Secado;Jefatura de Secado
-30306;15522587; Adrian Rafael;Diaz ;Ayudante de Secado;Jefatura de Secado
-30370;16063173; Naikarily de Jesus;Perez ;Jefe de Turno Secado;Jefatura de Secado
-30475;14118029; Susana;Mendez ;Jefe de Secado;Jefatura de Secado
-30509;32520113; Jhon Isaac;Villamizar ;Aprendiz Inces;Jefatura de Secado
-20443;22838396; Dilia Rosa;Alvarez ;Coordinador de Servicios;Jefatura de Servicios y Log. Inter.
-21083;24963941; Yackeline del Valle;Marcano ;Coordinador Sr. Logistica Internacional;Jefatura de Servicios y Log. Inter.
-21350;24040139; Cliber Jose;Urrieta ;Coordinador Sr. Logistica Internacional;Jefatura de Servicios y Log. Inter.
-21420;18562874; Willmarbeth de los Angeles;Alcala ;Coordinador Sr. Operac. Portuarias Dist.;Jefatura de Servicios y Log. Inter.
-21490;14634610; Jairo Concepcion;Bermudez ;Jefe de Servicios y Log. Inter.;Jefatura de Servicios y Log. Inter.
-21512;15186398; Mariannis Del Valle;Leon ;Coordinador de Servicios;Jefatura de Servicios y Log. Inter.
-30000;10047867; Jorge Eliezer;Jaramillo ;Coordinador de Servicios;Jefatura de Servicios y Log. Inter.
-30006;10117815; Lisette Josefina;Farias ;Coordinador de Licitaciones;Jefatura de Servicios y Log. Inter.
-20039;12128429; Jean Mario;Mejias ;Jefe de Linea de Produccion;Jefatura de Terminacion y Revestimiento
-21073;12052808; Maria Eugenia;Pereira ;Coordinador de Transporte Terrestre;Jefatura de Transporte
-40040;13303908; Jose Luis;Delgado ;Jefe de Transporte;Jefatura de Transporte
-20567;13994376; Lucrecia Margarita;Santos ;Coordinador de Control y Gestion de Serv;Jefatura Int de Servicios Industriales
-20832;9303490; Joel Juan;Rodriguez ;Supervisor Integral de Servicios Ind.;Jefatura Int de Servicios Industriales
-21563;14960974; Jorge Luis;Jimenez ;Jefe Integral de Servicios Industriales;Jefatura Int de Servicios Industriales
-20178;14837739; Maria Angelica;Fazio ;Planificador de Produccion;Jefatura Planificacion y Control Prod.
-21601;23730889; Rosmely Alejandra;Bryan ;Planificador de Produccion;Jefatura Planificacion y Control Prod.
-30112;12966957; Luisa Veronica;Gomez ;Planificador de Produccion;Jefatura Planificacion y Control Prod.
-30143;13778049; Yadiris Nailit;Gonzalez ;Jefe Planificacion y Control de Produc.;Jefatura Planificacion y Control Prod.
-20065;12530968; Andres Antonio;Torres ;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
-20363;13248391; Joel Jose;Guevara ;Jefe de Planificacion y Gestion Mantto.;Jefatura Planificacion y Gestion  Mantto
-20392;14065533; Napoleon Jose;Zapata ;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
-20605;13981243; Jean Carlos Jose;Rincones ;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
-20834;18338690; Obnoval Josue;Idrogo ;Mantenedor  Sintomatico;Jefatura Planificacion y Gestion  Mantto
-21468;19905331; Argenis Alejandro;Flores ;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
-21494;17631679; Alan Daniel;Castillo ;Mantenedor  Sintomatico;Jefatura Planificacion y Gestion  Mantto
-30497;15789636; Orlando Jose;Romero ;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
-30501;19301288; Juandry Javier;Morocoima ;Mantenedor  Sintomatico;Jefatura Planificacion y Gestion  Mantto
-40160;26262234; Linda Lusmary;Simoes ;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
-30182;16281980; Yeifer Jesus;Rangel ;Jefe Produccion Aserradero;Jefatura Produccion Aserradero
-30512;32015336; Dariannys Paola;Caramauta ;Aprendiz Inces;Jefatura Produccion Aserradero
-30514;32641331; Diannelys Jose;Lanza ;Aprendiz Inces;Jefatura Produccion Aserradero
-21294;14487234; Jose Gregorio;Gonzalez ;Coordinador Almacen Sustanc. Controladas;Jefatura Red de Almacenes
-21496;20494478; Nathaly del Alba;Sanchez ;Planificador de Suministros;Jefatura Red de Almacenes
-21567;33115328; Vivian Elena;Milanes ;Jefe Red de Almacenes;Jefatura Red de Almacenes
-30052;11518864; Jesus Rafael;Aponte ;Operador I;Linea 1
-30053;14403931; Jhan Frans;Garcia ;Operador III;Linea 1
-30058;13999037; Jose Nelson;Burgos ;Operador III;Linea 1
-30105;13061871; Jean Carlos;Hernandez ;Operador II;Linea 1
-30137;14089564; Daniel Alberto;Romero ;Operador III;Linea 1
-30155;12198479; Juan Carlos;Zabala ;Operador I;Linea 1
-30156;14089736; Jean Carlos;Medina ;Asistente Palillero Linea 1;Linea 1
-30158;15569511; Dennys Rafael;Rondon ;Operador I;Linea 1
-30180;12131083; Rafael Antonio;Lozada ;Asistente Palillero Linea 1;Linea 1
-30217;8956067; Marvelio Ramon;Vasquez ;Asistente Trimmer;Linea 1
-30221;13646931; Henry Alberto;Rojas ;Asistente Palillero Linea 1;Linea 1
-30264;12003974; Luis Bercelis;Manrique ;Asistente Palillero Linea 1;Linea 1
-30274;17209115; Wilmer Jose;Marquez ;Asistente Stacker;Linea 1
-30302;15243562; Jorvys Marcelo;Lopez ;Asistente Operaciones Linea 1;Linea 1
-30311;17407607; Juan Carlos;Rodriguez ;Asistente Stacker;Linea 1
-30329;20136582; Robert Luis;Rivas ;Ayudante Aserradero;Linea 1
-30337;13347120; Angel Jose;Figuera ;Asistente Palillero Linea 1;Linea 1
-30343;16214958; Carlos Alberto;Ruiz ;Ayudante Aserradero;Linea 1
-30373;6651731; Elpidio Rumardo;Aguilera ;Asistente Palillero Linea 1;Linea 1
-30375;8521189; Ramon Alfredo;Madrid ;Operador I;Linea 1
-30382;13570892; Edwin Jose;Rodriguez ;Operador I;Linea 1
-30316;20224162; Julio Cesar;Yori ;Ayudante Aserradero;Linea 3
-20023;12128600; Miguel Angel;Santil ;Operador Astillado;Linea Preparacion de Madera
-20034;9858648; Jose Luis;Gascon ;Operador Astillado;Linea Preparacion de Madera
-20037;12650563; Jose Gregorio;Cortez ;Jefe de Linea de Produccion;Linea Preparacion de Madera
-20104;8925882; Jose Nicanor;Ramirez ;Operador Astillado;Linea Preparacion de Madera
-20546;13090464; Jose Gregorio;Gutierrez ;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
-20557;13214547; Johnny Jose;Rojas ;Operador Flakers;Linea Preparacion de Madera
-20562;14986583; Eduardo Jose;Brito ;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
-20582;13121716; Ramon Leonides;Carrion ;Operador Astillado;Linea Preparacion de Madera
-20589;9299546; Manuel Antonio;Quijada ;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
-20616;13120845; Julio Cesar;Herrera ;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
-20847;8284927; Gerardo Antonio;Flores ;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
-21436;13545341; Victor Jesus;Bastardo ;Cubicador;Linea Preparacion de Madera
-21505;18514030; Carlos Alberto;Hernandez ;Cubicador;Linea Preparacion de Madera
-30353;15782825; Miguel Antonio;Zerpa ;Cubicador;Linea Preparacion de Madera
-30374;14510256; Wilfredo Saul;Romero ;Cubicador;Linea Preparacion de Madera
-20030;13090704; Jose Rafael;Aponte ;Operador Prensa;Linea Produccion MDP
-20075;14836646; Jean Edgardo;Mederico ;Supervisor de Turno Operaciones;Linea Produccion MDP
-20088;13089966; Neptali De Jesus;Regaldis ;Supervisor de Turno Operaciones;Linea Produccion MDP
-20144;13336046; Ysmer Rotday;Martinez ;Operador Prensa;Linea Produccion MDP
-20153;12050762; Regulo Rafael;Bracho ;Operador Clasificacion y Secado;Linea Produccion MDP
-20189;12560580; Jose Gregorio;Perez ;Supervisor de Turno Operaciones;Linea Produccion MDP
-20205;12650278; Williams Jose;Campos ;Supervisor de Turno Operaciones;Linea Produccion MDP
-20303;14440488; Luis Eduardo;Laya ;Jefe de Linea de Produccion;Linea Produccion MDP
-20685;13994105; Jose Yorvanny;Villarroel ;Operador Clasificacion y Secado;Linea Produccion MDP
-20739;17431568; Charlie Javier;Pedroza ;Operador Clasificacion y Secado;Linea Produccion MDP
-20789;10550643; Menrrys Rafael;Muñoz ;Operador Clasificacion y Secado;Linea Produccion MDP
-30021;12052635; Jhonny Ramon;Vasquez ;Supervisor Produccion Aserradero;Produccion Aserradero
-30090;12132571; Gustavo Jose;Quero ;Supervisor Produccion Aserradero;Produccion Aserradero
-30108;14440411; Pedro Jose;Rosales ;Supervisor Produccion Aserradero;Produccion Aserradero
-20072;13120762; Eugenio Antonio;Caldera ;Operador Prensa;Produccion Tableros MDF
-20391;11516221; Pedro Jose;Martinez ;Operador Refinacion;Produccion Tableros MDF
-20742;13981349; Deiht Modesto;Castillo ;Operador Prensa;Produccion Tableros MDF
-21403;12124992; Hector Enrique;Puerta ;Jefe de Linea de Produccion;Produccion Tableros MDF
-21470;25086356; Anthony Jose;Pinto ;Operador Refinacion;Produccion Tableros MDF
-21689;11827631; Juan Antonio;Gutierrez ;Operador Refinacion;Produccion Tableros MDF
-21693;12360442; David Alejandro;Rivas ;Operador Refinacion;Produccion Tableros MDF
-20586;18171599; Cruz Eduardo;Lopez ;Operador Terreno;Produccion Tableros MDP
-20590;17749022; Ezequiel Javier;Santil ;Operador Terreno;Produccion Tableros MDP
-20684;12893465; Angel Rafael;Maestre ;Operador Terreno;Produccion Tableros MDP
-20743;13539457; Gabriel Eleuterio;Marquez ;Operador Terreno;Produccion Tableros MDP
-20857;14930634; Jose Vicente;Marin ;Operador Terreno;Produccion Tableros MDP
-21292;15909453; Jose Manuel;Martinez ;Operador Terreno;Produccion Tableros MDP
-21473;20704586; Amir Jesus;Ahmad ;Operador Terreno;Produccion Tableros MDP
-21510;25859031; Saul Josue;Zambrano ;Operador Terreno;Produccion Tableros MDP
-21662;24039701; Luis Eli;Andarcia ;Operador Terreno;Produccion Tableros MDP
-21669;17631153; Dionni Daniel;Figueroa ;Operador Terreno;Produccion Tableros MDP
-30087;8593852; Mary Del Rosario;Palacios ;Notificador de Produccion;Registro y Control  Produccion
-20099;14837474; Angel Daniel;Maestre ;Operador Planta Efluentes;Servicios Industriales
-20164;14506993; Rafael Antonio;Medina ;Operador Planta Efluentes;Servicios Industriales
-20236;13091114; Carlos Alberto;Lopez ;Operador Planta Termica;Servicios Industriales
-20373;12598261; Gustavo Alfonso;Caraballo ;Operador Planta Efluentes;Servicios Industriales
-20412;13153275; Jose Anibal;Contreras ;Operador Planta Termica;Servicios Industriales
-20584;16009145; Jesus Alberto;Lisboa ;Operador Planta Efluentes;Servicios Industriales
-20833;14088991; Daniel Jose;Mendez ;Operador Planta Termica;Servicios Industriales
-21504;18983240; Jhonner Alexander;Ventura ;Operador Planta Termica;Servicios Industriales
-21575;13091409; Yran Misael;Mirabal ;Subgerente de Mantenimiento;Subgerencia Mantenimiento
-20356;11437518; Arianni Jose;Hernandez ;Subgerente Planificacion de Operaciones;Subgerencia Planificacion de Operaciones
-20642;16945431; Solangel Marina;Gonzalez ;Asistente de Gestion Documental;Subgerencia Planificacion de Operaciones
-30050;14403489; Alexander Antonio;Figueroa ;Tecnico Mecanico;Sup.Mantenimiento Mecanico Aserradero
-30107;10926643; Carlos Jose;Coro ;Supervisor de Mantenimiento;Sup.Mantenimiento Mecanico Aserradero
-30141;14883286; Lorenzo Rafael;Rodriguez ;Operador I;Supervision Clasificacion y Empaque
-20115;12876346; Carlos Daniel;Salmeron ;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
-20150;8918929; Matias Ygnacio;Vera ;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
-20268;9974782; Josefina Del Valle;Lopez ;Supervisor Control Calidad;Supervision Control de Calidad
-20350;11513331; Guillermo Jose;Miranda ;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
-20393;17633141; Lina Deyanira;Torres ;Analista Quimico Planta Tableros;Supervision Control de Calidad
-20830;19301534; Yermali Elvira;Villalba ;Analista Quimico Planta Quimica;Supervision Control de Calidad
-21243;13677119; Juan Gabriel;Mendoza ;Analista Quimico Planta Quimica;Supervision Control de Calidad
-21386;17749313; Alfonso Alejandro;Salazar ;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
-21670;9938548; Luisa;Marquez ;Analista Quimico Planta Tableros;Supervision Control de Calidad
-40047;16251845; Manuel Jose;Guede ;Analista Quimico Planta Quimica;Supervision Control de Calidad
-20091;10797852; Eduardo Ednell;Valdes ;Analista de Almacen;Supervision de Almacen
-20101;8927789; Robert Algelis;Polo ;Analista de Almacen;Supervision de Almacen
-20132;7804714; Antonio Jose;Urdaneta ;Analista de Almacen;Supervision de Almacen
-20336;12643873; Jose Carmelo;Torres ;Analista de Almacen;Supervision de Almacen
-20674;8944901; Julio Cesar;Zambrano ;Auxiliar de Almacen - Urea;Supervision de Almacen
-20876;20223485; Diomar Francisco;Diaz ;Analista de Almacen;Supervision de Almacen
-21589;25324722; Jhonnaiker Javier;Iguanetti ;Analista de Almacen;Supervision de Almacen
-30029;14144554; Romel Jose;Lara ;Auxiliar de Almacen - Urea;Supervision de Almacen
-30116;12649223; Keila Beatriz;Osorio ;Supervisor de Almacen;Supervision de Almacen
-30153;16164909; Jeomar Jose;Estanga ;Auxiliar de Almacen - Urea;Supervision de Almacen
-40071;17091359; Darvis Jesus;Martinez ;Auxiliar de Almacen - Urea;Supervision de Almacen
-40073;11011150; Dimas de Jesus;Cortez ;Auxiliar de Almacen - Urea;Supervision de Almacen
-30035;12125246; Jose Felipe;Gonzalez ;Supervisor de Turno Empaque;Supervision de Empaque
-30060;14065230; Juan Carlos;Navarro ;Supervisor de Turno Empaque;Supervision de Empaque
-30138;13335920; Joel Jose;Adrian ;Operador I;Supervision de Empaque
-30195;13743886; Gregorio Del Valle;Milano ;Asistente Operaciones Mit;Supervision de Empaque
-30198;13553152; Vicente Yrais;Perez ;Operador I;Supervision de Empaque
-30203;14635784; Carlos Enrique;Chiroco ;Asistente Operaciones Cape;Supervision de Empaque
-30204;7944576; Rodolfo Jose;Chiroco ;Ayudante de Empaque;Supervision de Empaque
-30205;7221652; William Rafael;Hernandez ;Asistente Operaciones Cape;Supervision de Empaque
-30206;14088965; Denny Jose;Rojas ;Asistente Operaciones Cape;Supervision de Empaque
-30210;8879223; Elio Jose;Rodriguez ;Ayudante de Empaque;Supervision de Empaque
-30211;8530159; Julio Fernandez;Rodriguez ;Ayudante de Empaque;Supervision de Empaque
-30213;13443107; Pablo Ramon;Chacare ;Operador I;Supervision de Empaque
-30214;14961953; Jacson Eduardo;Ledezma ;Ayudante de Empaque;Supervision de Empaque
-30215;19803017; Miguel Angel;Mora ;Ayudante de Empaque;Supervision de Empaque
-30218;13386867; Medford Ernesto;Campbell ;Asistente Operaciones Cape;Supervision de Empaque
-30219;12006564; Oscar Vladimir;Rodriguez ;Ayudante de Empaque;Supervision de Empaque
-30220;14905480; Jose Miguel;Aponte ;Ayudante de Empaque;Supervision de Empaque
-30222;11511577; Rider Rafael;Pacheco ;Asistente Operaciones Mit;Supervision de Empaque
-30223;16630293; Javier Eduardo;Chacare ;Ayudante de Empaque;Supervision de Empaque
-30239;13837300; Larry Jose;Diaz ;Ayudante de Empaque;Supervision de Empaque
-30241;10553789; Francisco Jose;Gonzalez ;Ayudante de Empaque;Supervision de Empaque
-30244;10387980; Jose Miguel;Romero ;Ayudante de Empaque;Supervision de Empaque
-30245;9452444; Alonso pascual;Salas ;Ayudante de Empaque;Supervision de Empaque
-30246;8941615; Eduardo Ramon;Vasquez ;Ayudante de Empaque;Supervision de Empaque
-30247;8963019; Adrian Honorio;Marin ;Ayudante de Empaque;Supervision de Empaque
-30254;16630986; Norberto Jose;Bravo ;Operador I;Supervision de Empaque
-30259;15551968; Miguel Eduardo;Cabeza ;Ayudante de Empaque;Supervision de Empaque
-30277;16759655; Juan Manuel;Bolivar ;Ayudante de Empaque;Supervision de Empaque
-30296;12129208; Wilfredo Jose;Rodriguez ;Ayudante de Empaque;Supervision de Empaque
-30299;16163759; Eduardo Jose;Villegas ;Ayudante de Empaque;Supervision de Empaque
-30345;14960025; Wilmer Jose;Carrasco ;Ayudante de Empaque;Supervision de Empaque
-30365;11444675; Ysidoro Jose;Castañeda ;Ayudante de Empaque;Supervision de Empaque
-30379;14601708; Ramon Antonio;Vivas ;Ayudante de Servicios Generales;Supervision de Empaque
-30110;10390441; Francisco Jose;Azocar ;Gestor de Servicios Generales;Supervision de Servicios Generales
-20067;12891901; Kevin Antonio;Guzman ;Supervisor de Mantenimiento Electrico;Supervision Mantenimiento Electrico
-20084;14222274; Jean Carlos;Mendoza ;Electricista de Turno;Supervision Mantenimiento Electrico
-20102;8887774; Leonardo Hermogenes;Hurtado ;Electricista;Supervision Mantenimiento Electrico
-20301;6880320; Gilberto Enrique;Arevalo ;Supervisor de Mantenimiento Electrico;Supervision Mantenimiento Electrico
-20534;12003256; Jose Felix;Guerra ;Electricista;Supervision Mantenimiento Electrico
-20571;17883412; Jhonathan Jose;Acosta ;Electricista;Supervision Mantenimiento Electrico
-21241;14089172; Gesmar;Torres ;Electricista;Supervision Mantenimiento Electrico
-21318;12644344; Juan Daniel;Marquez ;Electricista;Supervision Mantenimiento Electrico
-21319;15790839; Mayckher jose;Montaño ;Electricista;Supervision Mantenimiento Electrico
-21482;17763389; Efren Jose;Hernandez ;Electricista;Supervision Mantenimiento Electrico
-21675;15907320; Ernesto Jose;Rengel ;Electricista;Supervision Mantenimiento Electrico
-21706;26455267; Jose Manuel;Bolivar ;Electricista;Supervision Mantenimiento Electrico
-21709;19420357; Ricardo David;Medina ;Electricista;Supervision Mantenimiento Electrico
-21711;28534753; Endervis Jose;Jimenez ;Electricista;Supervision Mantenimiento Electrico
-30070;26951571; Arody;Monroy ;Supervisor de Mantenimiento Electrico;Supervision Mantenimiento Electrico
-20064;8888999; Marcial Daniel;Sanchez ;Supervisor de Mantenimiento Mecanico;Supervision Mantto. Mecanico
-20231;11718038; Reinaldo Enrique;Ordoñez ;Supervisor de Mantenimiento Mecanico;Supervision Mantto. Mecanico
-20307;11170332; Candido Argenis;Rojas ;Mecanico;Supervision Mantto. Mecanico
-20535;6720668; Luis Jose;Mudarra ;Mecanico;Supervision Mantto. Mecanico
-20552;15853915; Jose Gregorio;Leon ;Mecanico;Supervision Mantto. Mecanico
-20607;11209903; Luis Baldomero;Ydrogo ;Mecanico;Supervision Mantto. Mecanico
-20850;11006708; Elpidio Del Valle;Lopez ;Mecanico;Supervision Mantto. Mecanico
-20852;14114828; Luis Miguel;Oronoz ;Mecanico;Supervision Mantto. Mecanico
-21043;12431691; Jaid Fernando;Betancur ;Mecanico;Supervision Mantto. Mecanico
-21503;24179605; Alexis Arturo;Aray ;Mecanico;Supervision Mantto. Mecanico
-21610;25228522; Jhonner Misael;Marin ;Mecanico;Supervision Mantto. Mecanico
-21611;17748446; Dannys Maria;Navarro ;Mecanico;Supervision Mantto. Mecanico
-21639;11516392; Carlos del Valle;Castañeda ;Mecanico;Supervision Mantto. Mecanico
-21648;13837011; Nestor Jesus;Filip ;Mecanico;Supervision Mantto. Mecanico
-21652;20503729; Leonard Jose;Aguilar ;Mecanico;Supervision Mantto. Mecanico
-21659;18665833; Andres Emilio;Gerdez ;Mecanico;Supervision Mantto. Mecanico
-21660;14441916; Robert Frank;Salazar ;Mecanico;Supervision Mantto. Mecanico
-21682;21251650; Alam Delfin;Flores ;Mecanico;Supervision Mantto. Mecanico
-30334;19157777; Editzon Elpidio;Lopez ;Mecanico;Supervision Mantto. Mecanico
-30362;15136392; Grilian Jose;Romero ;Mecanico;Supervision Mantto. Mecanico
-30477;16025467; Heiler Ramon;Carvajal ;Mecanico;Supervision Mantto. Mecanico
-30479;27113411; Yosbell David;Marquez ;Mecanico;Supervision Mantto. Mecanico
-30482;26332175; Luis Eduardo;Ramos ;Supervisor de Mantenimiento Mecanico;Supervision Mantto. Mecanico
-30498;22593067; Cristopfer Jesus;Bermudez ;Mecanico;Supervision Mantto. Mecanico
-30500;14403141; Hector Halange;Castellano ;Mecanico;Supervision Mantto. Mecanico
-20717;13995436; Jesus Ramon;Fuentes ;Operador Terreno;Supervision Produccion Planta Quimica
-21713;14986086; Nerfis Omar;Piñango ;Operador Terreno;Supervision Produccion Planta Quimica
-30476;12875467; Olivier Franklin;Zacarias ;Operador Terreno;Supervision Produccion Planta Quimica
-30502;23505427; Pedro Jose;Meta ;Operador Terreno;Supervision Produccion Planta Quimica
-40019;12679546; Andres Alonzo;Moncada ;Operador Formox;Supervision Produccion Planta Quimica
-40030;16077654; Geovanny Alberto;Marin ;Operador Formox;Supervision Produccion Planta Quimica
-40062;13573181; Oswaldo Jose;Gonzalez ;Operador Terreno;Supervision Produccion Planta Quimica
-40066;12893285; Alberto Jose;Ballet ;Operador Terreno;Supervision Produccion Planta Quimica
-40067;15034194; Juan Carlos;Vasquez ;Operador Terreno;Supervision Produccion Planta Quimica
-40105;17263306; Jose Manuel;Rodriguez ;Operador Terreno;Supervision Produccion Planta Quimica
-40116;18776593; David Manuel;Rodriguez ;Supervisor de Turno Planta Quimica;Supervision Produccion Planta Quimica
-40132;14837096; Oscar Ramon;Ruiz ;Operador Resinas;Supervision Produccion Planta Quimica
-40140;15542907; Brever Eduardo;Campos ;Operador Resinas;Supervision Produccion Planta Quimica
-40141;12657991; Antonio Jose;Astudillo ;Operador Resinas;Supervision Produccion Planta Quimica
-40152;12506602; Franklin;Navarro ;Supervisor de Turno Planta Quimica;Supervision Produccion Planta Quimica
-40159;18828421; Adrian Ernesto;Morales ;Operador Formox;Supervision Produccion Planta Quimica
-30303;13573323; Douglas Alexander;Saa ;Operador I;Supervision Remanufactura
-30318;11513773; Carlos;Cavanier ;Ayudante Remanufactura;Supervision Remanufactura
-30319;15276453; Alcides Jose;Corona ;Ayudante Remanufactura;Supervision Remanufactura
-30324;20298751; Robert Antonio;Roman ;Ayudante Remanufactura;Supervision Remanufactura
-20329;8964353; Rafael Benigno;Sanchez ;Supervisor Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20786;16302793; Roonier Jose;Landaeta ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20797;13016188; Alexis Lenis;Aguilarte ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20798;8339556; Luis Alberto;Barrero ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20799;11551409; Ivan de Jesus;Bravo ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20804;18514599; Oscar Jose;Hernandez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20805;15355441; Hector Hernan;Hernandez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20806;8950917; Oscar Argirio;Hernandez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20807;20645119; Cristian Ramon;Idrogo ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20808;13744493; Jose Fernando;Idrogo ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20809;8961539; Carlos Jose;Leon ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20815;13622872; Pedro Javier;Mejias ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20817;17041430; Lionel Alberto;Perez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20823;12131300; Alexander Gregorio;Suarez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-21276;13736029; Luis Eduardo;Lozano ;Supervisor Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-21424;12908306; Jose Miguel;Figuera ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-21467;21339408; Yomer Alexis;Aray ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-21650;26346855; Jose Antonio;Mora ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-21677;17407608; Carlos Manuel;Rodriguez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-30388;8879298; Julio Cesar;Alvarez ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-30389;12132851; Joel Antonio;Ascanio ;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
-20040;12052868; Jorge Leonardo;Vera ;Operador Corte;Supervision Terminacion y Revestimiento
-20071;12645310; Dimas Jose;Alcala ;Operador de Melamina;Supervision Terminacion y Revestimiento
-20147;15907200; Luis Alberto;Perez ;Operador de Melamina;Supervision Terminacion y Revestimiento
-20148;14961433; Juan Carlos;Suarez ;Operador de Lijado;Supervision Terminacion y Revestimiento
-20158;9696279; Jose Luis;Torrelles ;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
-20160;15853365; Gianzuney Jose;Bolivar ;Operador Corte;Supervision Terminacion y Revestimiento
-20162;11519671; Douglas Rafael;Hernandez ;Operador Corte;Supervision Terminacion y Revestimiento
-20181;11761065; Cesar Ramon;Ramirez ;Operador de Melamina;Supervision Terminacion y Revestimiento
-20218;12131648; Sebastian Jose;Tovar ;Operador de Lijado;Supervision Terminacion y Revestimiento
-20315;16751590; Jose Martin;Soto ;Operador de Lijado;Supervision Terminacion y Revestimiento
-20344;10929595; Jorge del Valle;Arcia ;Operador de Melamina;Supervision Terminacion y Revestimiento
-20540;15569518; Jose Manuel;Gomez ;Operador de Impregnacion;Supervision Terminacion y Revestimiento
-20541;14960646; Jose Leonel;Tempo ;Operador de Impregnacion;Supervision Terminacion y Revestimiento
-20542;13336867; Tito Jose;Romero ;Operador de Lijado;Supervision Terminacion y Revestimiento
-20559;14837596; Denny Jose;Blanca ;Embalador Melamina;Supervision Terminacion y Revestimiento
-20561;12193180; Jarrys Rafael;Gonzalez ;Ayudante de Operador;Supervision Terminacion y Revestimiento
-20563;13334073; Jose Cipriano;Gonzalez ;Embalador Melamina;Supervision Terminacion y Revestimiento
-20564;8940245; Miguel Ramon;Hernandez ;Embalador Melamina;Supervision Terminacion y Revestimiento
-20565;17658762; Gilberto Jose;Tempo ;Embalador Melamina;Supervision Terminacion y Revestimiento
-20580;8960187; Luis Rafael;Aponte ;Embalador CTP;Supervision Terminacion y Revestimiento
-20581;19330223; Rito Jose;Brito ;Embalador Melamina;Supervision Terminacion y Revestimiento
-20583;11205781; Hildegar Jesus;Estanga ;Embalador CTP;Supervision Terminacion y Revestimiento
-20585;11723699; Carlos Javier;Lopez ;Embalador CTP;Supervision Terminacion y Revestimiento
-20599;8969298; Humberto Antonio;Cheremo ;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
-20601;13838268; Jose Gregorio;Palma ;Embalador CTP;Supervision Terminacion y Revestimiento
-20602;14621137; Luis Miguel;Reyes ;Embalador CTP;Supervision Terminacion y Revestimiento
-20603;11011280; Oswaldo Rafael;Rivera ;Embalador CTP;Supervision Terminacion y Revestimiento
-20604;11724492; Santos Ramon;Solorzano ;Embalador CTP;Supervision Terminacion y Revestimiento
-20614;9936263; Cosme Antonio;Gonzalez ;Embalador CTP;Supervision Terminacion y Revestimiento
-20615;15372613; Wilmer Jose;Guevara ;Operador Corte;Supervision Terminacion y Revestimiento
-20617;16629567; Jose Gregorio;Morales ;Embalador CTP;Supervision Terminacion y Revestimiento
-20618;15909099; Edwin Rene;Parra ;Embalador CTP;Supervision Terminacion y Revestimiento
-20621;20374657; Pris Del Jesus;Brazon ;Embalador CTP;Supervision Terminacion y Revestimiento
-20622;14222928; Omar Eleno;Cequea ;Embalador CTP;Supervision Terminacion y Revestimiento
-20623;9949250; Luis Mercedes;Farfan ;Embalador CTP;Supervision Terminacion y Revestimiento
-20625;16024346; Carlos Jose;Rojas ;Embalador CTP;Supervision Terminacion y Revestimiento
-20627;13090041; Esteban David;Torres ;Embalador CTP;Supervision Terminacion y Revestimiento
-20628;17209678; Nelson Rafael;Salavarria ;Embalador CTP;Supervision Terminacion y Revestimiento
-20630;13122668; Igor Alexander;Aguilar ;Embalador CTP;Supervision Terminacion y Revestimiento
-20631;11517872; Juan Jose;Cedillo ;Embalador CTP;Supervision Terminacion y Revestimiento
-20632;15243575; Wilberto Jose;Lopez ;Embalador CTP;Supervision Terminacion y Revestimiento
-20633;9952171; David Enrique;Rodriguez ;Ayudante de Operador;Supervision Terminacion y Revestimiento
-20635;8939442; Hugo Emilio;Romero ;Embalador CTP;Supervision Terminacion y Revestimiento
-20644;15372587; Reinaldo De Jesus;Estanga ;Embalador CTP;Supervision Terminacion y Revestimiento
-20645;12125028; Osman Alexis;Aray ;Ayudante de Operador;Supervision Terminacion y Revestimiento
-20646;12133761; Jose Rafael;Jaramillo ;Embalador CTP;Supervision Terminacion y Revestimiento
-20647;11512255; Damaso Antonio;Caraballo ;Embalador CTP;Supervision Terminacion y Revestimiento
-20655;11510333; Euclides Rafael;Figuera ;Embalador CTP;Supervision Terminacion y Revestimiento
-20658;12876904; Esteban de Jesus;Botaban ;Operador de Lijado;Supervision Terminacion y Revestimiento
-20667;15185808; Teodulo Jose;Martinez ;Operador de Melamina;Supervision Terminacion y Revestimiento
-20698;15520851; Adolfo Jose;Araguache ;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
-20828;10393004; Abrahan Jose;Rengel ;Embalador CTP;Supervision Terminacion y Revestimiento
-20973;16025479; Gualberto Jose;Campos ;Embalador CTP;Supervision Terminacion y Revestimiento
-21469;21123752; Jescarl Jose;Berrio ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21475;17337149; Gregory Alberto;Ortega ;Operador Corte;Supervision Terminacion y Revestimiento
-21477;20507298; Cesar Edwin;Valdez ;Operador Corte;Supervision Terminacion y Revestimiento
-21520;17623257; Carlos Eduardo;Alcala ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21527;24040436; Pedro Ramon;Muñoz ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21533;17748490; Xavier;Bolivar ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21536;18227827; Julian Jose;Carvajal ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21632;26132342; Luis Fernando;Farias ;Embalador CTP;Supervision Terminacion y Revestimiento
-21633;26138606; Anderson Jose;Diaz ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21636;25003049; Jhon Luis;Diaz ;Embalador CTP;Supervision Terminacion y Revestimiento
-21638;27375374; Isaac Antonio;Salazar ;Operador de Lijado;Supervision Terminacion y Revestimiento
-21644;19302867; Xiomar Jose;Garcia ;Embalador CTP;Supervision Terminacion y Revestimiento
-21658;12465175; Elis Moises;Flores ;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
-20146;12191191; Santos Adalberto;Perez ;Supervisor de Turno Logistica;Supervision Turno Logistica
-20179;9939890; Luis Argelio;Maneiro ;Analista de Balanza;Supervision Turno Logistica
-20188;13963029; Elbys Rene;Musio ;Supervisor de Turno Logistica;Supervision Turno Logistica
-20554;13911847; Franklin Antonio;Barreto ;Analista de Despacho PT;Supervision Turno Logistica
-20566;14089147; Edgar Wiquelx;Ojeda ;Analista de Balanza;Supervision Turno Logistica
-20819;12007872; Jose Alexis;Rodriguez ;Analista de Despacho PT;Supervision Turno Logistica
-20820;16254970; Orlando Antonio;Simonovis ;Analista de Recepcion PT;Supervision Turno Logistica
-20849;8956367; Carlos Armando;Pinto ;Analista de Balanza;Supervision Turno Logistica
-20948;16394191; Piter Angelo;Alarcon ;Analista de Balanza;Supervision Turno Logistica
-21390;12644761; Cesar Jose;Garcia ;Analista de Recepcion PT;Supervision Turno Logistica
-30313;23730960; Jose Antonio;Salazar ;Analista de Recepcion PT;Supervision Turno Logistica
-20499;4564212; Jesus Armando;Burgos ;Jefe de Relaciones Externas;Gerencia SMS y PCP
-21587;10572460; Rorman;Cleer ;Jefe de Investigacion PCP;Gerencia SMS y PCP
-50031;7105568; Luis Alexis;Manrique ;Gerente SMS y PYCP;Gerencia SMS y PCP
-20202;9941757; Virginia Gregoria;Velasquez ;Enfermera;Jefatura de Salud Ocupacional
-21591;25936464; Maria Jose;Rodriguez ;Coordinador de Salud Ocupacional;Jefatura de Salud Ocupacional
-21615;7358627; Afife Nicomedes;Harfoush ;Jefe de Salud Ocupacional;Jefatura de Salud Ocupacional
-20200;8534388; Ricardo Camillius;Romano ;Coordinador Prevencion/Control de Riesgo;Jefatura de Salud, MA y Seguridad
-21372;18170666; Pedro Enrique;Bello ;Coordinador de Seguridad, Salud y MA;Jefatura de Salud, MA y Seguridad
-21655;18336338; Yerika Alejandra;Reina ;Coordinador de Seguridad, Salud y MA;Jefatura de Salud, MA y Seguridad
-21701;31615724; Luis Gerardo;Gonzalez ;Aprendiz Inces;Jefatura de Salud, MA y Seguridad
-21708;13926622; Zorkaft Antonio;Ravago ;Jefe de Salud, MA y Seguridad;Jefatura de Salud, MA y Seguridad
-21530;26549408; Angelis Oriana;Arcon ;Coordinador Sistema de Gestion Integrado;Jefatura Gestión Ambiental
-21630;13619987; Carlos Alberto;Fernandez ;Coordinador de Gestion Ambiental;Jefatura Gestión Ambiental
-20914;17039473; Teilyn Betzabeth;Rodriguez ;Jefe de Prevencion y Control de Perdidas;Jefatura Prev. y Control Perdidas
-21580;18000676; Yanddiel Raul;Hernandez ;Coordinador de Seguridad;Jefatura Prev. y Control Perdidas
-20369;7086576; Jose Jacinto;Abreu ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-21228;19159015; Alberto de la Trinidad;Muñoz ;Analista Control de Emergencias.;Supervision Control de Emergencias
-21352;13981311; Juan Carlos;Rivas ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-21599;15874323; Jose Gregorio;Palomo ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-21616;25543549; Andres Jose;Mota ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-21625;22586154; Andy Saul;Gomez ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-21707;25511291; Yeltsin Rayniero;Solorzano Avila ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-21710;26455264; Oscar Enrique;Paez ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-30150;13837857; Teddy Jose;Fernandez ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-30371;14506323; Yethiz Del Valle;Medina ;Tecnico Control de Emergencia;Supervision Control de Emergencias
-30440;18960971; Gerald Jose;Ramirez ;Supervisor Control de Emergencias;Supervision Control de Emergencias
-21095;13082105; Nahualt Antonio;Sanchez ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21167;13120013; Nora Alexxandra;Flores ;Jefe de Seguridad;Supervision de Seguridad
-21257;11090532; Pedro Miguel;Morales ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21481;16712654; Marcos Antonio;Flores ;Jefe de Seguridad;Supervision de Seguridad
-21526;15569452; Danielys Josefina;Rondon ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21529;15781429; Carlos;Cornieles ;Jefe de Seguridad;Supervision de Seguridad
-21564;14837123; Neomar Antonio;Rondon ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21571;21012264; Rosmervys Andreina;Torres ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21573;15429220; Jhonny Rafael;Rojas ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21576;18885093; Henry Junior;Hernandez ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21588;24411688; Luis;Chavez ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21597;12058372; Jorge;Manrique ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21602;15908873; Cesar Gabriel;Brito ;Jefe de Seguridad;Supervision de Seguridad
-21603;18450936; Wences Jose;Duerto Vasquez ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21604;20504791; Julio Cesar;Aviles ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
-21678;18885485; Overt Antonio;Gutierrez ;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+20013;12128228;Norelys;Villarroel;Subgerente de Talento y Compensaciones;Subgerencia de Talento y Compensaciones
+20016;12649504;Diogenes;Muziotti;Gerente Operaciones Tableros;Gerencia de Operaciones Tableros
+20023;12128600;Miguel;Santil;Operador Astillado;Linea Preparacion de Madera
+20027;10491802;Ana;Barrera;Analista Administrativo;Gerencia  Forestal e Institucional
+20030;13090704;Jose;Aponte;Operador Prensa;Linea Produccion MDP
+20034;9858648;Jose;Gascon;Operador Astillado;Linea Preparacion de Madera
+20037;12650563;Jose;Cortez;Jefe de Linea de Produccion;Linea Preparacion de Madera
+20039;12128429;Jean;Mejias;Jefe de Linea de Produccion;Jefatura de Terminacion y Revestimiento
+20040;12052868;Jorge;Vera;Operador Corte;Supervision Terminacion y Revestimiento
+20046;10390817;Adriana;Guevara;Jefe de Control Interno;Jefatura de Control Interno
+20051;10551385;Wendis;Torres;Analista Front Capital Humano;Subgerencia de Administracion y RRII
+20056;11532446;Maritza;Jimenez;Analista de Cuentas por Pagar;Jefatura de Cuentas por Pagar
+20064;8888999;Marcial;Sanchez;Supervisor de Mantenimiento Mecanico;Supervision Mantto. Mecanico
+20065;12530968;Andres;Torres;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
+20067;12891901;Kevin;Guzman;Supervisor de Mantenimiento Electrico;Supervision Mantenimiento Electrico
+20071;12645310;Dimas;Alcala;Operador de Melamina;Supervision Terminacion y Revestimiento
+20072;13120762;Eugenio;Caldera;Operador Prensa;Produccion Tableros MDF
+20075;14836646;Jean;Mederico;Supervisor de Turno Operaciones;Linea Produccion MDP
+20079;10554446;Marielys;Sanchez;Gerente de Personas, Cultura y Comunicac;Gcia. de Personas,Cultura y Comunicacion
+20084;14222274;Jean;Mendoza;Electricista de Turno;Supervision Mantenimiento Electrico
+20088;13089966;Neptali;Regaldis;Supervisor de Turno Operaciones;Linea Produccion MDP
+20091;10797852;Eduardo;Valdes;Analista de Almacen;Jefatura Red de Almacenes
+20099;14837474;Angel;Maestre;Operador Planta Efluentes;Servicios Industriales
+20101;8927789;Robert;Polo;Analista de Almacen;Jefatura Red de Almacenes
+20102;8887774;Leonardo;Hurtado;Tecnico Electricista;Supervision Mantenimiento Electrico
+20104;8925882;Jose;Ramirez;Operador Astillado;Linea Preparacion de Madera
+20115;12876346;Carlos;Salmeron;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
+20117;12301925;Gaye;Zambrano;Gerente Operaciones Industriales y Sumin;Gerencia Operaciones Industriales y Sum.
+20119;11516867;Makerys;Pinto;Coordinador de Operaciones Cambiarias;Jefatura de Finanzas
+20137;10926093;Manuel;Velasquez;Coordinador de Control Interno;Jefatura de Control Interno
+20144;13336046;Ysmer;Martinez;Operador Prensa;Linea Produccion MDP
+20146;12191191;Santos;Perez;Supervisor de Turno Logistica;Supervision Turno Logistica
+20147;15907200;Luis;Perez;Operador de Melamina;Supervision Terminacion y Revestimiento
+20148;14961433;Juan;Suarez;Operador de Lijado;Supervision Terminacion y Revestimiento
+20150;8918929;Matias;Vera;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
+20151;12052145;Ruben;Brito;Electricista;Jefatura de Mantto Electrico
+20153;12050762;Regulo;Bracho;Operador Clasificacion y Secado;Linea Produccion MDP
+20158;9696279;Jose;Torrelles;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
+20160;15853365;Gianzuney;Bolivar;Operador Corte;Supervision Terminacion y Revestimiento
+20162;11519671;Douglas;Hernandez;Operador Corte;Supervision Terminacion y Revestimiento
+20164;14506993;Rafael;Medina;Operador Planta Efluentes;Servicios Industriales
+20169;12013519;Zulema;Mata;Jefe  Control Costos Ind. y Forestales;Jefatura Costos Industriales y Forestale
+20178;14837739;Maria;Fazio;Planificador de Produccion;Jefatura Planificacion y Control Prod.
+20181;11761065;Cesar;Ramirez;Operador de Melamina;Supervision Terminacion y Revestimiento
+20188;13963029;Elbys;Musio;Supervisor de Turno Logistica;Supervision Turno Logistica
+20189;12560580;Jose;Perez;Supervisor de Turno Operaciones;Linea Produccion MDP
+20200;8534388;Ricardo;Romano;Coordinador Prevencion/Control de Riesgo;Jefatura de Salud, MA y Seguridad
+20202;9941757;Virginia;Velasquez;Coordinador de Enfermeria;Jefatura de Salud Ocupacional
+20205;12650278;Williams;Campos;Supervisor de Turno Operaciones;Linea Produccion MDP
+20209;10393290;Mirian;Parra;Jefe de Facturacion, Credito y Cobranzas;Jefatura de Credito y Cobranzas
+20218;12131648;Sebastian;Tovar;Operador de Lijado;Supervision Terminacion y Revestimiento
+20223;12650274;Orlando;Linares;Mecanico;Jefatura de Mantenimiento Mecanico
+20227;11513624;Jose;Leon;Mecanico;Jefatura de Mantenimiento Mecanico
+20231;11718038;Reinaldo;Ordoñez;Supervisor de Mantenimiento Mecanico;Supervision Mantto. Mecanico
+20236;13091114;Carlos;Lopez;Operador Planta Termica;Servicios Industriales
+20268;9974782;Josefina;Lopez;Supervisor Control Calidad;Supervision Control de Calidad
+20292;12006782;Yoangel;Guanipa;Coordinador de Despacho BPT;Bodega de Producto Terminado (Five)
+20297;15520341;Yosneida;Gonzalez;Coordinador de Tesoreria;Jefatura de Finanzas
+20298;13544071;Mairys;Millan;Subgerente de Administracion;Subgerencia de Administracion
+20301;6880320;Gilberto;Arevalo;Supervisor de Mantenimiento Electrico;Supervision Mantenimiento Electrico
+20303;14440488;Luis;Laya;Jefe de Linea de Produccion;Linea Produccion MDP
+20307;11170332;Candido;Rojas;Mecanico;Supervision Mantto. Mecanico
+20315;16751590;Jose;Soto;Operador de Lijado;Supervision Terminacion y Revestimiento
+20329;8964353;Rafael;Sanchez;Supervisor Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20335;10554115;Jose;Rodriguez;Coordinador RRII y Servicios Externos;Jefatura RRII y Servicios Externos
+20336;12643873;Jose;Torres;Analista de Almacen;Jefatura Red de Almacenes
+20337;11511134;Jesus;Sira;Coordinador de Despacho BPT;Bodega de Producto Terminado
+20344;10929595;Jorge;Arcia;Operador de Melamina;Supervision Terminacion y Revestimiento
+20350;11513331;Guillermo;Miranda;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
+20356;11437518;Arianni;Hernandez;Subgerente Planificacion de Operaciones;Subgerencia Planificacion de Operaciones
+20363;13248391;Joel;Guevara;Jefe de Planificacion y Gestion Mantto.;Jefatura Planificacion y Gestion  Mantto
+20373;12598261;Gustavo;Caraballo;Operador Planta Efluentes;Servicios Industriales
+20374;10796732;Luis;Franco;Jefe Regional de Ventas;Jefatura Regional de Ventas
+20391;11516221;Pedro;Martinez;Operador Refinacion;Produccion Tableros MDF
+20392;14065533;Napoleon;Zapata;Supervisor de Turno Planta Quimica;Supervision Produccion Planta Quimica
+20393;17633141;Lina;Torres;Analista Quimico Planta Tableros;Supervision Control de Calidad
+20408;17155379;Alejandra;Vera;Supervisor de Abastecimiento Forestal;Jefatura de Abastecimiento Forestal
+20412;13153275;Jose;Contreras;Operador Planta Termica;Servicios Industriales
+20417;13610874;Evelin;Gonzalez;Coordinador Servicio al Cliente;Jefatura Servicio al Cliente/Exportacion
+20437;10392839;Jesus;Reyes;Subgerente de Administracion y RRII;Subgerencia de Administracion y RRII
+20443;22838396;Dilia;Alvarez;Coordinador de Servicios;Jefatura de Servicios y Log. Inter.
+20486;4351359;Leonardo;Miralles;Gerente Legal;Gerencia Legal
+20499;4564212;Jesus;Burgos;Jefe de Relaciones Externas;Gerencia SMS y PCP
+20501;20223356;Mairelys;Espinoza;Comprador;Jefatura de Compras
+20505;11514639;Selena;Zambrano;Asistente de Seleccion y Desarrollo;Supervision de Seleccion y Desarrollo
+20525;6097387;Arturo;Carusso;Asistente de Finanzas;Subgerencia de Finanzas
+20534;12003256;Jose;Guerra;Electricista;Supervision Mantenimiento Electrico
+20535;6720668;Luis;Mudarra;Mecanico;Supervision Mantto. Mecanico
+20537;12887536;Jose;Rodriguez Alfonzo;Mecanico;Jefatura de Mantenimiento Mecanico
+20539;12650555;Wilmer;Ruiz;Mecanico;Jefatura de Mantenimiento Mecanico
+20540;15569518;Jose;Gomez;Operador de Impregnacion;Supervision Terminacion y Revestimiento
+20541;14960646;Jose;Tempo;Operador de Impregnacion;Supervision Terminacion y Revestimiento
+20542;13336867;Tito;Romero;Operador de Lijado;Supervision Terminacion y Revestimiento
+20546;13090464;Jose;Gutierrez;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
+20549;9948353;Alberto;Larez;Mecanico;Jefatura de Mantenimiento Mecanico
+20551;13121676;Luis;Aleman;Mecanico;Jefatura de Mantenimiento Mecanico
+20552;15853915;Jose;Leon;Mecanico;Supervision Mantto. Mecanico
+20554;13911847;Franklin;Barreto;Analista de Recepcion PT;Supervision Turno Logistica
+20557;13214547;Johnny;Rojas;Operador Flakers;Linea Preparacion de Madera
+20561;12193180;Jarrys;Gonzalez;Ayudante de Operador;Supervision Terminacion y Revestimiento
+20562;14986583;Eduardo;Brito;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
+20563;13334073;Jose;Gonzalez;Embalador;Supervision Terminacion y Revestimiento
+20564;8940245;Miguel;Hernandez;Embalador;Supervision Terminacion y Revestimiento
+20565;17658762;Gilberto;Tempo;Embalador;Supervision Terminacion y Revestimiento
+20566;14089147;Edgar;Ojeda;Analista de Balanza;Supervision Turno Logistica
+20567;13994376;Lucrecia;Santos;Coordinador de Control y Gestion de Serv;Jefatura Int de Servicios Industriales
+20571;17883412;Jhonathan;Acosta;Electricista;Supervision Mantenimiento Electrico
+20574;11519666;Luis;Bello;Mecanico;Jefatura de Mantenimiento Mecanico
+20575;11887114;Neudys;Lugo;Mecanico;Jefatura de Mantenimiento Mecanico
+20580;8960187;Luis;Aponte;Embalador;Supervision Terminacion y Revestimiento
+20581;19330223;Rito;Brito;Embalador Melamina;Supervision Terminacion y Revestimiento
+20582;13121716;Ramon;Carrion;Operador Astillado;Linea Preparacion de Madera
+20583;11205781;Hildegar;Estanga;Embalador;Supervision Terminacion y Revestimiento
+20584;16009145;Jesus;Lisboa;Operador Planta Efluentes;Servicios Industriales
+20585;11723699;Carlos;Lopez;Embalador;Supervision Terminacion y Revestimiento
+20586;18171599;Cruz;Lopez;Operador Terreno;Produccion Tableros MDP
+20589;9299546;Manuel;Quijada;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
+20590;17749022;Ezequiel;Santil;Operador Terreno;Produccion Tableros MDP
+20599;8969298;Humberto;Cheremo;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
+20601;13838268;Jose;Palma;Embalador;Supervision Terminacion y Revestimiento
+20602;14621137;Luis;Reyes;Embalador;Supervision Terminacion y Revestimiento
+20603;11011280;Oswaldo;Rivera;Embalador;Supervision Terminacion y Revestimiento
+20604;11724492;Santos;Solorzano;Embalador;Supervision Terminacion y Revestimiento
+20605;13981243;Jean;Rincones;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
+20607;11209903;Luis;Ydrogo;Mecanico;Supervision Mantto. Mecanico
+20614;9936263;Cosme;Gonzalez;Embalador;Supervision Terminacion y Revestimiento
+20615;15372613;Wilmer;Guevara;Operador Corte;Supervision Terminacion y Revestimiento
+20616;13120845;Julio;Herrera;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
+20617;16629567;Jose;Morales;Embalador;Supervision Terminacion y Revestimiento
+20618;15909099;Edwin;Parra;Embalador;Supervision Terminacion y Revestimiento
+20621;20374657;Pris;Brazon;Embalador CTP;Supervision Terminacion y Revestimiento
+20622;14222928;Omar;Cequea;Embalador;Supervision Terminacion y Revestimiento
+20623;9949250;Luis;Farfan;Embalador;Supervision Terminacion y Revestimiento
+20625;16024346;Carlos;Rojas;Embalador CTP;Supervision Terminacion y Revestimiento
+20627;13090041;Esteban;Torres;Embalador;Supervision Terminacion y Revestimiento
+20628;17209678;Nelson;Salavarria;Embalador;Supervision Terminacion y Revestimiento
+20630;13122668;Igor;Aguilar;Embalador;Supervision Terminacion y Revestimiento
+20631;11517872;Juan;Cedillo;Embalador;Supervision Terminacion y Revestimiento
+20632;15243575;Wilberto;Lopez;Embalador;Supervision Terminacion y Revestimiento
+20633;9952171;David;Rodriguez;Ayudante de Operador;Supervision Terminacion y Revestimiento
+20642;16945431;Solangel;Gonzalez;Asistente de Gestion Documental;Subgerencia Planificacion de Operaciones
+20644;15372587;Reinaldo;Estanga;Embalador;Supervision Terminacion y Revestimiento
+20645;12125028;Osman;Aray;Ayudante de Operador;Supervision Terminacion y Revestimiento
+20646;12133761;Jose;Jaramillo;Embalador CTP;Supervision Terminacion y Revestimiento
+20647;11512255;Damaso;Caraballo;Embalador CTP;Supervision Terminacion y Revestimiento
+20655;11510333;Euclides;Figuera;Embalador;Supervision Terminacion y Revestimiento
+20658;12876904;Esteban;Botaban;Operador de Lijado;Supervision Terminacion y Revestimiento
+20667;15185808;Teodulo;Martinez;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
+20674;8944901;Julio;Zambrano;Auxiliar Operación Planta Quimica;Supervision Produccion Planta Quimica
+20675;11928182;Liz;Marcano;Jefe Atencion al Cliente y Exportacion;Jefatura Servicio al Cliente/Exportacion
+20684;12893465;Angel;Maestre;Operador Terreno;Produccion Tableros MDP
+20685;13994105;Jose;Villarroel;Operador Clasificacion y Secado;Linea Produccion MDP
+20717;13995436;Jesus;Fuentes;Operador Terreno;Supervision Produccion Planta Quimica
+20739;17431568;Charlie;Pedroza;Operador Clasificacion y Secado;Linea Produccion MDP
+20742;13981349;Deiht;Castillo;Operador Prensa;Produccion Tableros MDF
+20743;13539457;Gabriel;Marquez;Operador Planta Efluentes;Servicios Industriales
+20759;13965886;Nancy;Arias;Jefe RRII y Servicios Externos;Jefatura RRII y Servicios Externos
+20761;19621541;Junior;Gonzalez;Coordinador de equipos Moviles;Jefatura de Equipos Moviles
+20786;16302793;Roonier;Landaeta;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20789;10550643;Menrrys;Muñoz;Operador Clasificacion y Secado;Linea Produccion MDP
+20797;13016188;Alexis;Aguilarte;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20798;8339556;Luis;Barrero;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20799;11551409;Ivan;Bravo;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20804;18514599;Oscar;Hernandez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20805;15355441;Hector;Hernandez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20806;8950917;Oscar;Hernandez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20807;20645119;Cristian;Idrogo;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20808;13744493;Jose;Idrogo;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20809;8961539;Carlos;Leon;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20815;13622872;Pedro;Mejias;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20816;18000340;Orlando;Parra;Analista de Recepcion PT;Bodega de Producto Terminado
+20817;17041430;Lionel;Perez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20819;12007872;Jose;Rodriguez;Analista de Despacho PT;Supervision Turno Logistica
+20823;12131300;Alexander;Suarez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20828;10393004;Abrahan;Rengel;Embalador;Supervision Terminacion y Revestimiento
+20830;19301534;Yermali;Villalba;Analista Quimico Planta Quimica;Supervision Control de Calidad
+20832;9303490;Joel;Rodriguez;Supervisor Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+20833;14088991;Daniel;Mendez;Operador Planta Termica;Servicios Industriales
+20834;18338690;Obnoval;Idrogo;Mantenedor  Sintomatico;Jefatura Planificacion y Gestion  Mantto
+20847;8284927;Gerardo;Flores;Operador Auxiliar de Preparacion Madera;Linea Preparacion de Madera
+20849;8956367;Carlos;Pinto;Analista de Balanza;Supervision Turno Logistica
+20850;11006708;Elpidio;Lopez;Mecanico;Supervision Mantto. Mecanico
+20852;14114828;Luis;Oronoz;Mecanico;Supervision Mantto. Mecanico
+20853;11519229;Belaunder;Padron;Mecanico;Jefatura de Mantenimiento Mecanico
+20857;14930634;Jose;Marin;Operador Terreno;Produccion Tableros MDP
+20876;20223485;Diomar;Diaz;Analista de Almacen;Jefatura Red de Almacenes
+20914;17039473;Teilyn;Rodriguez;Jefe de Prevencion y Control de Perdidas;Jefatura Prev. y Control Perdidas
+20948;16394191;Piter;Alarcon;Analista de Balanza;Supervision Turno Logistica
+20970;13546621;Alba;Garcia;Jefe de Cuentas por Pagar;Jefatura de Cuentas por Pagar
+20973;16025479;Gualberto;Campos;Embalador;Supervision Terminacion y Revestimiento
+20988;16221324;Eduardo;Somoza;Ingeniero Redes y Comunicaciones;Jefatura de IT & Comunicaciones
+21043;12431691;Jaid;Betancur;Supervisor Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+21073;12052808;Maria;Pereira;Coordinador de Transporte Terrestre;Jefatura de Transporte
+21083;24963941;Yackeline;Marcano;Coordinador Sr. Logistica Internacional;Jefatura de Servicios y Log. Inter.
+21095;13082105;Nahualt;Sanchez;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21114;18665993;Thais;Belo;Coord. Senior de Comunicaciones;Gcia. de Personas,Cultura y Comunicacion
+21167;13120013;Nora;Flores;Jefe de Seguridad;Supervision de Seguridad
+21209;18593392;Margit;Basante;Jefe de Beneficios;Jefatura de Beneficios
+21215;11790819;Ruben;Alvarez;Jefe de Ventas;Jefatura Regional de Ventas
+21228;19159015;Alberto;Muñoz;Coordinador de Seguridad, Salud y MA;Jefatura de Salud, MA y Seguridad
+21241;14089172;Gesmar;Torres;Electricista;Supervision Mantenimiento Electrico
+21243;13677119;Juan;Mendoza;Analista Quimico Planta Quimica;Supervision Control de Calidad
+21249;10537783;Alberto;Fandiño;Gerente de Ventas Nacionales y Mercadeo;Gerencia de Ventas Nacionales y Mercadeo
+21257;11090532;Pedro;Morales;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21276;13736029;Luis;Lozano;Jefe Integral de Servicios Industriales;Jefatura Int de Servicios Industriales
+21284;16391125;Esly;Romero;Tecnico Integridad Mecanica;Jefatura de Ingeniería y Proyectos
+21288;13846529;Gary;Partidas;Jefe de Mantto. Mecanico;Jefatura de Mantenimiento Mecanico
+21292;15909453;Jose;Martinez;Operador Prensa;Linea Produccion MDP
+21294;14487234;Jose;Gonzalez;Coordinador Red de Almacenes;Jefatura Red de Almacenes
+21318;12644344;Juan;Marquez;Electricista;Supervision Mantenimiento Electrico
+21319;15790839;Mayckher;Montaño;Electricista;Supervision Mantenimiento Electrico
+21328;14432951;Nellys;Mota;Jefe  de Compensaciones y Presupuesto;Jefatura de Compensaciones y Presupuesto
+21350;24040139;Cliber;Urrieta;Coordinador Sr. Logistica Internacional;Jefatura de Servicios y Log. Inter.
+21352;13981311;Juan;Rivas;Tecnico Control de Emergencia;Supervision Control de Emergencias
+21372;18170666;Pedro;Bello;Coordinador de Seguridad, Salud y MA;Jefatura de Salud, MA y Seguridad
+21373;27765589;Alberto;Coa;Analista de Tesoreria;Jefatura de Finanzas
+21386;17749313;Alfonso;Salazar;Operador Laboratorio Fisico-Mecanico;Supervision Control de Calidad
+21388;13837515;Mariotsis;Aguilera;Coordinador RRII y Servicios Externos;Jefatura RRII y Servicios Externos
+21389;26656329;Daniela;Navas;Analista de Facturacion y Cobranzas;Jefatura de Credito y Cobranzas
+21390;12644761;Cesar;Garcia;Analista de Recepcion PT;Supervision Turno Logistica
+21403;12124992;Hector;Puerta;Jefe de Linea de Produccion;Produccion Tableros MDF
+21407;16797047;Sonibert;Cordero;Coordinador gestion y presupuesto;Jefatura de Gestion y Ppto
+21409;26138297;Greilis;Farias;Coordinador Fact., Credito y Cobranzas;Jefatura de Credito y Cobranzas
+21416;24039334;Anyi;Villarreal;Coordinador de Impuestos;Jefatura de Impuestos
+21420;18562874;Willmarbeth;Alcala;Coordinador Sr. Operac. Portuarias Dist.;Jefatura de Servicios y Log. Inter.
+21423;18076040;Ender;Salazar;Analista de Cuentas por Pagar;Jefatura de Cuentas por Pagar
+21424;12908306;Jose;Figuera;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+21427;15542691;Johanna;Lugo Silva;Analista de Control Interno;Jefatura de Control Interno
+21429;14836208;Johennys;Coro;Electricista;Jefatura de Mantto Electrico
+21431;15894150;Antonio;Castillo;Electricista;Jefatura de Mantto Electrico
+21436;13545341;Victor;Bastardo;Cubicador;Linea Preparacion de Madera
+21467;21339408;Yomer;Aray;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+21468;19905331;Argenis;Flores;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
+21469;21123752;Jescarl;Berrio;Operador de Lijado;Supervision Terminacion y Revestimiento
+21470;25086356;Anthony;Pinto;Operador Refinacion;Produccion Tableros MDF
+21473;20704586;Amir;Ahmad;Operador Terreno;Produccion Tableros MDP
+21475;17337149;Gregory;Ortega;Operador Corte;Supervision Terminacion y Revestimiento
+21477;20507298;Cesar;Valdez;Operador Corte;Supervision Terminacion y Revestimiento
+21481;16712654;Marcos;Flores;Jefe de Seguridad;Supervision de Seguridad
+21482;17763389;Efren;Hernandez;Electricista;Supervision Mantenimiento Electrico
+21489;17430050;Cirmalis;Villalba;Coordinador de Control y Gestion de Oper;Gerencia de Operaciones Tableros
+21490;14634610;Jairo;Bermudez;Jefe de Servicios y Log. Inter.;Jefatura de Servicios y Log. Inter.
+21494;17631679;Alan;Castillo;Mantenedor Sintomatico;Jefatura Planificacion y Gestion  Mantto
+21496;20494478;Nathaly;Sanchez;Planificador de Suministros;Jefatura Red de Almacenes
+21503;24179605;Alexis;Aray;Mecanico;Supervision Mantto. Mecanico
+21504;18983240;Jhonner;Ventura;Operador Planta Termica;Servicios Industriales
+21505;18514030;Carlos;Hernandez;Cubicador;Linea Preparacion de Madera
+21510;25859031;Saul;Zambrano;Operador Planta Térmica;Servicios Industriales
+21512;15186398;Mariannis;Leon;Coordinador de Servicios;Jefatura de Servicios y Log. Inter.
+21520;17623257;Carlos;Alcala;Operador de Lijado;Supervision Terminacion y Revestimiento
+21527;24040436;Pedro;Muñoz;Operador de Lijado;Supervision Terminacion y Revestimiento
+21529;15781429;Carlos;Cornieles;Jefe de Seguridad;Supervision de Seguridad
+21533;17748490;Xavier;Bolivar;Operador de Lijado;Supervision Terminacion y Revestimiento
+21534;19085866;Daniel;Lopez;Electricista;Jefatura de Mantto Electrico
+21536;18227827;Julian;Carvajal;Operador de Lijado;Supervision Terminacion y Revestimiento
+21544;25277515;Anele;Torrealba;Analista de Control Interno;Jefatura de Control Interno
+21546;17289288;Mercedes;Gutiérrez;Analista de Impuesto;Jefatura de Impuestos
+21563;14960974;Jorge;Jimenez;Jefe de Ingeniería y Proyectos;Jefatura de Ingeniería y Proyectos
+21564;14837123;Neomar;Rondon;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21567;33115328;Vivian;Milanes;Jefe Red de Almacenes;Jefatura Red de Almacenes
+21573;15429220;Jhonny;Rojas;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21575;13091409;Yran;Mirabal;Subgerente de Mantenimiento;Subgerencia Mantenimiento
+21576;18885093;Henry;Hernandez;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21580;18000676;Yanddiel;Hernandez;Coordinador de Seguridad;Jefatura Prev. y Control Perdidas
+21587;10572460;Rorman;Cleer;Jefe de Investigacion PCP;Gerencia SMS y PCP
+21589;25324722;Jhonnaiker;Iguanetti;Analista de Almacen;Jefatura Red de Almacenes
+21591;25936464;Maria;Rodriguez;Coordinador de Salud Ocupacional;Jefatura de Salud Ocupacional
+21594;18900915;Dagnery;Brazon;Analista de Beneficios;Jefatura de Beneficios
+21597;12058372;Jorge;Manrique;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21599;15874323;Jose;Palomo;Tecnico Control de Emergencia;Supervision Control de Emergencias
+21601;23730889;Rosmely;Bryan;Planificador de Produccion;Jefatura Planificacion y Control Prod.
+21602;15908873;Cesar;Brito;Jefe de Seguridad;Supervision de Seguridad
+21603;18450936;Wences;Duerto Vasquez;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21604;20504791;Julio;Aviles;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21610;25228522;Jhonner;Marin;Mecanico;Supervision Mantto. Mecanico
+21611;17748446;Dannys;Navarro;Mecanico;Supervision Mantto. Mecanico
+21615;7358627;Afife;Harfoush;Jefe de Salud Ocupacional;Jefatura de Salud Ocupacional
+21616;25543549;Andres;Mota;Tecnico Control de Emergencia;Supervision Control de Emergencias
+21618;23502754;Nelitzis;Hipolito;Jefe  de Gestion y Presupuesto;Jefatura de Gestion y Ppto
+21619;16475184;Diego;Graterol;Jefe de Impuestos;Jefatura de Impuestos
+21622;12007494;Jose;Pacheco;Coordinador RRII y Servicios Externos;Jefatura RRII y Servicios Externos
+21624;15907277;Luis;Tamaroni;Coordinador de Costos Industriales y For;Jefatura Costos Industriales y Forestale
+21625;22586154;Andy;Gomez;Tecnico Control de Emergencia;Supervision Control de Emergencias
+21626;11532711;Lesbia;Pinacel;Jefe de Contabilidad y Costos;Jefatura de Contabilidad y Costos
+21627;14170894;Luis;Martinez;Electricista;Jefatura de Mantto Electrico
+21628;13693106;Josmar;Rondon;Coordinador Servicio al Cliente;Jefatura Servicio al Cliente/Exportacion
+21630;13619987;Carlos;Fernandez;Operador Terreno;Supervision Produccion Planta Quimica
+21632;26132342;Luis;Farias;Embalador;Supervision Terminacion y Revestimiento
+21633;26138606;Anderson;Diaz;Operador Refinacion;Produccion Tableros MDF
+21635;18521616;Enmanuel;Canduri;Electricista;Jefatura de Mantto Electrico
+21636;25003049;Jhon;Diaz;Embalador;Supervision Terminacion y Revestimiento
+21638;27375374;Isaac;Salazar;Operador de Lijado;Supervision Terminacion y Revestimiento
+21642;23732028;Jordan;Maurera;Electricista;Jefatura de Mantto Electrico
+21644;19302867;Xiomar;Garcia;Embalador;Supervision Terminacion y Revestimiento
+21645;12053522;Yolis;Salazar Blanco;Jefe Admon. de Personal;Jefatura Administracion de Personal
+21650;26346855;Jose;Mora;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+21651;14761058;Gina;Roman;Analista Contable;Jefatura de Contabilidad y Costos
+21652;20503729;Leonard;Aguilar;Mecanico;Supervision Mantto. Mecanico
+21655;18336338;Yerika;Reina;Coordinador de Seguridad, Salud y MA;Jefatura de Salud, MA y Seguridad
+21656;19332474;Oriana;Martinez;Analista de Gestion y Presupuesto;Jefatura de Gestion y Ppto
+21657;17883708;Karen;Marquez;Analista de Compensaciones y Presupuesto;Jefatura de Compensaciones y Presupuesto
+21658;12465175;Elis;Flores;Supervisor de Turno Operaciones;Supervision Terminacion y Revestimiento
+21659;18665833;Andres;Gerdez;Mecanico;Supervision Mantto. Mecanico
+21660;14441916;Robert;Salazar;Mecanico;Supervision Mantto. Mecanico
+21662;24039701;Luis;Andarcia;Operador Terreno;Produccion Tableros MDP
+21666;15571925;Luis;Gonzalez;Analista de Costos;Jefatura de Contabilidad y Costos
+21669;17631153;Dionni;Figueroa;Operador Terreno;Produccion Tableros MDP
+21670;9938548;Luisa;Marquez;Analista Quimico Planta Tableros;Supervision Control de Calidad
+21671;15555262;Jose;Pomonti;Coordinador de Costos;Jefatura de Contabilidad y Costos
+21672;13994962;Dariana;Boccardo;Subgerente de Finanzas;Subgerencia de Finanzas
+21673;20284244;Mary;Marchan De Oliveira;Analista de Remuneraciones;Supervision de Remuneraciones
+21675;15907320;Ernesto;Rengel;Electricista;Supervision Mantenimiento Electrico
+21677;17407608;Carlos;Rodriguez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+21678;18885485;Overt;Gutierrez;Inspector Prevencion y Control Perdidas;Supervision de Seguridad
+21679;18078713;Darwin;Infante;Ingeniero de Infraestructura IT;Jefatura de IT & Comunicaciones
+21680;6911127;Carlos;Urdaneta;Gerente General Venezuela;Gerencia General Venezuela
+21682;21251650;Alam;Flores;Mecanico;Supervision Mantto. Mecanico
+21683;15155507;Jose;Mata;Electricista;Jefatura de Mantto Electrico
+21684;6320271;Reina;Dominguez;Jefe de Seleccion y Desarrollo;Jefatura de Seleccion y Desarrollo
+21685;18451904;Katiuska;Lugo;Supervisor de Seleccion y Desarrollo;Supervision de Seleccion y Desarrollo
+21688;26623244;Franyelis;Benitez;Comprador;Jefatura de Compras
+21689;11827631;Juan;Gutierrez;Operador Refinacion;Produccion Tableros MDF
+21692;19128027;Loraima;Pantoja;Analista Administrativo;Gerencia de Administracion y Finanzas
+21693;12360442;David;Rivas;Operador Refinacion;Produccion Tableros MDF
+21699;25040057;Jorvins;Sevillla;Electricista;Jefatura de Mantto Electrico
+21700;13089066;Joel;Noguera;Electricista;Jefatura de Mantto Electrico
+21704;18138168;Douglas;Blanca;Electricista;Jefatura de Mantto Electrico
+21705;13781594;Carina;Lobo;Jefe de Ventas;Jefatura Regional de Ventas
+21706;26455267;Jose;Bolivar;Electricista;Supervision Mantenimiento Electrico
+21707;25511291;Yeltsin;Solorzano;Tecnico Control de Emergencia;Supervision Control de Emergencias
+21708;13926622;Zorkaft;Ravago;Jefe de Salud, MA y Seguridad;Jefatura de Salud, MA y Seguridad
+21709;19420357;Ricardo;Medina;Electricista;Supervision Mantenimiento Electrico
+21710;26455264;Oscar;Paez;Tecnico Control de Emergencia;Supervision Control de Emergencias
+21711;28534753;Endervis;Jimenez;Electricista;Supervision Mantenimiento Electrico
+21712;25595349;Ender;Coa;Electricista;Jefatura de Mantto Electrico
+21713;14986086;Nerfis;Piñango;Operador Terreno;Supervision Produccion Planta Quimica
+21714;24522479;Jose;Anuel;Electricista;Jefatura de Mantto Electrico
+21728;17289150;Sady;Briceño;Operador Terreno;Supervision Produccion Planta Quimica
+21729;18882495;Gilberto;Contreras;Mecanico;Supervision Mantto. Mecanico
+21730;6111996;Rafael;Sanchez Araujo;Gerente Administracion y Finanzas;Gerencia de Administracion y Finanzas
+21731;9879629;Jorge;Adrian Rodriguez;Jefe de Ventas;Jefatura Regional de Ventas
+21732;13336084;Luisa;Garcia Villegas;Analista de Remuneraciones;Supervision de Remuneraciones
+21733;18828421;Adrian;Morales Hernandez;Operador Formox;Supervision Produccion Planta Quimica
+21734;25696075;Juvel;Medeiro Rodiguez;Electricista;Supervision Mantenimiento Electrico
+21735;17883416;Ely;Zabala Garcia;Mecanico;Supervision Mantto. Mecanico
+21736;30183714;Oscar;Rodriguez Hernandez;Analista de Control Interno;Jefatura de Control Interno
+21737;30530328;Shayleth;Ramirez Maestracci;Analista de Cuentas por Pagar;Jefatura de Cuentas por Pagar
+21738;26649134;Angelys;Angulo Gomez;Analista de Facturacion y Cobranzas;Jefatura de Credito y Cobranzas
+21739;12560915;Mariana;Salazar Odreman;Analista de Gestion y Presupuesto;Jefatura de Gestion y Ppto
+30000;10047867;Jorge;Jaramillo;Coordinador de Servicios;Jefatura de Servicios y Log. Inter.
+30006;10117815;Lisette;Farias;Coordinador de Licitaciones;Jefatura de Servicios y Log. Inter.
+30011;8532430;Freddy;Ortuño;Supervisor de Integridad Mecanica;Jefatura de Ingeniería y Proyectos
+30019;10104706;Alexis;Romero;Jefe de Turno Secado;Jefe de  Secado
+30021;12052635;Jhonny;Vasquez;Supervisor Produccion Aserradero;Produccion Aserradero
+30023;11510585;Joaquin;Cabrera;Supervisor Prod. Cancha y Descortezado;Produccion Aserradero
+30026;13798093;Hendry;Garcia;Mecanico;Jefatura de Mantenimiento Mecanico
+30034;15853558;Nestor;Sarmiento;Operador Integral de Servicios Ind;Supervision Servicios Integrales Ind
+30035;12125246;Jose;Gonzalez;Supervisor de Turno Empaque;Supervision de Empaque
+30040;11518317;Noemy;Marcial;Coordinador de Costos Ind y forestales;Jefatura Costos Industriales y Forestale
+30050;14403489;Alexander;Figueroa;Tecnico Mecanico;Sup.Mantenimiento Mecanico Aserradero
+30052;11518864;Jesus;Aponte;Operador I;Linea 1
+30053;14403931;Jhan;Garcia;Operador III;Linea 1
+30058;13999037;Jose;Burgos;Operador III;Linea 1
+30059;12050532;Victor;Bermudez;Jefe de Abastecimiento Forestal;Jefatura de Abastecimiento Forestal
+30060;14065230;Juan;Navarro;Supervisor de Turno Empaque;Supervision de Empaque
+30061;17654097;Carlos;Hernandez;Coordinador de Equipos Moviles;Jefatura de Equipos Moviles
+30070;26951571;Arody;Monroy;Supervisor de Mantenimiento Electrico;Supervision Mantenimiento Electrico
+30078;14402298;Ronald;Pereira;Jefe Bodega Planta;Jefatura Bodega Planta
+30081;12128233;Julio;Villarroel;Coordinador de Despacho BPT;Bodega de Producto Terminado
+30082;8535417;Alfredo;Cedeño;Mecanico;Jefatura de Mantenimiento Mecanico
+30085;14505915;Danny;Yanez;Mecanico;Jefatura de Mantenimiento Mecanico
+30087;8593852;Mary;Palacios;Analista de Abastecimiento Forestal;Jefatura de Abastecimiento Forestal
+30090;12132571;Gustavo;Quero;Supervisor Produccion Aserradero;Produccion Aserradero
+30105;13061871;Jean;Hernandez;Mecanico;Supervision Mantto. Mecanico
+30106;12007746;Angel;Perez;Gerente Operaciones Madera;Gerencia Operaciones Madera
+30107;10926643;Carlos;Coro;Supervisor de Mantenimiento;Sup.Mantenimiento Mecanico Aserradero
+30108;14440411;Pedro;Rosales;Supervisor Produccion Aserradero;Produccion Aserradero
+30111;13570019;Juan;Obando;Jefe de Turno Secado;Jefe de  Secado
+30112;12966957;Luisa;Gomez;Planificador de Produccion;Jefatura Planificacion y Control Prod.
+30115;13335455;Jose;Salas;Jefe de Turno Secado;Jefe de  Secado
+30116;12649223;Keila;Osorio;Coordinador Red de Almacenes;Jefatura Red de Almacenes
+30137;14089564;Daniel;Romero;Operador III;Linea 1
+30138;13335920;Joel;Adrian;Operador I;Supervision de Empaque
+30141;14883286;Lorenzo;Rodriguez;Operador I;Supervision Clasificacion y Empaque
+30143;13778049;Yadiris;Gonzalez;Jefe Planificacion y Control de Produc.;Jefatura Planificacion y Control Prod.
+30146;15852950;Mario;Brito;Jefe de Mantenimiento Electrico;Jefatura de Mantto Electrico
+30147;13837868;Oscar;David;Tecnico Integridad Mecanica;Jefatura de Ingeniería y Proyectos
+30150;13837857;Teddy;Fernandez;Tecnico Control de Emergencia;Supervision Control de Emergencias
+30153;16164909;Jeomar;Estanga;Auxiliar Operación Planta Quimica;Supervision Produccion Planta Quimica
+30155;12198479;Juan;Zabala;Operador I;Linea 1
+30156;14089736;Jean;Medina;Asistente Palillero Linea 1;Linea 1
+30158;15569511;Dennys;Rondon;Operador I;Linea 1
+30161;14118721;Henry;Tovar;Mecanico;Jefatura de Mantenimiento Mecanico
+30180;12131083;Rafael;Lozada;Asistente Palillero Linea 1;Linea 1
+30182;16281980;Yeifer;Rangel;Jefe de Operaciones Madera;Jefatura de Empaque
+30192;12004284;Marielvys;Gonzalez;Jefe de Operaciones Madera;Produccion Aserradero
+30195;13743886;Gregorio;Milano;Asistente Operaciones Mit;Supervision de Empaque
+30198;13553152;Vicente;Perez;Operador I;Supervision de Empaque
+30200;14837863;Jose;Carrasco;Afilador de Turno;Afilado
+30201;10928458;Serbando;Natera;Ayudante de Secado;Jefe de  Secado
+30203;14635784;Carlos;Chiroco;Asistente Operaciones Cape;Supervision de Empaque
+30204;7944576;Rodolfo;Chiroco;Ayudante de Empaque;Supervision de Empaque
+30205;7221652;William;Hernandez;Asistente Operaciones Cape;Supervision de Empaque
+30206;14088965;Denny;Rojas;Asistente Operaciones Cape;Supervision de Empaque
+30208;13121812;Raimel;Monrroy;Operador de Equipos Moviles;Jefatura de Equipos Moviles
+30209;13647109;Humberto;Rivero;Operador de Equipos Moviles;Jefatura de Equipos Moviles
+30210;8879223;Elio;Rodriguez;Ayudante de Empaque;Supervision de Empaque
+30211;8530159;Julio;Rodriguez;Ayudante de Empaque;Supervision de Empaque
+30213;13443107;Pablo;Chacare;Operador I;Supervision de Empaque
+30214;14961953;Jacson;Ledezma;Ayudante de Empaque;Supervision de Empaque
+30215;19803017;Miguel;Mora;Ayudante de Empaque;Supervision de Empaque
+30217;8956067;Marvelio;Vasquez;Asistente Trimmer;Linea 1
+30218;13386867;Medford;Campbell;Asistente Operaciones Cape;Supervision de Empaque
+30219;12006564;Oscar;Rodriguez;Ayudante de Empaque;Supervision de Empaque
+30220;14905480;Jose;Aponte;Ayudante de Empaque;Supervision de Empaque
+30221;13646931;Henry;Rojas;Asistente Palillero Linea 1;Linea 1
+30222;11511577;Rider;Pacheco;Asistente Operaciones Mit;Supervision de Empaque
+30223;16630293;Javier;Chacare;Ayudante de Empaque;Supervision de Empaque
+30239;13837300;Larry;Diaz;Embalador;Supervision Terminacion y Revestimiento
+30241;10553789;Francisco;Gonzalez;Ayudante de Empaque;Supervision de Empaque
+30244;10387980;Jose;Romero;Embalador;Supervision Terminacion y Revestimiento
+30245;9452444;Alonso;Salas;Ayudante de Empaque;Supervision de Empaque
+30246;8941615;Eduardo;Vasquez;Ayudante de Empaque;Supervision de Empaque
+30247;8963019;Adrian;Marin;Ayudante de Empaque;Supervision de Empaque
+30253;15570170;Carlos;Morales;Operador II;Produccion Aserradero
+30254;16630986;Norberto;Bravo;Operador I;Supervision de Empaque
+30255;8963691;Jose;Vasquez;Operador de Equipos Moviles;Jefatura de Equipos Moviles
+30259;15551968;Miguel;Cabeza;Ayudante de Empaque;Supervision de Empaque
+30262;15072856;Victor;Valero;Afilador de Turno;Afilado
+30264;12003974;Luis;Manrique;Asistente Palillero Linea 1;Linea 1
+30266;13838870;Jorge;Dominguez;Ayudante de Secado;Jefe de  Secado
+30272;11206862;William;Monroy;Ayudante de Secado;Jefe de  Secado
+30274;17209115;Wilmer;Marquez;Asistente Stacker;Linea 1
+30277;16759655;Juan;Bolivar;Ayudante de Empaque;Supervision de Empaque
+30284;13570893;Jesus;Ruiz;Mecanico;Jefatura de Mantenimiento Mecanico
+30290;16024168;Wilfredo;Peña;Electricista;Jefatura de Mantto Electrico
+30291;15893415;Dannis;Guerra;Mecanico;Jefatura de Mantenimiento Mecanico
+30296;12129208;Wilfredo;Rodriguez;Embalador;Supervision Terminacion y Revestimiento
+30299;16163759;Eduardo;Villegas;Ayudante de Empaque;Supervision de Empaque
+30302;15243562;Jorvys;Lopez;Asistente Operaciones Linea 1;Linea 1
+30303;13573323;Douglas;Saa;Operador I;Supervision Remanufactura
+30306;15522587;Adrian;Diaz;Ayudante de Secado;Jefe de  Secado
+30309;13443203;Angel;Jimenez;Operario Cancha de Riego;Produccion Aserradero
+30311;17407607;Juan;Rodriguez;Asistente Stacker;Linea 1
+30313;23730960;Jose;Salazar;Analista de Recepcion PT;Supervision Turno Logistica
+30316;20224162;Julio;Yori;Embalador;Supervision Terminacion y Revestimiento
+30318;11513773;Carlos;Cavanier;Ayudante Remanufactura;Supervision Remanufactura
+30319;15276453;Alcides;Corona;Ayudante Remanufactura;Supervision Remanufactura
+30324;20298751;Robert;Roman;Auxiliar Red de Almacenes;Jefatura Red de Almacenes
+30325;17657659;Julio;Vasquez;Operario Cancha de Riego;Produccion Aserradero
+30329;20136582;Robert;Rivas;Ayudante Aserradero;Linea 1
+30335;12130257;Julio;Chacare;Operario Cancha de Riego;Produccion Aserradero
+30337;13347120;Angel;Figuera;Asistente Palillero Linea 1;Linea 1
+30343;16214958;Carlos;Ruiz;Auxiliar Red de Almacenes;Jefatura Red de Almacenes
+30345;14960025;Wilmer;Carrasco;Ayudante de Empaque;Supervision de Empaque
+30353;15782825;Miguel;Zerpa;Cubicador;Linea Preparacion de Madera
+30362;15136392;Grilian;Romero;Mecanico;Supervision Mantto. Mecanico
+30365;11444675;Ysidoro;Castañeda;Ayudante de Empaque;Supervision de Empaque
+30370;16063173;Naikarily;Perez;Jefe de Turno Secado;Jefe de  Secado
+30371;14506323;Yethiz;Medina;Tecnico Control de Emergencia;Supervision Control de Emergencias
+30373;6651731;Elpidio;Aguilera;Asistente Palillero Linea 1;Linea 1
+30374;14510256;Wilfredo;Romero;Cubicador;Linea Preparacion de Madera
+30375;8521189;Ramon;Madrid;Operador I;Linea 1
+30376;10393144;Eliazar;Vasquez;Afilador de Turno;Afilado
+30379;14601708;Ramon;Vivas;Ayudante de Servicios Generales;Supervision de Empaque
+30380;14088763;Victor;Camacho;Coordinador de Equipos Moviles;Jefatura de Equipos Moviles
+30382;13570892;Edwin;Rodriguez;Auxiliar Red de Almacenes;Jefatura Red de Almacenes
+30388;8879298;Julio;Alvarez;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+30389;12132851;Joel;Ascanio;Operador Integral de Servicios Ind.;Supervision Servicios Integrales Ind
+30411;18883066;Carlos;Smerck;Electricista;Jefatura de Mantto Electrico
+30414;16617918;Ardemaro;Perez;Operador Terreno;Produccion Tableros MDP
+30440;18960971;Gerald;Ramirez;Supervisor Control de Emergencias;Supervision Control de Emergencias
+30461;18666149;Gisvel;Olivero;Analista Administrativo;Gerencia Operaciones Industriales y Sum.
+30475;14118029;Susana;Mendez;Jefe de Gestión Ambiental;Jefatura Gestión Ambiental
+30476;12875467;Olivier;Zacarias;Operador Terreno;Supervision Produccion Planta Quimica
+30477;16025467;Heiler;Carvajal;Mecanico;Supervision Mantto. Mecanico
+30479;27113411;Yosbell;Marquez;Tecnico Integridad Mecanica;Jefatura de Ingeniería y Proyectos
+30482;26332175;Luis;Ramos;Supervisor de Mantenimiento Mecanico;Supervision Mantto. Mecanico
+30493;22587348;Ricardo;Zacarias;Electricista;Jefatura de Mantto Electrico
+30495;19128079;Omar;Gomez;Afilador de Turno;Afilado
+30497;15789636;Orlando;Romero;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
+30498;22593067;Cristopfer;Bermudez;Mecanico;Supervision Mantto. Mecanico
+30500;14403141;Hector;Castellano;Mecanico;Supervision Mantto. Mecanico
+30501;19301288;Juandry;Morocoima;Mantenedor  Sintomatico;Jefatura Planificacion y Gestion  Mantto
+30502;23505427;Pedro;Meta;Operador Terreno;Supervision Produccion Planta Quimica
+30506;12053357;Frank;Silveira;Afilador de Turno;Afilado
+40019;12679546;Andres;Moncada;Operador Formox;Supervision Produccion Planta Quimica
+40030;16077654;Geovanny;Marin;Operador Formox;Supervision Produccion Planta Quimica
+40040;13303908;Jose;Delgado;Jefe de Transporte;Jefatura de Transporte
+40047;16251845;Manuel;Guede;Analista Quimico Planta Quimica;Supervision Control de Calidad
+40062;13573181;Oswaldo;Gonzalez;Operador Terreno;Supervision Produccion Planta Quimica
+40066;12893285;Alberto;Ballet;Operador Terreno;Supervision Produccion Planta Quimica
+40067;15034194;Juan;Vasquez;Operador Terreno;Supervision Produccion Planta Quimica
+40071;17091359;Darvis;Martinez;Auxiliar Operación Planta Quimica;Supervision Produccion Planta Quimica
+40073;11011150;Dimas;Cortez;Auxiliar Operación Planta Quimica;Supervision Produccion Planta Quimica
+40105;17263306;Jose;Rodriguez;Operador Terreno;Supervision Produccion Planta Quimica
+40116;18776593;David;Rodriguez;Supervisor de Turno Planta Quimica;Supervision Produccion Planta Quimica
+40129;17381391;Enmanuel;Gonzalez;Subgerente Produccion  Planta Quimica;Operaciones Planta Quimica
+40132;14837096;Oscar;Ruiz;Operador Resinas;Supervision Produccion Planta Quimica
+40134;18886060;Maira;Guacaran;Coordinador de Produccion Resinas;Jefatura de Produccion Planta Quimica
+40138;20013402;Christhian;Corrales;Mecanico;Jefatura de Mantenimiento Mecanico
+40140;15542907;Brever;Campos;Operador Resinas;Supervision Produccion Planta Quimica
+40141;12657991;Antonio;Astudillo;Operador Resinas;Supervision Produccion Planta Quimica
+40152;12506602;Franklin;Navarro;Supervisor de Turno Planta Quimica;Supervision Produccion Planta Quimica
+40160;26262234;Linda;Simoes;Planificador de Mantenimiento;Jefatura Planificacion y Gestion  Mantto
+40165;17933335;Carlos;Rangel;Mecanico;Jefatura de Mantenimiento Mecanico
+40166;19419611;Daniel;Fuenmayor;Mecanico;Jefatura de Mantenimiento Mecanico
+50005;6275641;Jose;Quiaragua;Gerente Forestal e Institucional;Gerencia  Forestal e Institucional
+50007;5758103;Ana;Valera;Subgerente de Patrimonio;Subgerencia de Patrimonio
+50031;7105568;Luis;Manrique;Gerente SMS y PYCP;Gerencia SMS y PCP
+50044;16039860;Alba;Rosales;Jefe Operaciones Silvicola;Jefatura Operaciones Silvicolas
+50046;13098804;Christian;Durand;Coordinador Unidad Operaciones Silvicola;Jefatura Operaciones Silvicolas
+50059;15620317;Jose;Davila;Jefe Produccion de Plantas;Jefatura Produccion de Plantas
+50063;15520986;Abel;Espinoza;Analista de Informacion;Supervisor de Proteccion Forestal
+50064;25744413;Efrain;Niño;Obrero Forestal;Supervision Produccion de Plantas
+50065;24442780;Emel;Sierra;Obrero Forestal;Supervision Produccion de Plantas
+50067;12127781;Jesus;Salazar;Capataz de Produccion de Plantas;Supervision Produccion de Plantas
+50072;13016549;Yanitza;Rodriguez;Supervisor de Operaciones;Supervision Produccion de Plantas
+50076;14402056;Alberto;Rivas;Obrero Forestal;Supervision Produccion de Plantas
+50079;14653394;Dankly;Garcia;Supervisor de Cosecha y Calidad;Jefatura Cosecha Forestal
+50084;10926788;Ysmael;Maraguacare;Supervisor de Operaciones;Supervisor de Proteccion Forestal
+50086;15186119;Eliceth;Raschery;Supervisor Cuentas por Pagar;Jefatura de Cuentas por Pagar
+50089;8895097;Jose;Bolivar;Obrero Forestal;Supervisor de Proteccion Forestal
+50090;14254801;Henry;Brito;Obrero Forestal;Supervisor de Proteccion Forestal
+50091;14254289;Felix;Castro;Analista de Informacion;Supervisor de Proteccion Forestal
+50092;22716168;Richard;Clevier;Obrero Forestal;Supervisor de Proteccion Forestal
+50093;17542653;Francisco;Crescenzi;Supervisor de Operaciones;Supervisor de Proteccion Forestal
+50095;8886800;Mario;Matute;Obrero Forestal;Supervisor de Proteccion Forestal
+50096;13025173;Alexander;Rivero;Analista de Informacion;Supervisor de Proteccion Forestal
+50099;15815702;Jose;Marin;Obrero Forestal;Supervisor de Proteccion Forestal
+50100;15593575;Julio;Mendez;Obrero Forestal;Supervisor de Proteccion Forestal
+50101;25578997;Eduardo;Rodriguez;Obrero Forestal;Supervisor de Proteccion Forestal
+50103;19402714;Alexis;Gonzalez;Obrero Forestal;Supervisor de Proteccion Forestal
+50105;16176683;Johvanny;Brito;Obrero Forestal;Supervisor de Proteccion Forestal
+50107;16163944;Tomas;Villasana;Supervisor de Recepcion;Jefatura de Abastecimiento Forestal
+50119;16636591;Aldo;Heredia;Jefe de Planificacion;Jefatura de Planificacion
+50128;18207443;Yerly;Escalante;Supervisor de Operaciones;Jefatura de Planificacion
+50129;11014547;Jorge;Barcenas;Obrero Forestal;Supervision Produccion de Plantas
+50130;10042618;Neris;Vasquez;Obrero Forestal;Supervision Produccion de Plantas
+50134;26839168;Rosseanny;Blasini;Analista de Tesoreria;Jefatura de Finanzas
+50137;18697959;Jose;Acero;Supervisor de Proteccion Forestal;Supervisor de Proteccion Forestal
+50138;27476557;Ronny;Bugarito Ibarra;Analista de Informacion;Supervisor de Proteccion Forestal
+50139;17055955;Jose;Olivares;Supervisor de Operaciones;Supervisor de Proteccion Forestal
+50143;25935105;Cesar;Valdez;Supervisor de Cosecha y Calidad;Jefatura Cosecha Forestal
+50147;13906145;Jose;Jaimes;Jefe de Cosecha Forestal;Jefatura Cosecha Forestal

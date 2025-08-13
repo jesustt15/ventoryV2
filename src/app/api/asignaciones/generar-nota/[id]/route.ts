@@ -121,7 +121,7 @@ export async function GET(
     if (asignacion.itemType === 'Computador') {
         worksheet.getCell('E4').value = `${asignacion.computador?.modelo.marca.nombre} ${asignacion.computador?.modelo.nombre}`; // Marca
         worksheet.getCell('E5').value = asignacion.computador?.serial; // Tipo de equipo (Computador o Dispositivo)
-        worksheet.getCell('B6').value = asignacion.computador?.nsap || '';
+        worksheet.getCell('B16').value = asignacion.computador?.nsap || '';
         worksheet.getCell('B14').value = asignacion.computador?.modelo.tipo || ''; // NSAP (si aplica)
         worksheet.getCell('E6').value = asignacion.computador?.procesador || 'N/A';
         worksheet.getCell('E7').value = asignacion.computador?.ram || 'N/A';
@@ -133,7 +133,7 @@ export async function GET(
         worksheet.getCell('E14').value = asignacion.computador?.officeVersion || 'N/A';
         worksheet.getCell('B24').value = asignacion.notes || 'Sin notas.';
     } else if (asignacion.itemType === 'Dispositivo') {
-      worksheet.getCell('B6').value = asignacion.dispositivo?.nsap || '';
+      worksheet.getCell('B16').value = asignacion.dispositivo?.nsap || '';
       worksheet.getCell('B14').value = asignacion.dispositivo?.modelo.tipo || '';
       worksheet.getCell('E4').value = `${asignacion.dispositivo?.modelo.marca.nombre} ${asignacion.dispositivo?.modelo.nombre}`; // Marca
       worksheet.getCell('E5').value = asignacion.dispositivo?.serial;
@@ -162,7 +162,12 @@ export async function GET(
     });
 
     // 5. Enviar el archivo como respuesta
-    return new NextResponse(buffer, {
+    return new NextResponse(new ReadableStream({
+      start(controller) {
+        controller.enqueue(buffer);
+        controller.close();
+      }
+    }), {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

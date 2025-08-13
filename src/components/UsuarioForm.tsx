@@ -166,7 +166,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
                             <Link href="/computadores">Cancelar</Link>
                         </Button>
                         <Button type="submit" className="cyber-button text-black font-semibold">
-                            {isEditing ? 'GUARDAR CAMBIOS' : 'GUARDAR EQUIPO'}
+                            {isEditing ? 'GUARDAR CAMBIOS' : 'GUARDAR USUARIO'}
                         </Button>
                     </div>
                 </form>
