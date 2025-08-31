@@ -20,6 +20,11 @@ import {
   MoreHorizontalIcon,
   PlusIcon,
   FilterIcon,
+  ArchiveRestore,
+  WrenchIcon,
+  CheckCircle,
+  CircleX,
+  CircleMinus,
 } from "lucide-react"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -68,6 +73,8 @@ export interface Linea {
   numero: string;
   proveedor: string;
   imei?: string | null;
+  estado?: string | null;
+  destino?: string | null;
   asignaciones?: Asignacion[];
   // Add any other fields that come from your API
 }
@@ -79,6 +86,8 @@ export interface LineaFormProps {
     numero: string;
     proveedor: string;
     imei: string | null;
+    estado?: string | null;
+    destino?: string | null;
   };
 }
 
@@ -156,6 +165,65 @@ const columns: ColumnDef<Linea>[] = [
     </div>
   ),
   },
+  {
+    accessorKey: "destino",
+    header: "Destino",
+  },
+ {accessorKey: "estado",
+  header: ({ column }) => {
+    const isFilterActive = !!column.getFilterValue();
+    const estadosUnicos = ["activa", "inactiva"]; // Ajusta según tus estados
+    
+    return (
+      <div className="flex items-center">
+        <span>Estado</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+            >
+              <FilterIcon className="h-3 w-3" />
+              {isFilterActive && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40 p-2">
+            <select
+              value={(column.getFilterValue() as string) ?? ""}
+              onChange={(e) => column.setFilterValue(e.target.value)}
+              className="h-8 w-full border rounded text-sm px-2 py-1"
+            >
+              <option value="">Todos</option>
+              {estadosUnicos.map((estado) => (
+                <option key={estado} value={estado}>
+                  {estado}
+                </option>
+              ))}
+            </select>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  },
+  cell: ({ row }) => {
+    const estado = row.getValue("estado") as string;
+    return (
+      <div className="flex items-center gap-2">
+        {estado === "activa" ? (
+          <CheckCircle className="h-4 w-4 text-green-300" />
+        ) : estado === "inactiva" ? (
+          <CircleX className="h-4 w-4 text-red-500" />
+        ) : <CircleMinus className="h-4 w-4 text-amber-500" /> }
+      </div>
+    );
+  },
+  filterFn: (row, id, value) => {
+    return value.includes(row.getValue(id));
+  },
+},
     {
       id: "asignadoA", // Un ID único para la columna
       header: "Asignado a",

@@ -15,10 +15,13 @@ import {
 } from '@/components/ui/select';
 import { LineaFormData } from './lineas-table'; // Asegúrate de que esta interfaz exista y sea correcta
 
+type Estado = 'activa' | 'inactiva';
+type Destino = 'Telefono' | 'BAM';
+
 interface LineaFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: { numero: string; proveedor: string; imei: string }) => void;
+    onSubmit: (data: { numero: string; proveedor: string; imei: string; estado: Estado; destino: Destino }) => void;
     initialData?: LineaFormData | null;
 }
 
@@ -38,6 +41,8 @@ const LineaForm: React.FC<LineaFormProps> = ({ isOpen, onClose, onSubmit, initia
     const [numeroRestante, setNumeroRestante] = useState('');
     const [selectedProveedor, setSelectedProveedor] = useState('');
     const [imei, setImei] = useState('');
+    const [estado, setEstado] = useState<Estado | ''>(''); // Nuevo estado para el campo Estado
+    const [destino, setDestino] = useState<Destino | ''>(''); // Nuevo estado para el campo Destino
 
     const isEditing = !!initialData;
 
@@ -61,6 +66,8 @@ const LineaForm: React.FC<LineaFormProps> = ({ isOpen, onClose, onSubmit, initia
                 setNumeroRestante('');
                 setSelectedProveedor('');
                 setImei('');
+                setEstado('');
+                setDestino('');
             }
         }
     }, [isOpen, initialData, isEditing]);
@@ -80,6 +87,11 @@ const LineaForm: React.FC<LineaFormProps> = ({ isOpen, onClose, onSubmit, initia
         return;
     }
 
+    if (!estado || !destino) {
+        showToast.warning("Seleccione Estado y Destino.", { position: "top-right" });
+        return;
+    }
+
     // --- CAMBIO AQUÍ: De FormData a Objeto JS ---
     const numeroCompleto = `${prefijo}${numeroRestante}`;
     
@@ -87,6 +99,8 @@ const LineaForm: React.FC<LineaFormProps> = ({ isOpen, onClose, onSubmit, initia
         numero: numeroCompleto,
         proveedor: selectedProveedor.trim(),
         imei: imei.trim(),
+        estado: estado as Estado,
+        destino: destino as Destino,
     };
     
     // El prop onSubmit ahora recibirá un objeto, no FormData
@@ -102,7 +116,7 @@ const LineaForm: React.FC<LineaFormProps> = ({ isOpen, onClose, onSubmit, initia
                         {isEditing ? "Modifique los detalles de la línea." : "Complete los detalles para la nueva línea."}
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 py-4">
+                <form className="space-y-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="numero" className="text-right">Número</Label>
                         <div className="col-span-3 flex items-center gap-2">
@@ -127,24 +141,81 @@ const LineaForm: React.FC<LineaFormProps> = ({ isOpen, onClose, onSubmit, initia
                             />
                         </div>
                     </div>
+
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="proveedor" className="text-right">Proveedor</Label>
                         <Input 
                             id="proveedor" 
                             value={selectedProveedor} 
                             className="col-span-3"
-                            readOnly // <-- AÑADIDO
-                            disabled // <-- AÑADIDO
+                            readOnly
+                            disabled
                             placeholder="Se asignará automáticamente"
                         />
                     </div>
+
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="imei" className="text-right">IMEI (Opcional)</Label>
                         <Input id="imei" value={imei} onChange={(e) => setImei(e.target.value)} className="col-span-3" placeholder="IMEI del dispositivo físico"/>
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="estado" className="text-right">Estado</Label>
+                        <div className="col-span-3">
+                            <ShadcnSelect value={estado} onValueChange={(v) => setEstado(v as Estado)}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Seleccione estado" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="activa">Activa</SelectItem>
+                                    <SelectItem value="inactiva">Inactiva</SelectItem>
+                                </SelectContent>
+                            </ShadcnSelect>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="destino" className="text-right">Destino</Label>
+                        <div className="col-span-3">
+                            <ShadcnSelect value={destino} onValueChange={(v) => setDestino(v as Destino)}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Seleccione destino" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Telefono">Teléfono</SelectItem>
+                                    <SelectItem value="BAM">BAM</SelectItem>
+                                </SelectContent>
+                            </ShadcnSelect>
+                        </div>
+                    </div>
+
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-                        <Button type="submit">{isEditing ? "Guardar Cambios" : "Crear Línea"}</Button>
+                        <Button
+                            type="button"
+                            onClick={() => {
+                                // Validación similar a la anterior
+                                if (!prefijo || !numeroRestante || numeroRestante.length !== 7 || !selectedProveedor) {
+                                    showToast.warning("Complete Prefijo, 7 dígitos del número y Proveedor.", { position: "top-right" });
+                                    return;
+                                }
+                                if (!estado || !destino) {
+                                    showToast.warning("Seleccione Estado y Destino.", { position: "top-right" });
+                                    return;
+                                }
+
+                                const numeroCompleto = `${prefijo}${numeroRestante}`;
+                                const dataToSend = {
+                                    numero: numeroCompleto,
+                                    proveedor: selectedProveedor.trim(),
+                                    imei: imei.trim(),
+                                    estado: estado as Estado,
+                                    destino: destino as Destino,
+                                };
+                                onSubmit(dataToSend);
+                            }}
+                        >
+                            {isEditing ? "Guardar Cambios" : "Crear Línea"}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

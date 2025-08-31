@@ -14,11 +14,10 @@ import { FilterIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import TableRowSkeleton from "@/utils/loading";
-import { handleGenerateAndDownloadSticker } from "@/utils/sticker";
+
 
 
 export const computadorSchema = z.object({
@@ -323,12 +322,12 @@ const columns: ColumnDef<Computador>[] = [
                   Ver detalles
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onClick={() => handleGenerateAndDownloadSticker(computador.id,computador.modelo?.marca.nombre,  computador.serial, computador.modelo)}
                 disabled={loading} // Se deshabilita mientras carga
               >
                 {loading ? 'Generando...' : 'Descargar Sticker'}
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               { isAdmin && (
                 <>
                   <DropdownMenuItem asChild>

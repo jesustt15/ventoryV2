@@ -86,6 +86,7 @@ model Computador {
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   nsap String?
   host String?
+  sede String?
   ubicacion String?
   sisOperativo String?
   arquitectura String?
@@ -126,6 +127,7 @@ model Dispositivo {
   usuario        Usuario?        @relation(fields: [usuarioId], references: [id])
   departamentoId String?
   mac            String?
+  ip             String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   nsap String?
   asignaciones Asignaciones[]
@@ -135,6 +137,8 @@ model LineaTelefonica {
   id           String      @id @default(uuid())
   numero       String
   proveedor    String
+  destino      String? // Número asignado a la línea
+  estado       String?   // Ej: Activa, Inactiva, En Reparación
   imei         String? // IMEI del dispositivo móvil, si aplica
   asignaciones  Asignaciones[]
 }

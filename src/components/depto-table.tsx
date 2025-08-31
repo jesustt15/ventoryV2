@@ -32,10 +32,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import CreatableSelect from 'react-select/creatable'; // For CreatableSelect
-import { ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react"; // Assuming lucide-react for icons
+import { ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, FilterIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react"; // Assuming lucide-react for icons
 import { toast as showToast } from "sonner"; // Assuming sonner for toasts
 import TableRowSkeleton from '@/utils/loading';
 import { AlertDialog } from '@radix-ui/react-alert-dialog';
@@ -295,10 +296,52 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
             header: "Nombre",
         },
         {
-            accessorKey: "gerencia.nombre", // This requires 'gerencia' to be an object with a 'nombre' property
-            header: "Gerencia",
-            // Optional: If you want to filter by gerencia name, you might need custom filterFn
-            // Or ensure the global filter targets this flattened value if desired.
+            accessorKey: "gerencia.nombre",
+            header: ({ column }) => {
+            const isFilterActive = !!column.getFilterValue();
+            
+            // Obtener modelos únicos de los computadores
+            const uniqueModelos = Array.from(
+                new Set(departamentos
+                .map(c => c.gerencia?.nombre)
+                .filter(Boolean) as string[]
+                )
+            ).sort();
+
+            return (
+                <div className="flex items-center">
+                <span>Modelo</span>
+                <Popover>
+                    <PopoverTrigger asChild>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+                    >
+                        <FilterIcon className="h-3 w-3" />
+                        {isFilterActive && (
+                        <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+                        )}
+                    </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-40 p-2">
+                    <select
+                        value={(column.getFilterValue() as string) ?? ""}
+                        onChange={(e) => column.setFilterValue(e.target.value)}
+                        className="h-8 w-full border rounded text-sm px-2 py-1"
+                    >
+                        <option value="">Todos los modelos</option>
+                        {uniqueModelos.map((modelo) => (
+                        <option key={modelo} value={modelo}>
+                            {modelo}
+                        </option>
+                        ))}
+                    </select>
+                    </PopoverContent>
+                </Popover>
+                </div>
+            );
+            },
         },
         {
             accessorKey: "ceco",
@@ -430,6 +473,15 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
     React.useEffect(() => {
         fetchAllData();
     }, []);
+
+    React.useEffect(() => {
+        if (searchQuery) {
+          table.getColumn("nombre")?.setFilterValue(searchQuery);
+        } else {
+          table.getColumn("nombre")?.setFilterValue("");
+        }
+      }, [table, searchQuery]);
+    
 
     const handleDelete = async ({id}: {id: string}) => {
     setLoading(true);
