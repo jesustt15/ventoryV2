@@ -31,6 +31,7 @@ export interface ComputadorFormData {
     procesador?: string;
     sapVersion?: string;
     macWifi?: string;
+    sede?: string;
     macEthernet?: string;
     officeVersion?: string;
 }
@@ -62,6 +63,7 @@ const initialState: ComputadorFormData = {
     sapVersion: '',
     officeVersion: '',
     ubicacion: '',
+    sede:'',
     macEthernet: '',
     macWifi:''
 };
@@ -150,6 +152,21 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
                                     <Label htmlFor="ubicacion">UBICACION</Label>
                                     <Input id="ubicacion" value={formData.ubicacion || ''} onChange={handleInputChange} placeholder="Ej: Edificio 1, Oficina Gerencia"/>
                                 </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="sede">Sede <span className="text-destructive">*</span></Label>
+                                    <select
+                                        id="sede"
+                                        className="w-full h-10 border rounded-md px-2 bg-[hsl(var(--background))] border-[hsl(var(--input))] focus:ring-1 focus:ring-[hsl(var(--ring))] focus:outline-none"
+                                        value={formData.sede || ''}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="" disabled>Seleccionar sede...</option>
+                                        <option value="PZO">PZO</option>
+                                        <option value="MCPA">MCPA</option>
+                                        <option value="CCS">CCS</option>
+                                        <option value="ESP">ESP</option>
+                                    </select>
+                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="nsap">Ficha SAP (Opcional)</Label>
                                     <Input id="nsap" value={formData.nsap || ''} onChange={handleInputChange} placeholder="N° de Ficha SAP"/>

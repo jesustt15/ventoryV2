@@ -5,15 +5,12 @@ import {
   ArrowLeft,
   Barcode,
   BarcodeIcon,
-  Calendar,
   Calendar1Icon,
   Cpu,
   Edit,
   EthernetPort,
-  HardDrive,
   Hash,
   History,
-  Landmark,
   MapPin,
   Monitor,
   MoreHorizontal,
@@ -65,6 +62,7 @@ interface DispositivoDetallado {
     nsap?: string | null;
     mac?: string | null;
     ubicacion: string;
+    sede?:string | null;
     historial: HistorialEntry[];  
     modelo: { // El modelo ahora es un objeto
         id: string;
@@ -351,11 +349,11 @@ const departamentoTag = (
                         </div>
 
                         <div className="space-y-1">
-                          <p className="text-xs text-slate-400 uppercase tracking-wider">N° Ficha en SAP</p>
+                          <p className="text-xs text-slate-400 uppercase tracking-wider">Sede</p>
                           <div className="flex items-center">
                             <Hash className="h-4 w-4 text-slate-400 mr-2" />
                             <p className="text-sm text-slate-200">
-                              {equipo.nsap || "N/A"}
+                              {equipo.sede || "N/A"}
                             </p>
                           </div>
                         </div>

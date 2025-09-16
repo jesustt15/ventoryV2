@@ -49,6 +49,7 @@ const [formData, setFormData] = useState<DispositivoFormData>({
   estado: '',
   nsap: null,
   mac: null,
+  sede: null,
   ubicacion: null,
 });
 
@@ -66,6 +67,7 @@ const [formData, setFormData] = useState<DispositivoFormData>({
         serial: initialData.serial || '',
         estado: initialData.estado || '',
         nsap: initialData.nsap || null,
+        sede: initialData.sede || null,
         mac: initialData.mac || null,
         ubicacion: initialData.ubicacion || null,
       });
@@ -79,6 +81,7 @@ const [formData, setFormData] = useState<DispositivoFormData>({
         nsap: null,
         mac: null,
         ubicacion: null,
+        sede: null,
       });
     }
   }
@@ -157,6 +160,22 @@ const [formData, setFormData] = useState<DispositivoFormData>({
               <option value="Asignado">Asignado</option>
               <option value="En reparación">En reparación</option>
               <option value="De baja">De baja</option>
+            </select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="estado">Sede</Label>
+            <select
+              id="sede"
+              className="w-full h-10 border rounded-md px-2 bg-background"
+              value={formData.sede || ''}
+              onChange={handleInputChange}
+            >
+              <option value="">Seleccionar sede</option>
+              <option value="PZO">PZO</option>
+              <option value="MCPA">MCPA</option>
+              <option value="CCS">CCS</option>
+              <option value="ESP">ESP</option>
             </select>
           </div>
 

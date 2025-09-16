@@ -30,6 +30,7 @@ export const computadorSchema = z.object({
     sisOperativo: z.string().nullable(),
     arquitectura: z.string().nullable(),
     ram: z.string().nullable(),
+    sede: z.string().nullable(),
     almacenamiento: z.string().nullable(),
     procesador: z.string().nullable(),
     sapVersion: z.string().nullable(),
@@ -53,6 +54,7 @@ export interface Computador {
     macWifi?: string;
     macEthernet?: string;
     ram?: string;
+    sede?: string;
     almacenamiento?: string;
     procesador?: string;
     sapVersion?: string;
@@ -205,6 +207,58 @@ const columns: ColumnDef<Computador>[] = [
       );
     },
   },
+{
+  accessorKey: "sede",
+  header: ({ column }) => {
+    const isFilterActive = !!column.getFilterValue();
+    const estadosUnicos = ["PZO", "MCPA", "CCS", "ESP"]; // Ajusta según tus estados
+    
+    return (
+      <div className="flex items-center">
+        <span>Sede</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+            >
+              <FilterIcon className="h-3 w-3" />
+              {isFilterActive && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40 p-2">
+            <select
+              value={(column.getFilterValue() as string) ?? ""}
+              onChange={(e) => column.setFilterValue(e.target.value)}
+              className="h-8 w-full border rounded text-sm px-2 py-1"
+            >
+              <option value="">Todos</option>
+              {estadosUnicos.map((sede) => (
+                <option key={sede} value={sede}>
+                  {sede}
+                </option>
+              ))}
+            </select>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  },
+  cell: ({ row }) => {
+    const sede = row.getValue("sede") as string;
+    return (
+      <div className="flex items-center gap-2">
+        <span>{sede}</span>
+      </div>
+    );
+  },
+  filterFn: (row, id, value) => {
+    return value.includes(row.getValue(id));
+  },
+},
     {
        id: "modelo.img",
       header: "Imagen",
@@ -338,7 +392,7 @@ const columns: ColumnDef<Computador>[] = [
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                        Eliminar departamento
+                        Eliminar computador
                     </DropdownMenuItem>
                   </AlertDialogTrigger>
                 </>

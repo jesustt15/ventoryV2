@@ -126,6 +126,7 @@ model Dispositivo {
   usuarioId      String?
   usuario        Usuario?        @relation(fields: [usuarioId], references: [id])
   departamentoId String?
+  sede            String?
   mac            String?
   ip             String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])

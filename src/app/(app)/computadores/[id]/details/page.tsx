@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react"
 import {
   ArrowLeft,
-  Barcode,
   BarcodeIcon,
-  Calendar,
   Calendar1Icon,
   Cpu,
   Edit,
@@ -19,7 +17,6 @@ import {
   Monitor,
   MoreHorizontal,
   QrCode,
-  Shield,
   Tag,
   Trash2,
   Users,
@@ -34,8 +31,6 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,6 +85,7 @@ interface ComputadorDetallado {
     ram?: string | null;
     almacenamiento?: string | null;
     macWifi?: string | null;
+    sede?: string | null;
     macEthernet: string | null;
     procesador?: string | null;
     sapVersion?: string | null;
@@ -429,11 +425,11 @@ const departamentoTag = (
                         </div>
 
                         <div className="space-y-1">
-                          <p className="text-xs text-slate-400 uppercase tracking-wider">N° Ficha en SAP</p>
+                          <p className="text-xs text-slate-400 uppercase tracking-wider">Sede</p>
                           <div className="flex items-center">
                             <Hash className="h-4 w-4 text-slate-400 mr-2" />
                             <p className="text-sm text-slate-200">
-                              {equipo.nsap || "N/A"}
+                              {equipo.sede || "N/A"}
                             </p>
                           </div>
                         </div>

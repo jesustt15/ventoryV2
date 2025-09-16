@@ -14,7 +14,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { FilterIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DispositivoForm from "./EquipoForm";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
@@ -27,6 +26,7 @@ export const dispositivoSchema = z.object({
   modeloId: z.string().min(1, "El Modelo es Requerido"),
   estado: z.string().min(1, "El estado es requerido"),
   nsap: z.string().nullable(),
+  sede: z.string().nullable(),
   ubicacion: z.string().nullable(),
   mac: z.string().nullable()
 });
@@ -43,6 +43,7 @@ export interface Dispositivo {
   estado: string;
   nsap?: string;
   ubicacion?: string;
+  sede?: string;
   mac?: string; // Optional, as it might not be present in all devices
   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Added img and marca properties
 }
@@ -57,6 +58,7 @@ export interface DispositivoFormProps {
     nsap: string | null;
     ubicacion: string | null;
     mac: string | null;
+    sede: string | null;
   };
 }
 
@@ -206,6 +208,58 @@ const columns: ColumnDef<Dispositivo>[] = [
       );
     },
   },
+{
+  accessorKey: "sede",
+  header: ({ column }) => {
+    const isFilterActive = !!column.getFilterValue();
+    const estadosUnicos = ["PZO", "MCPA", "CCS", "ESP"]; // Ajusta según tus estados
+    
+    return (
+      <div className="flex items-center">
+        <span>Sede</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+            >
+              <FilterIcon className="h-3 w-3" />
+              {isFilterActive && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40 p-2">
+            <select
+              value={(column.getFilterValue() as string) ?? ""}
+              onChange={(e) => column.setFilterValue(e.target.value)}
+              className="h-8 w-full border rounded text-sm px-2 py-1"
+            >
+              <option value="">Todos</option>
+              {estadosUnicos.map((sede) => (
+                <option key={sede} value={sede}>
+                  {sede}
+                </option>
+              ))}
+            </select>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  },
+  cell: ({ row }) => {
+    const sede = row.getValue("sede") as string;
+    return (
+      <div className="flex items-center gap-2">
+        <span>{sede}</span>
+      </div>
+    );
+  },
+  filterFn: (row, id, value) => {
+    return value.includes(row.getValue(id));
+  },
+},
   {
      id: "modelo.img",
     header: "Imagen",
@@ -460,6 +514,7 @@ const columns: ColumnDef<Dispositivo>[] = [
       nsap: data.nsap,
       ubicacion: data.ubicacion,
       mac: data.mac,
+      sede: data.sede,
     };
 
     try {
@@ -648,6 +703,7 @@ return (
           estado: editingDispositivo.estado,
           ubicacion: editingDispositivo.ubicacion ?? null,
           nsap: editingDispositivo.nsap ?? null,
+          sede: editingDispositivo.sede ?? null,
           mac: editingDispositivo.mac ?? null,
         } : null}
         modelos={modelos} 
