@@ -39,6 +39,7 @@ export default function AsignacionesPage() {
     const [departamentos, setDepartamentos] = useState<Target[]>([]);
     const [marcas, setMarcas] = useState<Target[]>([]);
     const [proveedores, setProveedores] = useState<{value: string, label: string}[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
     
     // --- ESTADOS DEL FORMULARIO Y FLUJO GUIADO ---
     const [loading, setLoading] = useState(true);
@@ -66,6 +67,9 @@ export default function AsignacionesPage() {
   
     // --- LÓGICA DE CARGA DE DATOS (REFACTORIZADA) ---
     
+    const filteredEquipos = equiposAsignados.filter(equipo =>
+  equipo.label.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
     useEffect(() => {
     const fetchGerentes = async () => {
@@ -492,32 +496,51 @@ export default function AsignacionesPage() {
                 </CardContent>
             </Card>
             </TabsContent>
-            <TabsContent value="desvincular">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Equipos Asignados</CardTitle>
-                            <CardDescription>Selecciona un equipo para desvincularlo y devolverlo a resguardo.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {loading ? <Spinner /> : 
-                                equiposAsignados.length > 0 ? (
-                                    equiposAsignados.map((equipo) => (
-                                        <div key={equipo.value} className="flex items-center justify-between p-3 bg-card rounded-md border">
-                                            <div>
-                                                <p className="font-medium text-sm">{equipo.label}</p>
-                                                <p className="text-xs text-muted-foreground">Asignado a: {equipo.asignadoA}</p>
-                                            </div>
-                                            <Button variant="outline" size="sm" onClick={() => handleDesvincular(equipo)}>
-                                                <Undo2 className="mr-2 h-4 w-4" />
-                                                Desvincular
-                                            </Button>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="text-center text-muted-foreground p-4">No hay equipos asignados actualmente.</p>
-                                )
-                            }
-                        </CardContent>
+                <TabsContent value="desvincular">
+                    <Card>
+                    <CardHeader>
+                        <CardTitle>Equipos Asignados</CardTitle>
+                        <CardDescription>
+                        Busca por serial y selecciona un equipo para desvincularlo.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {/* 1. Input para el buscador */}
+                        <Input
+                        type="text"
+                        placeholder="Buscar por serial o nombre de equipo..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full"
+                        />
+
+                        {/* 2. Contenedor con scroll vertical */}
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                        {loading ? <Spinner /> : 
+                            equiposAsignados.length > 0 ? (
+                            filteredEquipos.length > 0 ? (
+                                // Mapeamos sobre la lista FILTRADA
+                                filteredEquipos.map((equipo) => (
+                                <div key={equipo.value} className="flex items-center justify-between p-3 bg-card rounded-md border">
+                                    <div>
+                                    <p className="font-medium text-sm">{equipo.label}</p>
+                                    <p className="text-xs text-muted-foreground">Asignado a: {equipo.asignadoA}</p>
+                                    </div>
+                                    <Button variant="outline" size="sm" onClick={() => handleDesvincular(equipo)}>
+                                    <Undo2 className="mr-2 h-4 w-4" />
+                                    Desvincular
+                                    </Button>
+                                </div>
+                                ))
+                            ) : (
+                                <p className="text-center text-muted-foreground p-4">No se encontraron equipos con ese serial.</p>
+                            )
+                            ) : (
+                            <p className="text-center text-muted-foreground p-4">No hay equipos asignados actualmente.</p>
+                            )
+                        }
+                        </div>
+                    </CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>

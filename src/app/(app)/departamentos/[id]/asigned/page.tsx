@@ -311,7 +311,7 @@ export default function UserProfile() {
                         <div className="lg:col-span-1">
                           <img
                             src={dispositivo.modelo.img || "/placeholder.svg"}
-                            alt={dispositivo.modelo}
+                            alt={dispositivo.modelo.nombre}
                             className="w-full h-48 object-cover rounded-md border border-slate-700/50"
                           />
                         </div>
@@ -321,7 +321,7 @@ export default function UserProfile() {
                               <PhoneIcon className="h-6 w-6 text-cyan-500 mr-2" />
                               <div>
                                 <h3 className="text-lg font-semibold text-slate-100">
-                                  {dispositivo.marca} {dispositivo.modelo}
+                                  {dispositivo.marca} {dispositivo.modelo.nombre}
                                 </h3>
                                 <p className="text-sm text-slate-400">
                                   {dispositivo.tipo} • ID: {dispositivo.id}

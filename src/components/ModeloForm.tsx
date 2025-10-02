@@ -216,6 +216,7 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
                                     <SelectItem value="Monitor">Monitor</SelectItem>
                                     <SelectItem value="Router">Router</SelectItem>
                                     <SelectItem value="Access Point">Access Point</SelectItem>
+                                    <SelectItem value="Access Point">Antenas</SelectItem>
                                     <SelectItem value="Otro">Otro</SelectItem>
                                 </SelectContent>
                             </ShadcnSelect>
