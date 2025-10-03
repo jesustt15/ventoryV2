@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   try {
     // Ya no es FormData, ahora es JSON simple
     const body = await request.json();
-    const {  imei, numero, proveedor } = body;
+    const {  imei, numero, proveedor, estado, destino } = body;
 
     // Validación
     if ( !numero  || !proveedor) {
@@ -48,6 +48,8 @@ export async function POST(request: Request) {
         imei,
         numero,
         proveedor,
+        estado, 
+        destino
       },
     });
     return NextResponse.json(nuevoDispositivo, { status: 201 });
