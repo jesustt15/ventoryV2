@@ -267,7 +267,6 @@ const columns: ColumnDef<Linea>[] = [
                     <DropdownMenuItem onClick={() => handleOpenEditModal(linea)}
                       >Editar Linea</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">Eliminar Linea</DropdownMenuItem>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
                             Eliminar Linea
