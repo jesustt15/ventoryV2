@@ -84,7 +84,7 @@ export function AsignacionesTable({}: AsignacionesTableProps) {
   }, []);
 
 
-const columns: ColumnDef<Asignaciones>[] = [
+const columns = React.useMemo<ColumnDef<Asignaciones>[]>(() => [
   {
     id: "select",
     header: ({ table }) => (
@@ -125,13 +125,13 @@ const columns: ColumnDef<Asignaciones>[] = [
     cell: ({ row }) => <div>{row.getValue("motivo")}</div>,
   },
     {
-      accessorFn: (row) => row.item.descripcion,
+      accessorFn: (row) => row.item?.descripcion,
       id: "itemNombre", // El ID único para la columna sigue siendo importante
       header: "Equipo",
       // CORRECCIÓN: Usamos `row.original` dentro de la celda para una mayor fiabilidad
       cell: ({ row }) => {
           // `row.original` es el objeto `Dispositivo` completo para esta fila
-          const itemNombre = row.original.item.descripcion;
+          const itemNombre = row.original.item?.descripcion;
           return <div>{itemNombre || "Sin marca"}</div>;
       },
     },
@@ -210,19 +210,12 @@ const columns: ColumnDef<Asignaciones>[] = [
               >
                 {loading ? 'Generando...' : 'Descargar Excel'}
               </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/asignaciones/${asignacion.id}/editar`}>
-                  Editar Usuario
-              </Link>
-              </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
     },
   },
-]
+], [handleDownload, loading]);
 
   const table = useReactTable({
     data: asignaciones,

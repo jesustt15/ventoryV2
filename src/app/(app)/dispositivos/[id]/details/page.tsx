@@ -41,7 +41,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner"
 import Link from "next/link"
-import { handleGenerateAndDownloadQRd } from "@/utils/qrCode"
+import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
 
 
 interface HistorialEntry {
@@ -374,7 +374,7 @@ const departamentoTag = (
                             <TooltipTrigger asChild>
                               <Button
                                 onClick={() => {
-                                  handleGenerateAndDownloadQRd({ equipoId: equipo.id });
+                                  handleGenerateAndDownloadQR({ equipoId: equipo.id, serial: equipo.serial, modelo:equipo.modelo.nombre, nsap: equipo.nsap ?? 'No Asignado' });
                                 }}
                                 variant="outline"
                                 className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"

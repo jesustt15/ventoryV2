@@ -467,7 +467,7 @@ const departamentoTag = (
                                 variant="outline"
                                 className="h-auto py-4 px-4 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-2"
                                onClick={() => {
-                                  handleGenerateAndDownloadQR({ equipoId: equipo.id });
+                                  handleGenerateAndDownloadQR({ equipoId: equipo.id, serial: equipo.serial, modelo:equipo.modelo.nombre, nsap: equipo.nsap ?? 'No Asignado' });
                                 }}
                               >
                                 <QrCode className="h-6 w-6 text-purple-500" />

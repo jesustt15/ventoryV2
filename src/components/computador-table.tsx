@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import TableRowSkeleton from "@/utils/loading";
+import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
 
 
 
@@ -59,8 +60,18 @@ export interface Computador {
     procesador?: string;
     sapVersion?: string;
     officeVersion?: string;  
-   modelo: { id: string; nombre: string; img?: string; marca: { nombre: string } }; // Assuming 'marca' is an object in the fetched data
-}
+   modelo: { id: string; nombre: string; img?: string; marca: { nombre: string } ; tipo: string;};
+   usuario?: { 
+        id: string; 
+        nombre: string; 
+        apellido?: string; // Agregado por si acaso viene el apellido también
+    } | null;
+    departamento?: { 
+        id: string; 
+        nombre: string; 
+    } | null;
+} // Assuming 'marca' is an object in the fetched data
+
 
 
 
@@ -207,6 +218,59 @@ const columns: ColumnDef<Computador>[] = [
       );
     },
   },
+  {
+    id: "tipo",
+    accessorFn: (row) => row.modelo?.tipo, // Accedemos al tipo
+    header: ({ column }) => {
+      const isFilterActive = !!column.getFilterValue();
+      
+      // Obtenemos los tipos únicos disponibles en la data
+      const uniqueTipos = Array.from(
+        new Set(computadores
+          .map(c => c.modelo?.tipo)
+          .filter(Boolean) as string[]
+        )
+      ).sort();
+
+      return (
+        <div className="flex items-center">
+          <span>Tipo</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+              >
+                <FilterIcon className="h-3 w-3" />
+                {isFilterActive && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-2">
+              <select
+                value={(column.getFilterValue() as string) ?? ""}
+                onChange={(e) => column.setFilterValue(e.target.value)}
+                className="h-8 w-full border rounded text-sm px-2 py-1"
+              >
+                <option value="">Todos</option>
+                {uniqueTipos.map((tipo) => (
+                  <option key={tipo} value={tipo}>
+                    {tipo}
+                  </option>
+                ))}
+              </select>
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const tipo = row.original.modelo?.tipo;
+      return <div>{tipo || "N/A"}</div>;
+    },
+  },
 {
   accessorKey: "sede",
   header: ({ column }) => {
@@ -286,66 +350,83 @@ const columns: ColumnDef<Computador>[] = [
       },
     },
   {
-  accessorKey: "estado",
-  header: ({ column }) => {
-    const isFilterActive = !!column.getFilterValue();
-    const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "Otro"]; // Ajusta según tus estados
-    
-    return (
-      <div className="flex items-center">
-        <span>Estado</span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
-            >
-              <FilterIcon className="h-3 w-3" />
-              {isFilterActive && (
-                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-40 p-2">
-            <select
-              value={(column.getFilterValue() as string) ?? ""}
-              onChange={(e) => column.setFilterValue(e.target.value)}
-              className="h-8 w-full border rounded text-sm px-2 py-1"
-            >
-              <option value="">Todos</option>
-              {estadosUnicos.map((estado) => (
-                <option key={estado} value={estado}>
-                  {estado}
-                </option>
-              ))}
-            </select>
-          </PopoverContent>
-        </Popover>
-      </div>
-    );
+    accessorKey: "estado",
+    header: ({ column }) => {
+      const isFilterActive = !!column.getFilterValue();
+      const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "Inactivo"];
+
+      return (
+        <div className="flex items-center">
+          <span>Estado / Asignado a</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+              >
+                <FilterIcon className="h-3 w-3" />
+                {isFilterActive && <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-2">
+              <select
+                value={(column.getFilterValue() as string) ?? ""}
+                onChange={(e) => column.setFilterValue(e.target.value)}
+                className="h-8 w-full border rounded text-sm px-2 py-1"
+              >
+                <option value="">Todos</option>
+                {estadosUnicos.map((estado) => (
+                  <option key={estado} value={estado}>{estado}</option>
+                ))}
+              </select>
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const estado = row.getValue("estado") as string;
+      const data = row.original; // Accedemos a TODA la info de la fila
+
+      // 🧠 LÓGICA DE VISUALIZACIÓN
+      let textoMostrar = estado;
+      
+      if (estado === "Asignado") {
+         if (data.usuario && data.usuario.nombre) {
+             // Opción 1: Tenemos un usuario directo
+             textoMostrar = data.usuario.nombre + (data.usuario.apellido ? ` ${data.usuario.apellido}` : '');
+         } else if (data.departamento && data.departamento.nombre) {
+             // Opción 2: Asignado a un departamento (sin usuario específico)
+             textoMostrar = data.departamento.nombre;
+         } else if (data.ubicacion) {
+             // Opción 3: Fallback a la ubicación escrita a mano
+             textoMostrar = data.ubicacion;
+         }
+      }
+
+      return (
+        <div className="flex items-center gap-2">
+          {estado === "Resguardo" ? (
+            <ArchiveRestore className="h-4 w-4 text-blue-300" />
+          ) : estado === "En reparación" ? (
+            <WrenchIcon className="h-4 w-4 text-amber-500" />
+          ) : estado === "Asignado" ? (
+            <User2Icon className="h-4 w-4 text-green-500" /> // Icono verde se mantiene
+          ) : (
+            <XCircleIcon className="h-4 w-4 text-destructive" />
+          )}
+          
+          <span className="truncate max-w-[150px]" title={textoMostrar}>
+            {textoMostrar}
+          </span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
-  cell: ({ row }) => {
-    const estado = row.getValue("estado") as string;
-    return (
-      <div className="flex items-center gap-2">
-        {estado === "Resguardo" ? (
-          <ArchiveRestore className="h-4 w-4 text-blue-300" />
-        ) : estado === "En reparación" ? (
-          <WrenchIcon className="h-4 w-4 text-amber-500" />
-        ) : estado === "Asignado" ? (
-          <User2Icon className="h-4 w-4 text-green-500" />
-        ) : (
-          <XCircleIcon className="h-4 w-4 text-destructive" />
-        )}
-        <span>{estado}</span>
-      </div>
-    );
-  },
-  filterFn: (row, id, value) => {
-    return value.includes(row.getValue(id));
-  },
-},
   {
     id: "actions",
     cell: ({ row }) => {
@@ -376,27 +457,18 @@ const columns: ColumnDef<Computador>[] = [
                   Ver detalles
                 </Link>
               </DropdownMenuItem>
-              {/* <DropdownMenuItem
-                onClick={() => handleGenerateAndDownloadSticker(computador.id,computador.modelo?.marca.nombre,  computador.serial, computador.modelo)}
+              <DropdownMenuItem asChild>
+                <Link href={`/computadores/${computador.id}/editar`}>
+                    Editar Computador
+                </Link>
+                </DropdownMenuItem>
+               <DropdownMenuItem
+                onClick={() => handleGenerateAndDownloadQR({equipoId: computador.id, modelo: computador.modelo.nombre,  serial: computador.serial, 
+                  nsap: computador.nsap ?? "N/A"})}
                 disabled={loading} // Se deshabilita mientras carga
               >
                 {loading ? 'Generando...' : 'Descargar Sticker'}
-              </DropdownMenuItem> */}
-              { isAdmin && (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link href={`/computadores/${computador.id}/editar`}>
-                        Editar equipo
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                        Eliminar computador
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                </>
-              )}
+              </DropdownMenuItem> 
               
             </DropdownMenuContent>
           </DropdownMenu>

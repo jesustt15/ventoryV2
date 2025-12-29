@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import TableRowSkeleton from "@/utils/loading";
+import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
 
 
 export const dispositivoSchema = z.object({
@@ -355,38 +356,60 @@ const columns: ColumnDef<Dispositivo>[] = [
       return (
         <AlertDialog>
           <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Abrir menú</span>
-                  <MoreHorizontalIcon className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => {
-                              navigator.clipboard.writeText(dispositivo.serial.toString());
-                                showToast.success("¡Serial copiado!", { progress: false,
-                                                  position: "bottom-center",
-                                                  transition: "popUp"});
-                            }}>
-                  Copiar Serial
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`/dispositivos/${dispositivo.id}/details`}>
-                    Ver detalles
-                  </Link>
-                </DropdownMenuItem>
-                { isAdmin && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => handleOpenEditModal(dispositivo)}
-                    >
-                      Editar equipo
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
+<DropdownMenuTrigger asChild>
+  <Button variant="ghost" className="h-8 w-8 p-0">
+    <span className="sr-only">Abrir menú</span>
+    <MoreHorizontalIcon className="h-4 w-4" />
+  </Button>
+</DropdownMenuTrigger>
+<DropdownMenuContent align="end">
+  <DropdownMenuItem onClick={() => {
+    navigator.clipboard.writeText(dispositivo.serial.toString());
+    showToast.success("¡Serial copiado!", { 
+      progress: false,
+      position: "bottom-center",
+      transition: "popUp"
+    });
+  }}>
+    Copiar Serial
+  </DropdownMenuItem>
+  {/* Este Link debe estar dentro de un DropdownMenuItem */}
+  <DropdownMenuItem asChild>
+    <Link href={`/dispositivos/${dispositivo.id}/details`}>
+      Ver detalles
+    </Link>
+  </DropdownMenuItem>
+  <DropdownMenuItem
+    onClick={() => {
+      // Solo ejecutamos si el id existe para mayor seguridad
+      if (dispositivo.id) {
+        handleGenerateAndDownloadQR({
+          equipoId: dispositivo.id, // TypeScript ahora sabe que id es un string aquí
+          modelo: dispositivo.modelo.nombre, 
+          serial: dispositivo.serial ?? 'Sin Serial', 
+          nsap: dispositivo.nsap ?? "N/A"
+        });
+      }
+    }}
+    // Deshabilita el botón si se está cargando O si no hay ID
+    disabled={isLoading || !dispositivo.id} 
+  >
+    {isLoading ? 'Generando...' : 'Descargar Sticker'}
+  </DropdownMenuItem>
+  
+  {/* Opciones solo para Administrador */}
+  {isAdmin && (
+    <>
+      <DropdownMenuItem
+        onClick={() => handleOpenEditModal(dispositivo)}
+      >
+        Editar equipo
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem className="text-destructive">Eliminar equipo</DropdownMenuItem>
+    </>
+  )}
+</DropdownMenuContent>
             </DropdownMenu>
             <AlertDialogContent>
               <AlertDialogHeader>

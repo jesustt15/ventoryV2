@@ -16,6 +16,8 @@ services:
         # Esta es la clave: el servicio web no iniciará hasta que la db esté 'healthy'
         condition: service_healthy
     restart: unless-stopped
+    volumes:
+      - ./uploads:/app/public/uploads
 
   db:
     image: postgres:16-alpine

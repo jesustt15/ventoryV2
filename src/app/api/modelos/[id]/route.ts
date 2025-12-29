@@ -113,29 +113,31 @@ export async function PUT(request: NextRequest) {
     // 4. Manejo de la imagen
     // Por defecto se mantiene la URL de imagen existente
     let finalImageUrl: string | null = existingModelo.img;
-    let oldImageToDelete: string | null = null;
+let oldImageToDelete: string | null = null;
 
-    // Si se ha enviado un archivo para "img" y no es de tipo string (p. ej., File)
-    if (imagenFile && typeof imagenFile !== 'string') {
-      if (imagenFile.size > 0) {
-        // Hay una nueva imagen, se sube el archivo
-        oldImageToDelete = existingModelo.img; // Se marcará la imagen anterior para eliminar
-        const uploadDir = path.join(process.cwd(), 'public/uploads/equipos');
-        await ensureDirExists(uploadDir);
+if (imagenFile && typeof imagenFile !== 'string') {
+  if (imagenFile.size > 0) {
+    oldImageToDelete = existingModelo.img;
 
-        const bytes = await imagenFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const filename = `${Date.now()}-${safeOriginalName}`;
-        const imagePath = path.join(uploadDir, filename);
+    // --- LA CORRECCIÓN ESTÁ AQUÍ ---
+    // Asegúrate de que la ruta sea a 'modelos'
+    const uploadDir = path.join(process.cwd(), 'public/uploads/modelos');
+    // --------------------------------
 
-        await writeFile(imagePath, buffer);
-        finalImageUrl = `/uploads/equipos/${filename}`;
-      } else {
-        // Si se envía el campo pero está vacío, se puede interpretar como "se desea eliminar la imagen actual"
-        finalImageUrl = null;
-      }
-    }
+    await ensureDirExists(uploadDir); // Usando una función auxiliar como la de tu POST
+
+    const bytes = await imagenFile.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const safeOriginalName = imagenFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filename = `${Date.now()}-${safeOriginalName}`;
+    const imagePath = path.join(uploadDir, filename);
+
+    await writeFile(imagePath, buffer);
+    finalImageUrl = `/uploads/modelos/${filename}`; // Y asegúrate que la URL también sea correcta
+  } else {
+    finalImageUrl = null;
+  }
+}
 
     // 5. Preparar los datos a actualizar
     const dataToUpdate: { [key: string]: any } = {
