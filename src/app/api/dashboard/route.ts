@@ -8,47 +8,121 @@ import prisma from "@/lib/prisma"; // Asegúrate que la ruta a prisma sea correc
  */
 export async function GET() {
   try {
-    // --- 1. CONTEOS GLOBALES (TARJETAS PRINCIPALES) ---
-    // Usamos Promise.all para ejecutar todas las consultas de conteo en paralelo para mayor eficiencia.
+    // --- 1. CONTEOS ESPECÍFICOS (NUEVAS TARJETAS) ---
     const [
-      totalUsers,
-      totalDevices, // Total de Dispositivos (Monitores, Impresoras, etc.)
-      totalComputers,
-      assignedComputers,
-      storedComputers,
+      retiredComputers,
+      retiredDevices,
+      assignedBams,
+      assignedLaptops,
+      assignedDesktops,
+      reservedLaptops,
+      reservedDesktops,
+      totalComputers, // Mantenemos para calculos de % si es necesario
     ] = await Promise.all([
-      prisma.usuario.count(),
-      prisma.dispositivo.count(),
+      prisma.computador.count({ where: { estado: "De Baja" } }),
+      prisma.dispositivo.count({ where: { estado: "De Baja" } }),
+      prisma.dispositivo.count({
+        where: {
+          estado: { equals: "Asignado", mode: 'insensitive' },
+          modelo: {
+            tipo: { contains: "BAM", mode: 'insensitive' }
+          }
+        }
+      }),
+      prisma.computador.count({
+        where: {
+          estado: { equals: "Asignado", mode: 'insensitive' },
+          modelo: { tipo: "Laptop" }
+        }
+      }),
+      prisma.computador.count({
+        where: {
+          estado: { equals: "Asignado", mode: 'insensitive' },
+          modelo: { tipo: "Desktop" }
+        }
+      }),
+      prisma.computador.count({
+        where: {
+          estado: { equals: "Resguardo", mode: 'insensitive' },
+          modelo: { tipo: "Laptop" }
+        }
+      }),
+      prisma.computador.count({
+        where: {
+          estado: { equals: "Resguardo", mode: 'insensitive' },
+          modelo: { tipo: "Desktop" }
+        }
+      }),
       prisma.computador.count(),
-      // Un computador está "Asignado" si tiene un usuario vinculado y su estado es "Activo".
-      prisma.computador.count({
-        where: {
-          estado: "Asignado", // Puedes ajustar este valor si usas otro (ej: "En Uso")
-        },
-      }),
-      // Un computador está "En Resguardo" si su estado es "Almacenado".
-      prisma.computador.count({
-        where: {
-          estado: "Resguardo",
-        },
-      }),
     ]);
 
-    // --- 2. ESTADÍSTICAS POR DEPARTAMENTO ---
-    // Obtenemos todos los departamentos y contamos sus computadores y usuarios asociados.
-    // El uso de `_count` es mucho más performante que traer los arrays completos.
+    const retiredEquipments = retiredComputers + retiredDevices;
+    const assignedLaptopsDesktops = assignedLaptops + assignedDesktops; // kept for legacy calculation if needed
+    const reservedLaptopsDesktops = reservedLaptops + reservedDesktops;
+
+    // --- 2. ESTADÍSTICAS POR GERENCIA ---
+    // Obtenemos gerencias y sumamos sus computadores (Laptop/Desktop)
+    const gerenciasRaw = await prisma.gerencia.findMany({
+      include: {
+        departamentos: {
+          select: {
+            _count: {
+              select: {
+                computadores: {
+                  where: { modelo: { tipo: { in: ["Laptop", "Desktop"] } } }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const gerenciaStats = gerenciasRaw.map(g => {
+      const total = g.departamentos.reduce((acc, curr) => acc + curr._count.computadores, 0);
+      return { name: g.nombre, count: total };
+    }).filter(g => g.count > 0).sort((a, b) => b.count - a.count);
+
+    // --- 3. ESTADÍSTICAS POR SOCIEDAD ---
+    // Agrupamos por sociedad a través de departamentos
+    const deptosSociedad = await prisma.departamento.findMany({
+      select: {
+        sociedad: true,
+        _count: {
+          select: {
+            computadores: {
+              where: { modelo: { tipo: { in: ["Laptop", "Desktop"] } } }
+            }
+          }
+        }
+      }
+    });
+
+    const sociedadStatsMap = deptosSociedad.reduce((acc, curr) => {
+      const soc = curr.sociedad || "Sin Sociedad";
+      acc[soc] = (acc[soc] || 0) + curr._count.computadores;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const sociedadStats = Object.entries(sociedadStatsMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+
+    // --- 4. ESTADÍSTICAS POR DEPARTAMENTO (MANTENIDO PERO FILTRADO POR LAPTOP/DESKTOP) ---
     const deptsData = await prisma.departamento.findMany({
       include: {
         _count: {
           select: {
             usuarios: true,
-            computadores: true,
+            computadores: {
+              where: { modelo: { tipo: { in: ["Laptop", "Desktop"] } } }
+            },
           },
         },
       },
     });
 
-    // Mapeamos los datos para darles el formato que el frontend espera.
     const departmentStats = deptsData.map((dept) => ({
       name: dept.nombre,
       computers: dept._count.computadores,
@@ -57,64 +131,62 @@ export async function GET() {
         totalComputers > 0
           ? parseFloat(((dept._count.computadores / totalComputers) * 100).toFixed(1))
           : 0,
-    }));
+    })).filter(d => d.computers > 0).sort((a, b) => b.computers - a.computers);
 
-    // --- 3. ACTIVIDAD RECIENTE ---
-    // Obtenemos las últimas 5 asignaciones/movimientos registrados.
+    // --- 5. ACTIVIDAD RECIENTE (SIN CAMBIOS) ---
     const recentActivityRaw = await prisma.asignaciones.findMany({
       take: 5,
       orderBy: {
         createdAt: "desc",
       },
       include: {
-        // Incluimos los datos necesarios para describir la actividad.
         targetUsuario: { select: { nombre: true, apellido: true } },
         computador: { select: { serial: true, modelo: { select: { nombre: true } } } },
         dispositivo: { select: { serial: true, modelo: { select: { nombre: true } } } },
       },
     });
-    
-    // Mapeamos los datos crudos a un formato más amigable para el frontend.
-    const recentActivity = recentActivityRaw.map(activity => {
-        let deviceName = "N/A";
-        if (activity.itemType === "Computador" && activity.computador) {
-            deviceName = `${activity.computador.modelo.nombre} (S/N: ${activity.computador.serial})`;
-        } else if (activity.itemType === "Dispositivo" && activity.dispositivo) {
-            deviceName = `${activity.dispositivo.modelo.nombre} (S/N: ${activity.dispositivo.serial})`;
-        }
 
-        return {
-            id: activity.id,
-            action: activity.actionType, // Ej: "Asignación", "Devolución"
-            device: deviceName,
-            user: activity.targetUsuario ? `${activity.targetUsuario.nombre} ${activity.targetUsuario.apellido}` : 'Sistema',
-            time: activity.createdAt.toISOString(), // Enviamos fecha en formato ISO, el frontend la formatea.
-            type: activity.actionType.toLowerCase().includes('asigna') ? 'assignment' : 'registration', // Lógica simple para el ícono
-        }
+    const recentActivity = recentActivityRaw.map(activity => {
+      let deviceName = "N/A";
+      if (activity.itemType === "Computador" && activity.computador) {
+        deviceName = `${activity.computador.modelo.nombre} (S/N: ${activity.computador.serial})`;
+      } else if (activity.itemType === "Dispositivo" && activity.dispositivo) {
+        deviceName = `${activity.dispositivo.modelo.nombre} (S/N: ${activity.dispositivo.serial})`;
+      }
+
+      return {
+        id: activity.id,
+        action: activity.actionType,
+        device: deviceName,
+        user: activity.targetUsuario ? `${activity.targetUsuario.nombre} ${activity.targetUsuario.apellido}` : 'Sistema',
+        time: activity.createdAt.toISOString(),
+        type: activity.actionType.toLowerCase().includes('asigna') ? 'assignment' : 'registration',
+      }
     });
 
-    // --- 4. DATOS DE TENDENCIAS (PLACEHOLDER) ---
-    // Calcular tendencias reales requiere comparar con datos de un período anterior (ej. últimos 30 días).
-    // Por ahora, devolvemos un objeto estático para que el frontend no falle.
+    // --- 6. TENDENCIAS (PLACEHOLDER) ---
     const trends = {
-      users: 5.2,
-      devices: 3.1,
-      computers: 7.8,
-      assigned: 11.4,
-      stored: -2.5,
+      retired: 2.1,
+      bams: 5.4,
+      assigned: 1.2,
+      reserved: -0.5,
     };
 
-    // --- 5. RESPUESTA FINAL ---
-    // Unimos todos los datos en un solo objeto JSON.
+    // --- 7. RESPUESTA FINAL ---
     return NextResponse.json({
-      totalUsers,
-      totalDevices,
-      totalComputers,
-      assignedComputers,
-      storedComputers,
-      trends,
+      retiredEquipments,
+      assignedBams,
+      assignedLaptops,
+      assignedDesktops,
+      reservedLaptops,
+      reservedDesktops,
+      assignedLaptopsDesktops,
+      reservedLaptopsDesktops,
+      gerenciaStats,
+      sociedadStats,
       departmentStats,
       recentActivity,
+      trends,
     });
 
   } catch (error) {

@@ -5,7 +5,7 @@ import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFiltered
 import React from "react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { ArchiveRestore, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
+import { ArchiveRestore, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, Undo2, User2Icon, WrenchIcon, XCircleIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,8 +23,8 @@ export interface Asignaciones {
   id: string,
   date: string,
   action: string,
-  item: {tipo: string, serial: string, descripcion: string},
-  asignadoA: {nombre: string},
+  item: { tipo: string, serial: string, descripcion: string },
+  asignadoA: { nombre: string },
   notes: string,
   gerente: string,
   serialC: string,
@@ -39,7 +39,7 @@ interface AsignacionesTableProps {
   data: Asignaciones[]
 }
 
-export function AsignacionesTable({}: AsignacionesTableProps) {
+export function AsignacionesTable({ }: AsignacionesTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -51,7 +51,7 @@ export function AsignacionesTable({}: AsignacionesTableProps) {
 
 
 
- const handleDownload = React.useCallback(async (assignmentId: string) => {
+  const handleDownload = React.useCallback(async (assignmentId: string) => {
     setLoading(true);
     setError(null);
 
@@ -84,26 +84,26 @@ export function AsignacionesTable({}: AsignacionesTableProps) {
   }, []);
 
 
-const columns = React.useMemo<ColumnDef<Asignaciones>[]>(() => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Seleccionar todo"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Seleccionar fila"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  const columns = React.useMemo<ColumnDef<Asignaciones>[]>(() => [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Seleccionar todo"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Seleccionar fila"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       id: "serial", // <--- 1. AÑADE UN ID EXPLÍCITO Y SIMPLE
       accessorKey: "item.serial",
@@ -119,103 +119,103 @@ const columns = React.useMemo<ColumnDef<Asignaciones>[]>(() => [
         </div>
       ),
     },
-  {
-    accessorKey: "motivo",
-    header: "Motivo",
-    cell: ({ row }) => <div>{row.getValue("motivo")}</div>,
-  },
+    {
+      accessorKey: "motivo",
+      header: "Motivo",
+      cell: ({ row }) => <div>{row.getValue("motivo")}</div>,
+    },
     {
       accessorFn: (row) => row.item?.descripcion,
       id: "itemNombre", // El ID único para la columna sigue siendo importante
       header: "Equipo",
       // CORRECCIÓN: Usamos `row.original` dentro de la celda para una mayor fiabilidad
       cell: ({ row }) => {
-          // `row.original` es el objeto `Dispositivo` completo para esta fila
-          const itemNombre = row.original.item?.descripcion;
-          return <div>{itemNombre || "Sin marca"}</div>;
+        // `row.original` es el objeto `Dispositivo` completo para esta fila
+        const itemNombre = row.original.item?.descripcion;
+        return <div>{itemNombre || "Sin marca"}</div>;
       },
     },
     {
-    accessorKey: "asignadoA.nombre",
-    header: ({ column }) => {
-      const isFilterActive = !!column.getFilterValue();
-      
-      return (
-        <div className="flex items-center">
-          <span>Usuario</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
-              >
-                <FilterIcon className="h-3 w-3" />
-                {isFilterActive && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-48 p-2">
-              <Input
-                placeholder="Buscar usuario..."
-                value={(column.getFilterValue() as string) ?? ""}
-                onChange={(e) => column.setFilterValue(e.target.value)}
-                className="h-8"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      const usuario = row.original.asignadoA;
-      return <div>{`${usuario.nombre}`}</div>;
-    },
-    filterFn: (row, id, value) => {
-      if (!value) return true;
-      const usuario = row.original.asignadoA;
-      const searchStr = `${usuario.nombre}`.toLowerCase();
-      return searchStr.includes(value.toLowerCase());
-    },
-  },
-  {
-    accessorKey: "date",
-    header: "Fecha de Asignación",
-    cell: ({ row }) => {
-      const date = formatDate(row.getValue("date"));
-      return <div>{date}</div>;
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const asignacion = row.original
+      accessorKey: "asignadoA.nombre",
+      header: ({ column }) => {
+        const isFilterActive = !!column.getFilterValue();
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(asignacion.item.serial.toString())}>
-              Copiar Serial
-            </DropdownMenuItem>
-               <DropdownMenuItem
+        return (
+          <div className="flex items-center">
+            <span>Usuario</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+                >
+                  <FilterIcon className="h-3 w-3" />
+                  {isFilterActive && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2">
+                <Input
+                  placeholder="Buscar usuario..."
+                  value={(column.getFilterValue() as string) ?? ""}
+                  onChange={(e) => column.setFilterValue(e.target.value)}
+                  className="h-8"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        );
+      },
+      cell: ({ row }) => {
+        const usuario = row.original.asignadoA;
+        return <div>{`${usuario.nombre}`}</div>;
+      },
+      filterFn: (row, id, value) => {
+        if (!value) return true;
+        const usuario = row.original.asignadoA;
+        const searchStr = `${usuario.nombre}`.toLowerCase();
+        return searchStr.includes(value.toLowerCase());
+      },
+    },
+    {
+      accessorKey: "date",
+      header: "Fecha de Asignación",
+      cell: ({ row }) => {
+        const date = formatDate(row.getValue("date"));
+        return <div>{date}</div>;
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const asignacion = row.original
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menú</span>
+                <MoreHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(asignacion.item.serial.toString())}>
+                Copiar Serial
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onClick={() => handleDownload(asignacion.id)}
                 disabled={loading} // Se deshabilita mientras carga
               >
                 {loading ? 'Generando...' : 'Descargar Excel'}
               </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
     },
-  },
-], [handleDownload, loading]);
+  ], [handleDownload, loading]);
 
   const table = useReactTable({
     data: asignaciones,
@@ -236,41 +236,41 @@ const columns = React.useMemo<ColumnDef<Asignaciones>[]>(() => [
     },
   });
 
-    const fetchAllData = async () => {
-      try {
-        const usuariosResponse = await fetch('/api/asignaciones');
+  const fetchAllData = async () => {
+    try {
+      const usuariosResponse = await fetch('/api/asignaciones');
 
-  
-        if (!usuariosResponse.ok) {
-          throw new Error(`Error fetching usuarios: ${usuariosResponse.status}`);
-        }
-  
-        const usuariosData: Asignaciones[] = await usuariosResponse.json();
-        
-        setAsignaciones(usuariosData);
 
-      } catch (error: any) {
-        showToast.error("¡Error en Cargar!"+ (error.message), {
-            duration: 4000,
-            progress: false,
-            position: "top-right",
-            transition: "popUp",
-            icon: '',
-            sound: true,
-        });
+      if (!usuariosResponse.ok) {
+        throw new Error(`Error fetching usuarios: ${usuariosResponse.status}`);
       }
-    };
-  
-    React.useEffect(() => {
-      fetchAllData();
-    }, []);
-  
 
-React.useEffect(() => {
-  table.getColumn("serial")?.setFilterValue(searchQuery ?? "");
-}, [table, searchQuery]);;
+      const usuariosData: Asignaciones[] = await usuariosResponse.json();
 
-return (
+      setAsignaciones(usuariosData);
+
+    } catch (error: any) {
+      showToast.error("¡Error en Cargar!" + (error.message), {
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "popUp",
+        icon: '',
+        sound: true,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    fetchAllData();
+  }, []);
+
+
+  React.useEffect(() => {
+    table.getColumn("serial")?.setFilterValue(searchQuery ?? "");
+  }, [table, searchQuery]);;
+
+  return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -303,14 +303,14 @@ return (
                           onCheckedChange={(value) => column.toggleVisibility(!!value)}
                         >
                           {column.id === "legajo"
-                              ? "Legajo"
-                              : column.id === "ced"
-                                ? "Cedula"
-                                : column.id === "departamento"
-                                  ? "Departamento"
-                                    : column.id === "cargo"
-                                        ? "Cargo" 
-                                                    : column.id}
+                            ? "Legajo"
+                            : column.id === "ced"
+                              ? "Cedula"
+                              : column.id === "departamento"
+                                ? "Departamento"
+                                : column.id === "cargo"
+                                  ? "Cargo"
+                                  : column.id}
                         </DropdownMenuCheckboxItem>
                       )
                     })}
@@ -318,12 +318,20 @@ return (
               </DropdownMenu>
             </div>
 
-            <Button asChild>
-                <Link href="/asignaciones/new">
-                      <PlusIcon className="mr-2 h-4 w-4" />
-                      Nueva Asignación
+            <div className="flex items-center gap-2">
+              <Button asChild variant="secondary" className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20">
+                <Link href="/asignaciones/new?tab=desvincular">
+                  <Undo2 className="mr-2 h-4 w-4" />
+                  Desvincular Equipo
                 </Link>
-            </Button>
+              </Button>
+              <Button asChild>
+                <Link href="/asignaciones/new?tab=asignar">
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Nueva Asignación
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>

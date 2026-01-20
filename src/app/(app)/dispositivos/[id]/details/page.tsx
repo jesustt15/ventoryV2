@@ -192,7 +192,9 @@ const departamentoTag = (
         {/* Header */}
         <header className="flex items-center justify-between py-4 border-b border-slate-700/50 mb-6">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-100">
+            <Button 
+              onClick={() => router.back()}
+            variant="ghost" size="icon" className="text-slate-400 hover:text-slate-100">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center space-x-2">

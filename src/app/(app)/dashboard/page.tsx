@@ -196,7 +196,7 @@ export default function InventoryDashboard() {
     }
   }
 
-   const {
+  const {
     data: dashboardData, // Los datos de la API estarán aquí
     isLoading, // Será `true` mientras se obtienen los datos
     isError, // Será `true` si la petición falla
@@ -207,14 +207,14 @@ export default function InventoryDashboard() {
     refetchInterval: 300000, // Opcional: Vuelve a cargar los datos cada 5 minutos
   });
 
-   if (isLoading) {
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 
   if (isError) {
     return <ErrorDisplay message={error.message} />;
   }
-  console.log(dashboardData.totalUsers, dashboardData.totalDevices, dashboardData.totalComputers);
+  console.log(dashboardData.retiredEquipments, dashboardData.assignedBams);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
@@ -223,46 +223,54 @@ export default function InventoryDashboard() {
 
       <div className="container mx-auto p-4 relative z-10">
         {/* Main Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
           <StatCard
-            title="Total Usuarios"
-            value={dashboardData.totalUsers}
-            trend={dashboardData.trends.users}
-            icon={Users}
-            color="cyan"
-            description="Usuarios registrados"
+            title="Equipos de Baja"
+            value={dashboardData.retiredEquipments}
+            trend={dashboardData.trends.retired}
+            icon={Shield}
+            color="red"
+            description="Computadores y Dispositivos"
           />
           <StatCard
-            title="Dispositivos Totales"
-            value={dashboardData.totalDevices}
-            trend={dashboardData.trends.devices}
+            title="BAMS Asignadas"
+            value={dashboardData.assignedBams}
+            trend={dashboardData.trends.bams}
             icon={Monitor}
             color="blue"
-            description="Todos los dispositivos"
+            description="Dispositivos BAM en uso"
           />
           <StatCard
-            title="Computadores Totales"
-            value={dashboardData.totalComputers}
-            trend={dashboardData.trends.computers}
-            icon={Cpu}
-            color="purple"
-            description="Total de computadores"
-          />
-          <StatCard
-            title="Computadores Asignados"
-            value={dashboardData.assignedComputers}
+            title="Laptops Asignadas"
+            value={dashboardData.assignedLaptops}
             trend={dashboardData.trends.assigned}
             icon={UserCheck}
             color="green"
-            description="En uso activo"
+            description="En manos de usuarios"
           />
           <StatCard
-            title="Computadores en Resguardo"
-            value={dashboardData.storedComputers}
-            trend={dashboardData.trends.stored}
+            title="Desktops Asignadas"
+            value={dashboardData.assignedDesktops}
+            trend={dashboardData.trends.assigned}
+            icon={Monitor}
+            color="purple"
+            description="En uso en oficinas"
+          />
+          <StatCard
+            title="Laptops Resguardo"
+            value={dashboardData.reservedLaptops}
+            trend={dashboardData.trends.reserved}
             icon={Shield}
             color="amber"
-            description="Resguardados"
+            description="Disponibles almacén"
+          />
+          <StatCard
+            title="Desktops Resguardo"
+            value={dashboardData.reservedDesktops}
+            trend={dashboardData.trends.reserved}
+            icon={Building}
+            color="orange"
+            description="Disponibles almacén"
           />
         </div>
 
@@ -284,6 +292,18 @@ export default function InventoryDashboard() {
                 >
                   Departamentos
                 </TabsTrigger>
+                <TabsTrigger
+                  value="gerencia"
+                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                >
+                  Gerencia
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sociedad"
+                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                >
+                  Sociedad
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="mt-0">
@@ -293,7 +313,7 @@ export default function InventoryDashboard() {
                     <CardHeader className="border-b border-slate-700/50 pb-3">
                       <CardTitle className="text-slate-100 flex items-center">
                         <PieChart className="mr-2 h-5 w-5 text-cyan-500" />
-                        Estado de Computadores
+                        Estado de Laptops/Desktops
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-6">
@@ -303,18 +323,18 @@ export default function InventoryDashboard() {
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm text-slate-400">Asignados</span>
                               <span className="text-sm text-green-400">
-                                {dashboardData.assignedComputers} (
-                                {Math.round((dashboardData.assignedComputers / dashboardData.totalComputers) * 100)}%)
+                                {dashboardData.assignedLaptopsDesktops} (
+                                {Math.round((dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100)}%)
                               </span>
                             </div>
                             <Progress
-                              value={(dashboardData.assignedComputers / dashboardData.totalComputers) * 100}
+                              value={(dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100}
                               className="h-3 bg-slate-700"
                             >
                               <div
                                 className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
                                 style={{
-                                  width: `${(dashboardData.assignedComputers / dashboardData.totalComputers) * 100}%`,
+                                  width: `${(dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100}%`,
                                 }}
                               />
                             </Progress>
@@ -324,28 +344,28 @@ export default function InventoryDashboard() {
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm text-slate-400">En Resguardo</span>
                               <span className="text-sm text-amber-400">
-                                {dashboardData.storedComputers} (
-                                {Math.round((dashboardData.storedComputers / dashboardData.totalComputers) * 100)}%)
+                                {dashboardData.reservedLaptopsDesktops} (
+                                {Math.round((dashboardData.reservedLaptopsDesktops / dashboardData.totalComputers) * 100)}%)
                               </span>
                             </div>
                             <Progress
-                              value={(dashboardData.storedComputers / dashboardData.totalComputers) * 100}
+                              value={(dashboardData.reservedLaptopsDesktops / dashboardData.totalComputers) * 100}
                               className="h-3 bg-slate-700"
                             >
                               <div
                                 className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
                                 style={{
-                                  width: `${(dashboardData.storedComputers / dashboardData.totalComputers) * 100}%`,
+                                  width: `${(dashboardData.reservedLaptopsDesktops / dashboardData.totalComputers) * 100}%`,
                                 }}
                               />
                             </Progress>
                           </div>
-                          
+
                           {/* Quick Actions - Moved here */}
                           <div className="pt-4">
                             <h3 className="text-sm font-semibold text-cyan-400 mb-3">Acciones Rápidas</h3>
                             {isAdmin && (
-                                <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-2 gap-2">
                                 <Link
                                   href="/dispositivos"
                                   className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
@@ -379,7 +399,7 @@ export default function InventoryDashboard() {
                                 </Link>
                               </div>
                             )}
-                           
+
                           </div>
                         </div>
 
@@ -394,7 +414,7 @@ export default function InventoryDashboard() {
                                 stroke="url(#gradient1)"
                                 strokeWidth="8"
                                 fill="none"
-                                strokeDasharray={`${(dashboardData.assignedComputers / dashboardData.totalComputers) * 251.2} 251.2`}
+                                strokeDasharray={`${(dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 251.2} 251.2`}
                                 strokeLinecap="round"
                               />
                               <defs>
@@ -407,7 +427,7 @@ export default function InventoryDashboard() {
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-slate-100">
-                                  {Math.round((dashboardData.assignedComputers / dashboardData.totalComputers) * 100)}%
+                                  {Math.round((dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100)}%
                                 </div>
                                 <div className="text-xs text-slate-400">Asignados</div>
                               </div>
@@ -417,7 +437,7 @@ export default function InventoryDashboard() {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   {/* Recent Activity - Horizontal layout */}
                   <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
                     <CardHeader className="border-b border-slate-700/50 pb-3">
@@ -474,8 +494,8 @@ export default function InventoryDashboard() {
                 <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
                   <CardHeader className="border-b border-slate-700/50 pb-3">
                     <CardTitle className="text-slate-100 flex items-center">
-                      <Building className="mr-2 h-5 w-5 text-cyan-500" /> 
-                      Distribución por Departamentos
+                      <Building className="mr-2 h-5 w-5 text-cyan-500" />
+                      Distribución por Departamentos (Laptops/Desktops)
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
@@ -488,18 +508,91 @@ export default function InventoryDashboard() {
                           </div>
                           <div className="flex items-center space-x-4">
                             <div className="w-full bg-slate-700 rounded-full h-2.5">
-                              <div 
-                                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full" 
+                              <div
+                                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full"
                                 style={{ width: `${dept.percentage}%` }}
                               ></div>
                             </div>
                             <div className="flex space-x-4 text-xs text-slate-400">
                               <span>{dept.computers} comp.</span>
-                              <span>{dept.users} users</span>
                             </div>
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="gerencia" className="mt-0">
+                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader className="border-b border-slate-700/50 pb-3">
+                    <CardTitle className="text-slate-100 flex items-center">
+                      <Building className="mr-2 h-5 w-5 text-purple-500" />
+                      Distribución por Gerencia (Laptops/Desktops)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2">
+                      {dashboardData.gerenciaStats.map((gerencia: any) => {
+                        const totalC = dashboardData.assignedLaptopsDesktops + dashboardData.reservedLaptopsDesktops;
+                        const percentage = totalC > 0 ? ((gerencia.count / totalC) * 100).toFixed(1) : "0";
+                        return (
+                          <div key={gerencia.name} className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-slate-300 font-medium">{gerencia.name}</span>
+                              <span className="text-purple-400 font-mono">{percentage}%</span>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <div className="w-full bg-slate-700 rounded-full h-2.5">
+                                <div
+                                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex space-x-4 text-xs text-slate-400">
+                                <span>{gerencia.count} comp.</span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="sociedad" className="mt-0">
+                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <CardHeader className="border-b border-slate-700/50 pb-3">
+                    <CardTitle className="text-slate-100 flex items-center">
+                      <Building className="mr-2 h-5 w-5 text-green-500" />
+                      Distribución por Sociedad (Laptops/Desktops)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2">
+                      {dashboardData.sociedadStats.map((soc: any) => {
+                        const totalC = dashboardData.assignedLaptopsDesktops + dashboardData.reservedLaptopsDesktops;
+                        const percentage = totalC > 0 ? ((soc.count / totalC) * 100).toFixed(1) : "0";
+                        return (
+                          <div key={soc.name} className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-slate-300 font-medium">{soc.name}</span>
+                              <span className="text-green-400 font-mono">{percentage}%</span>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <div className="w-full bg-slate-700 rounded-full h-2.5">
+                                <div
+                                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex space-x-4 text-xs text-slate-400">
+                                <span>{soc.count} comp.</span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -603,6 +696,8 @@ function StatCard({
         return "from-green-500 to-emerald-500 border-green-500/30 text-green-500"
       case "amber":
         return "from-amber-500 to-orange-500 border-amber-500/30 text-amber-500"
+      case "red":
+        return "from-red-500 to-rose-500 border-red-500/30 text-red-500"
       default:
         return "from-cyan-500 to-blue-500 border-cyan-500/30 text-cyan-500"
     }

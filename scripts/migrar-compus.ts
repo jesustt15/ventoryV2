@@ -46,13 +46,13 @@ async function main() {
   }
   console.log(`✅ ${modeloMap.size} modelos cargados en memoria.`);
 
-  // Busca el departamento específico "Jefatura de IT y Comunicaciones"
+  // Busca el departamento específico "Jefatura de IT & Comunicaciones"
   const departamentoTI = await prisma.departamento.findFirst({
-    where: { nombre: 'Jefatura IT & Comunicaciones' },
+    where: { nombre: 'Jefatura de IT & Comunicaciones' },
   });
 
   if (!departamentoTI) {
-    console.error('❌ No se encontró el departamento "Jefatura de IT y Comunicaciones". Por favor, créalo primero.');
+    console.error('❌ No se encontró el departamento "Jefatura de IT & Comunicaciones". Por favor, créalo primero.');
     return;
   }
   console.log(`✅ Departamento de TI encontrado con ID: ${departamentoTI.id}`);
@@ -97,7 +97,7 @@ async function main() {
           sapVersion: row.sapVersion || null,
           officeVersion: row.officeVersion || null,
         };
-        
+
         computadoresParaCrear.push(computadorData);
       })
       .on('end', () => {
@@ -112,7 +112,7 @@ async function main() {
   // --- PASO 3: Insertar los computadores en la base de datos ---
   if (computadoresParaCrear.length > 0) {
     console.log('Insertando computadores en la base de datos...');
-    
+
     // `createMany` para inserción masiva y eficiente
     const result = await prisma.computador.createMany({
       data: computadoresParaCrear,

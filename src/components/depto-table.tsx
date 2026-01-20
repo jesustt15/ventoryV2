@@ -310,7 +310,7 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
 
             return (
                 <div className="flex items-center">
-                <span>Modelo</span>
+                <span>Gerencia</span>
                 <Popover>
                     <PopoverTrigger asChild>
                     <Button 
@@ -330,7 +330,7 @@ export function DepartamentoTable({}: DepartamentoTableProps) {
                         onChange={(e) => column.setFilterValue(e.target.value)}
                         className="h-8 w-full border rounded text-sm px-2 py-1"
                     >
-                        <option value="">Todos los modelos</option>
+                        <option value="">Todos las gerencias</option>
                         {uniqueModelos.map((modelo) => (
                         <option key={modelo} value={modelo}>
                             {modelo}

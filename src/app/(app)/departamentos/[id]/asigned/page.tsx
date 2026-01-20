@@ -36,6 +36,7 @@ import {
 import { useParams } from "next/navigation"
 import Loading from "@/utils/loading"
 import { formatDate } from "@/utils/formatDate"
+import { useRouter } from "next/navigation"
 
 
 interface DeptoProfileData {
@@ -67,6 +68,7 @@ const statusConfig = {
 export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("computers")
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const router = useRouter();
   const params = useParams();
   const deptoId = params.id; // Obtiene el ID del usuario desde la URL
 
