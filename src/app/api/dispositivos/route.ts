@@ -59,6 +59,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Todos los campos son requeridos' }, { status: 400 });
     }
 
+    const serialExistente = await prisma.dispositivo.findUnique({
+      where: { serial: body.serial },
+    });
+
+    if (serialExistente) {
+      return NextResponse.json(
+        { message: `Ya existe un equipo registrado con el serial: ${body.serial}` },
+        { status: 400 } // Error de cliente: datos inválidos
+      );
+    }
+
+
     const nuevoDispositivo = await prisma.dispositivo.create({
       data: {
         modeloId,

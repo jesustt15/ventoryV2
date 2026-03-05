@@ -211,10 +211,6 @@ export function ComputadorTable({ }: ComputadorTableProps) {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => {
-                      console.log("Navigating to:", `/computadores/${row.original.id}/details`);
-                      router.push(`/computadores/${row.original.id}/details`);
-                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

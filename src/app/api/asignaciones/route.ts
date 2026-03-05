@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
             }
           }
         },         // Incluye el objeto Computador si existe
-        dispositivo:{
+        dispositivo: {
           include: {
             modelo: {
               include: {
@@ -226,16 +226,17 @@ export async function POST(request: NextRequest) {
         // 'desvincular'
         const ultimaAsignacion = await tx.asignaciones.findFirst({
           where: {
-            OR: [{ computadorId: itemId }, { dispositivoId: itemId }],
+            OR: [{ computadorId: itemId }, { dispositivoId: itemId }, { lineaTelefonicaId: itemId }],
             actionType: 'Asignacion',
           },
           orderBy: { date: 'desc' },
         });
 
         if (!ultimaAsignacion) {
-          throw new Error('No se encontró una asignación activa para este ítem para desvincular.');
+          throw new Error('No se encontró una asignación activa para este ítem.');
         }
 
+        // 2. Creamos el registro de Devolución (Historial)
         await tx.asignaciones.create({
           data: {
             actionType: 'Devolucion',
@@ -247,8 +248,39 @@ export async function POST(request: NextRequest) {
             targetUsuarioId: ultimaAsignacion.targetUsuarioId,
             targetDepartamentoId: ultimaAsignacion.targetDepartamentoId,
             notes: notas || `Devolución de ${ultimaAsignacion.targetType}`,
+            // Opcional: limpiar gerente en el historial de devolución si aplica
+            motivo: 'Devolucion',
+            gerente: null,
           },
         });
+
+        // 3. ¡ESTO ES LO QUE FALTABA! Actualizar el activo para liberar los IDs
+        const resetData = {
+          estado: 'Resguardo', // O el estado que uses para equipos libres
+          usuarioId: null,
+          departamentoId: null,
+        };
+
+        if (itemType === 'Computador') {
+          await tx.computador.update({
+            where: { id: itemId },
+            data: resetData
+          });
+        } else if (itemType === 'Dispositivo') {
+          await tx.dispositivo.update({
+            where: { id: itemId },
+            data: resetData
+          });
+        } else if (itemType === 'LineaTelefonica') {
+          // Si la línea telefónica también tiene estos campos, actualízala
+          await tx.lineaTelefonica.update({
+            where: { id: itemId },
+            data: {
+              estado: 'Resguardo',
+              usuarioId: null
+            }
+          });
+        }
       }
 
       return { success: true, message: `Acción '${action}' completada.` };
