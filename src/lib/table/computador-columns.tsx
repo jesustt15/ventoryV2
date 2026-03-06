@@ -206,7 +206,7 @@ export function createComputadorColumns({
         {
             accessorKey: "estado",
             header: ({ column }) => {
-                const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "Inactivo"];
+                const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "De Baja"];
 
                 return (
                     <ColumnFilterHeader

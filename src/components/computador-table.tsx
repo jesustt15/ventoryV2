@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import React from "react";
 import { Button } from "./ui/button";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, UploadIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -47,6 +47,7 @@ export function ComputadorTable({ }: ComputadorTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [computadores, setComputadores] = React.useState<Computador[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
   const isAdmin = useIsAdmin();
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
@@ -132,6 +133,44 @@ export function ComputadorTable({ }: ComputadorTableProps) {
     fetchAllData();
   }, []);
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/computadores/bulk-update", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Error al procesar el archivo.");
+      }
+
+      const updated = data?.summary?.updated ?? 0;
+      const notFound = data?.summary?.notFound ?? 0;
+
+      showToast.success(
+        `Actualización completada. Actualizados: ${updated}, No encontrados: ${notFound}`
+      );
+
+      await fetchAllData();
+    } catch (error: any) {
+      console.error(error);
+      showToast.error(error.message || "Error al actualizar desde Excel.");
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
+    }
+  };
+
   React.useEffect(() => {
     if (searchQuery) {
       table.getColumn("serial")?.setFilterValue(searchQuery);
@@ -156,7 +195,37 @@ export function ComputadorTable({ }: ComputadorTableProps) {
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-2xl font-bold">Computadores</CardTitle>
+          <div className="flex flex-col gap-2">
+            <CardTitle className="text-2xl font-bold">Computadores</CardTitle>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>Actualización masiva:</span>
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    document
+                      .querySelector<HTMLInputElement>(
+                        'input[type="file"][accept=".xlsx,.xls"]'
+                      )
+                      ?.click()
+                  }
+                  disabled={isUploading}
+                >
+                  <UploadIcon className="mr-1 h-3 w-3" />
+                  {isUploading ? "Subiendo..." : "Subir Excel"}
+                </Button>
+              </label>
+            </div>
+          </div>
           <TableToolbar
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}

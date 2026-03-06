@@ -32,7 +32,7 @@ model ModeloDispositivo {
 // --- ESTRUCTURAS EXISTENTES MODIFICADAS ---
 model Gerencia {
   id            String         @id @default(uuid())
-  nombre        String
+  nombre        String         @unique
   gerenteId      String?
   gerente       Usuario?        @relation(fields: [gerenteId], references: [id])
   departamentos Departamento[]

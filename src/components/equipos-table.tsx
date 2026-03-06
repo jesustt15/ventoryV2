@@ -291,7 +291,7 @@ const columns: ColumnDef<Dispositivo>[] = [
     accessorKey: "estado",
     header: ({ column }) => {
       const isFilterActive = !!column.getFilterValue();
-      const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "Otro"]; // Ajusta según tus estados
+      const estadosUnicos = ["Resguardo", "En reparación", "Asignado", "De Baja"]; // Ajusta según tus estados
       
       return (
         <div className="flex items-center">

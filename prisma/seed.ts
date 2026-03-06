@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma, Role } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const gerencias = [
     { nombre: 'Gerencia General' },
@@ -9,7 +10,6 @@ const gerencias = [
     { nombre: 'Gerencia SMS y PCP' },
     { nombre: 'Gerencia de Ventas Nacionales y Mercadeo' },
     { nombre: 'Gerencia Legal' },
-    // Agrega más gerencias según tu necesidad
 ];
 
 const users = [
@@ -17,26 +17,44 @@ const users = [
     { username: 'monitor', password: 'Masisa,.2025', role: Role.user },
 ];
 
-// Agregar usuarios al modelo
 async function seedUsers(prisma: PrismaClient) {
     for (const user of users) {
-        await prisma.user.create({
-            data: user,
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+
+        await prisma.user.upsert({
+            where: { username: user.username },
+            update: {
+                password: hashedPassword,
+                role: user.role,
+            },
+            create: {
+                username: user.username,
+                password: hashedPassword,
+                role: user.role,
+            },
         });
     }
 }
+
 const prisma = new PrismaClient();
 
 async function main() {
     for (const gerencia of gerencias) {
-        await prisma.gerencia.create({
-            data: gerencia,
+        await prisma.gerencia.upsert({
+            where: {
+                nombre: gerencia.nombre,
+            },
+            update: {},
+            create: gerencia,
         });
     }
-    console.log('Gerencias insertadas correctamente');
-}
-main()
 
+    await seedUsers(prisma);
+
+    console.log('Gerencias y usuarios insertados correctamente');
+}
+
+main()
     .catch((e) => {
         console.error(e);
         process.exit(1);
