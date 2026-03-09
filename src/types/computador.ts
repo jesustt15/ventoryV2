@@ -46,6 +46,9 @@ export interface Computador {
         img?: string;
         marca: { nombre: string };
         tipo: string;
+        procesadorDefault?: string | null;
+        ramDefault?: string | null;
+        almacenamientoDefault?: string | null;
     };
     usuario?: {
         id: string;

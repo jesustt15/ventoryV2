@@ -17,7 +17,7 @@ export async function GET() {
       assignedDesktops,
       reservedLaptops,
       reservedDesktops,
-      totalComputers, // Mantenemos para calculos de % si es necesario
+      totalComputersCount, // Total de computadores (Laptop + Desktop)
     ] = await Promise.all([
       prisma.computador.count({ where: { estado: "De Baja" } }),
       prisma.dispositivo.count({ where: { estado: "De Baja" } }),
@@ -53,12 +53,18 @@ export async function GET() {
           modelo: { tipo: "Desktop" }
         }
       }),
-      prisma.computador.count(),
+      // Contar TODOS los computadores de tipo Laptop y Desktop
+      prisma.computador.count({
+        where: {
+          modelo: { tipo: { in: ["Laptop", "Desktop"] } }
+        }
+      }),
     ]);
 
     const retiredEquipments = retiredComputers + retiredDevices;
-    const assignedLaptopsDesktops = assignedLaptops + assignedDesktops; // kept for legacy calculation if needed
+    const assignedLaptopsDesktops = assignedLaptops + assignedDesktops;
     const reservedLaptopsDesktops = reservedLaptops + reservedDesktops;
+    const totalComputers = totalComputersCount; // Usar el conteo correcto
 
     // --- 2. ESTADÍSTICAS POR GERENCIA ---
     // Obtenemos gerencias y sumamos sus computadores (Laptop/Desktop)
@@ -186,8 +192,12 @@ export async function GET() {
       sociedadStats,
       departmentStats,
       recentActivity,
+      totalComputers,
       trends,
     });
+
+    console.log("datosBackend:", retiredEquipments,  assignedLaptopsDesktops,
+      reservedLaptopsDesktops, totalComputers);
 
   } catch (error) {
     console.error("Error al obtener las estadísticas del dashboard:", error);

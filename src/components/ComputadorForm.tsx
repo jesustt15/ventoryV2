@@ -15,6 +15,9 @@ interface Modelo {
     id: string;
     nombre: string;
     marca: { id: string; nombre: string };
+    procesadorDefault?: string | null;
+    ramDefault?: string | null;
+    almacenamientoDefault?: string | null;
 }
 
 interface Marca {
@@ -32,9 +35,9 @@ export interface ComputadorFormData {
     host?: string;
     sisOperativo?: string;
     arquitectura?: "32" | "64" | "";
-    ram?: string;
-    almacenamiento?: string;
-    procesador?: string;
+    ram?: string | null;
+    almacenamiento?: string | null;
+    procesador?: string | null;
     sapVersion?: string;
     macWifi?: string;
     sede?: string;
@@ -82,10 +85,11 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
 
     const [formData, setFormData] = useState<ComputadorFormData>(initialState);
     const [modelos, setModelos] = useState<Modelo[]>([]);
-    const [marcas, setMarcas] = useState<Marca[]>([]); // Nuevo estado para marcas
-    const [selectedMarcaId, setSelectedMarcaId] = useState<string | null>(null); // Estado para la marca seleccionada
+    const [marcas, setMarcas] = useState<Marca[]>([]);
+    const [selectedMarcaId, setSelectedMarcaId] = useState<string | null>(null);
     const [isLoadingModelos, setIsLoadingModelos] = useState(false);
     const [isLoadingMarcas, setIsLoadingMarcas] = useState(false);
+    const [usarValoresModelo, setUsarValoresModelo] = useState(true);
 
     // --- useEffect CORREGIDO para manejar el estado del formulario ---
     useEffect(() => {
@@ -117,10 +121,8 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
 
         if (initialData) {
             setFormData(initialData);
-            // Si estamos editando, tal vez queramos establecer la marca seleccionada basada en el modelo inicial
-            // Pero como la API de modelos ya trae la marca, podríamos inferirlo si tuviéramos el objeto modelo completo en initialData
-            // Como initialData solo tiene modeloId, tendríamos que buscar el modelo en la lista de modelos cargada
-            // Lo haremos en un useEffect separado cuando modelos esté cargado
+            const tieneOverride = !!(initialData.procesador?.trim() || initialData.ram?.trim() || initialData.almacenamiento?.trim());
+            setUsarValoresModelo(!tieneOverride);
         }
     }, [initialData]);
 
@@ -146,7 +148,17 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
     };
 
     const handleModeloChange = (option: OptionType | null) => {
-        setFormData(prev => ({ ...prev, modeloId: option?.value ?? '' }));
+        const modeloId = option?.value ?? '';
+        const modelo = modelos.find(m => m.id === modeloId);
+        const tieneDefaults = modelo && (modelo.procesadorDefault ?? modelo.ramDefault ?? modelo.almacenamientoDefault);
+        setUsarValoresModelo(!!tieneDefaults);
+        setFormData(prev => ({
+            ...prev,
+            modeloId,
+            procesador: tieneDefaults ? (modelo!.procesadorDefault ?? prev.procesador) ?? '' : prev.procesador,
+            ram: tieneDefaults ? (modelo!.ramDefault ?? prev.ram) ?? '' : prev.ram,
+            almacenamiento: tieneDefaults ? (modelo!.almacenamientoDefault ?? prev.almacenamiento) ?? '' : prev.almacenamiento,
+        }));
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -155,7 +167,13 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
             showToast.warning("Modelo, Serial y Estado son obligatorios.", { position: "top-right" });
             return;
         }
-        await onSubmit(formData); // Llama a la función del padre para manejar la lógica de API
+        const dataToSubmit: ComputadorFormData = {
+            ...formData,
+            procesador: usarValoresModelo ? null : (formData.procesador || null),
+            ram: usarValoresModelo ? null : (formData.ram || null),
+            almacenamiento: usarValoresModelo ? null : (formData.almacenamiento || null),
+        };
+        await onSubmit(dataToSubmit);
     };
 
     // Preparar opciones para react-select de Marcas
@@ -167,9 +185,13 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
         ? modelos.filter(modelo => modelo.marca.id === selectedMarcaId)
         : modelos;
 
-    // Preparar opciones para react-select de Modelos
     const modeloOptions = filteredModelos.map(modelo => ({ value: modelo.id, label: modelo.nombre }));
     const selectedModelValue = modeloOptions.find(option => option.value === formData.modeloId) || null;
+    const selectedModel = filteredModelos.find(m => m.id === formData.modeloId);
+    const efectivoProcesador = formData.procesador || selectedModel?.procesadorDefault || '';
+    const efectivoRam = formData.ram || selectedModel?.ramDefault || '';
+    const efectivoAlmacenamiento = formData.almacenamiento || selectedModel?.almacenamientoDefault || '';
+    const mostrarCheckboxEspecificaciones = selectedModel && (selectedModel.procesadorDefault ?? selectedModel.ramDefault ?? selectedModel.almacenamientoDefault);
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -243,15 +265,34 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
 
                 {/* Sección Especificaciones Técnicas */}
                 <h3 className="text-lg font-medium mt-4 glow-text border-b pb-1">Especificaciones Técnicas</h3>
+                {mostrarCheckboxEspecificaciones && (
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="usarValoresModelo"
+                            checked={usarValoresModelo}
+                            onChange={(e) => setUsarValoresModelo(e.target.checked)}
+                            className="h-4 w-4 rounded border-input"
+                        />
+                        <Label htmlFor="usarValoresModelo" className="text-sm text-muted-foreground">
+                            Usar valores por defecto del modelo (procesador, RAM, almacenamiento)
+                        </Label>
+                    </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    {/* ... Todos tus inputs para SO, Procesador, RAM, etc. van aquí, cableados igual que el de serial ... */}
                     <div className="grid gap-2">
                         <Label htmlFor="sisOperativo">Sistema Operativo</Label>
                         <Input id="sisOperativo" value={formData.sisOperativo || ''} onChange={handleInputChange} placeholder="Windows 10 Pro" />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="procesador">Procesador</Label>
-                        <Input id="procesador" value={formData.procesador || ''} onChange={handleInputChange} placeholder="Intel Core i5-8250U" />
+                        <Input
+                            id="procesador"
+                            value={usarValoresModelo && mostrarCheckboxEspecificaciones ? efectivoProcesador : (formData.procesador || '')}
+                            onChange={handleInputChange}
+                            placeholder="Intel Core i5-8250U"
+                            disabled={usarValoresModelo && !!mostrarCheckboxEspecificaciones}
+                        />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="macWifi">Mac Wifi</Label>
@@ -281,11 +322,23 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="ram">Memoria RAM</Label>
-                        <Input id="ram" value={formData.ram || ''} onChange={handleInputChange} placeholder="Ej: 8GB DDR4" />
+                        <Input
+                            id="ram"
+                            value={usarValoresModelo && mostrarCheckboxEspecificaciones ? efectivoRam : (formData.ram || '')}
+                            onChange={handleInputChange}
+                            placeholder="Ej: 8GB DDR4"
+                            disabled={usarValoresModelo && !!mostrarCheckboxEspecificaciones}
+                        />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="almacenamiento">Almacenamiento</Label>
-                        <Input id="almacenamiento" value={formData.almacenamiento || ''} onChange={handleInputChange} placeholder="Ej: 256GB SSD NVMe" />
+                        <Input
+                            id="almacenamiento"
+                            value={usarValoresModelo && mostrarCheckboxEspecificaciones ? efectivoAlmacenamiento : (formData.almacenamiento || '')}
+                            onChange={handleInputChange}
+                            placeholder="Ej: 256GB SSD NVMe"
+                            disabled={usarValoresModelo && !!mostrarCheckboxEspecificaciones}
+                        />
                     </div>
                 </div>
 

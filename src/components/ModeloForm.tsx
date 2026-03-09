@@ -64,6 +64,9 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
     const [isCreatingMarca, setIsCreatingMarca] = useState(false);
+    const [procesadorDefault, setProcesadorDefault] = useState('');
+    const [ramDefault, setRamDefault] = useState('');
+    const [almacenamientoDefault, setAlmacenamientoDefault] = useState('');
 
     const isEditing = !!initialData;
 
@@ -77,13 +80,18 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
                 setSelectedTipo(initialData.tipo || '');
                 setSelectedImagePreview(initialData.img || null);
                 setSelectedImage(null);
+                setProcesadorDefault(initialData.procesadorDefault ?? '');
+                setRamDefault(initialData.ramDefault ?? '');
+                setAlmacenamientoDefault(initialData.almacenamientoDefault ?? '');
             } else {
-                // Reset form for creation
                 setNombre('');
                 setSelectedMarca(null);
                 setSelectedTipo('');
                 setSelectedImage(null);
                 setSelectedImagePreview(null);
+                setProcesadorDefault('');
+                setRamDefault('');
+                setAlmacenamientoDefault('');
             }
         }
     }, [isOpen, initialData, isEditing, marcas]);
@@ -136,10 +144,13 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
         }
 
         if (selectedImage) {
-            console.log('ESTA ES LA IMG:', selectedImage); // Debugging line to check if image is being set
             formDataToSubmit.append('img', selectedImage);
         }
-        console.log("imagen desde front:" ,formDataToSubmit.get('img')); // Debugging line to check if image is being added
+        if (selectedTipo === 'Laptop' || selectedTipo === 'Desktop') {
+            formDataToSubmit.append('procesadorDefault', procesadorDefault.trim());
+            formDataToSubmit.append('ramDefault', ramDefault.trim());
+            formDataToSubmit.append('almacenamientoDefault', almacenamientoDefault.trim());
+        }
         onSubmit(formDataToSubmit);
     };
 
@@ -223,6 +234,22 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
                                 </SelectContent>
                             </ShadcnSelect>
                         </div>
+                        {(selectedTipo === 'Laptop' || selectedTipo === 'Desktop') && (
+                            <>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="procesadorDefault" className="text-right">Procesador (default)</Label>
+                                    <Input id="procesadorDefault" value={procesadorDefault} onChange={(e) => setProcesadorDefault(e.target.value)} className="col-span-3" placeholder="Ej: Intel Core i5-8250U" />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="ramDefault" className="text-right">RAM (default)</Label>
+                                    <Input id="ramDefault" value={ramDefault} onChange={(e) => setRamDefault(e.target.value)} className="col-span-3" placeholder="Ej: 8GB DDR4" />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="almacenamientoDefault" className="text-right">Almacenamiento (default)</Label>
+                                    <Input id="almacenamientoDefault" value={almacenamientoDefault} onChange={(e) => setAlmacenamientoDefault(e.target.value)} className="col-span-3" placeholder="Ej: 256GB SSD NVMe" />
+                                </div>
+                            </>
+                        )}
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>

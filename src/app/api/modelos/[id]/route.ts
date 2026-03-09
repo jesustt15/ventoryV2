@@ -81,9 +81,11 @@ export async function PUT(request: NextRequest) {
     const nombre = data.get('nombre') as string;
     const marcaId = data.get('marcaId') as string;
     const tipo = data.get('tipo') as string;
-    // Tomamos el archivo de imagen (si existe)
     const imagenFile = data.get('img') as File | null;
     const marcaNombre = data.get('marcaNombre') as string | null;
+    const procesadorDefault = (data.get('procesadorDefault') as string)?.trim() || null;
+    const ramDefault = (data.get('ramDefault') as string)?.trim() || null;
+    const almacenamientoDefault = (data.get('almacenamientoDefault') as string)?.trim() || null;
 
     // Validar que 'nombre' exista
     if (!nombre || typeof nombre !== 'string') {
@@ -145,6 +147,9 @@ if (imagenFile && typeof imagenFile !== 'string') {
       tipo,
       marcaId: finalMarcaId,
       img: finalImageUrl,
+      procesadorDefault,
+      ramDefault,
+      almacenamientoDefault,
     };
 
     // 6. Actualizar el modelo en la base de datos

@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import React from "react";
 import { Button } from "./ui/button";
-import { PlusIcon, UploadIcon } from "lucide-react";
+import { PlusIcon, UploadIcon, DownloadIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -52,6 +52,7 @@ export function ComputadorTable({ }: ComputadorTableProps) {
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [isExporting, setIsExporting] = React.useState(false);
 
   const handleDelete = async ({ id }: { id: string }) => {
     setIsLoading(true);
@@ -179,6 +180,71 @@ export function ComputadorTable({ }: ComputadorTableProps) {
     }
   }, [table, searchQuery]);
 
+  const handleExportToExcel = async () => {
+    setIsExporting(true);
+    try {
+      // Obtener las filas filtradas
+      const filteredRows = table.getFilteredRowModel().rows;
+      
+      // Preparar los datos para exportar
+      const dataToExport = filteredRows.map((row) => {
+        const computador = row.original;
+        return {
+          serial: computador.serial,
+          marca: computador.modelo?.marca?.nombre || "N/A",
+          modelo: computador.modelo?.nombre || "N/A",
+          tipo: computador.modelo?.tipo || "N/A",
+          host: computador.host || "N/A",
+          sede: computador.sede || "N/A",
+          estado: computador.estado,
+          asignadoA: computador.estado === "Asignado" 
+            ? (computador.usuario 
+                ? `${computador.usuario.nombre} ${computador.usuario.apellido || ""}`.trim()
+                : computador.departamento?.nombre || computador.ubicacion || "N/A")
+            : "N/A",
+          sisOperativo: computador.sisOperativo || "N/A",
+          procesador: computador.procesador || computador.modelo?.procesadorDefault || "N/A",
+          ram: computador.ram || computador.modelo?.ramDefault || "N/A",
+          almacenamiento: computador.almacenamiento || computador.modelo?.almacenamientoDefault || "N/A",
+          nsap: computador.nsap || "N/A",
+          macWifi: computador.macWifi || "N/A",
+          macEthernet: computador.macEthernet || "N/A",
+        };
+      });
+
+      // Enviar los datos al endpoint de exportación
+      const response = await fetch("/api/computadores/export", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: dataToExport }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al generar el archivo Excel");
+      }
+
+      // Descargar el archivo
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `computadores_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showToast.success(`Excel generado con ${dataToExport.length} registros`);
+    } catch (error: any) {
+      console.error(error);
+      showToast.error(error.message || "Error al exportar a Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const columnLabels: Record<string, string> = {
     serial: "Serial",
     estado: "Estado",
@@ -233,14 +299,24 @@ export function ComputadorTable({ }: ComputadorTableProps) {
             table={table}
             columnLabels={columnLabels}
             addButton={
-              isAdmin ? (
-                <Button asChild>
-                  <Link href="/computadores/new">
-                    <PlusIcon className="mr-2 h-4 w-4" />
-                    Agregar Computador
-                  </Link>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleExportToExcel}
+                  disabled={isExporting || computadores.length === 0}
+                >
+                  <DownloadIcon className="mr-2 h-4 w-4" />
+                  {isExporting ? "Exportando..." : "Exportar Excel"}
                 </Button>
-              ) : undefined
+                {isAdmin && (
+                  <Button asChild>
+                    <Link href="/computadores/new">
+                      <PlusIcon className="mr-2 h-4 w-4" />
+                      Agregar Computador
+                    </Link>
+                  </Button>
+                )}
+              </div>
             }
           />
         </div>

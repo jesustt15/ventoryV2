@@ -22,8 +22,10 @@ model ModeloDispositivo {
   marca         Marca     @relation(fields: [marcaId], references: [id])
   tipo          String
   img            String?    // Ej: "Laptop", "Desktop", "Monitor", "Teléfono IP", "Impresora", "Switch"
-  // Puedes añadir más campos específicos del modelo aquí si es necesario,
-  // como especificaciones base, año de lanzamiento, etc.
+  // Especificaciones por defecto del modelo (Desktop/Laptop). Si un Computador no define override, usa estos.
+  procesadorDefault    String?
+  ramDefault           String?
+  almacenamientoDefault String?
 
   computadores  Computador[]
   dispositivos  Dispositivo[] // Renombrado de Equipos a Dispositivo
@@ -93,9 +95,9 @@ model Computador {
   arquitectura String?
   macWifi String?
   macEthernet String?
-  ram String?
-  almacenamiento String?
-  procesador String?
+  ram String?           // Override: si null, se usa modelo.ramDefault
+  almacenamiento String? // Override: si null, se usa modelo.almacenamientoDefault
+  procesador String?    // Override: si null, se usa modelo.procesadorDefault
   sapVersion String?
   officeVersion String?
   asignaciones Asignaciones[]

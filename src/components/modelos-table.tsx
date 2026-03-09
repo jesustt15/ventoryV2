@@ -49,18 +49,23 @@ export const modeloSchema = z.object({
   marca: z.string().min(1, "La Marca es Requerida"),
   tipo: z.string().min(1, "El tipo de dispositivo es requerido"),
   img: z.string().nullable(),
+  procesadorDefault: z.string().nullable().optional(),
+  ramDefault: z.string().nullable().optional(),
+  almacenamientoDefault: z.string().nullable().optional(),
 })
 
 export type ModeloFormData = z.infer<typeof modeloSchema>
 
 // Type for Modelo objects from API (assuming it includes an 'id' and 'marca' might be an object)
 export interface Modelo {
-  id: string; // Or number, depending on your API
+  id: string;
   nombre: string;
-  marca: { id: string; nombre: string }; // Assuming 'marca' is an object in the fetched data
+  marca: { id: string; nombre: string };
   tipo: string;
   img?: File | null;
-  // Add any other fields that come from your API
+  procesadorDefault?: string | null;
+  ramDefault?: string | null;
+  almacenamientoDefault?: string | null;
 }
 
 
@@ -72,6 +77,9 @@ export interface ModeloFormProps {
     marca: string;
     tipo: string;
     img: string | null;
+    procesadorDefault?: string | null;
+    ramDefault?: string | null;
+    almacenamientoDefault?: string | null;
   };
 }
 
@@ -530,11 +538,14 @@ const columns: ColumnDef<Modelo>[] = [
                 setEditingModelo(null);
               }}
               onSubmit={handleUpdateModel} // Usamos el handler de actualización
-              initialData={editingModelo ? { // Mapeamos los datos del modelo a editar
+              initialData={editingModelo ? {
                 nombre: editingModelo.nombre,
-                marca: editingModelo.marca.id, // Pasamos solo el ID de la marca
+                marca: editingModelo.marca.id,
                 tipo: editingModelo.tipo,
                 img: typeof editingModelo.img === "string" ? editingModelo.img : null,
+                procesadorDefault: editingModelo.procesadorDefault ?? null,
+                ramDefault: editingModelo.ramDefault ?? null,
+                almacenamientoDefault: editingModelo.almacenamientoDefault ?? null,
               } : null}
               marcas={marcas}
               key={editingModelo?.id || 'create'} // La key es crucial para que React reinicie el form

@@ -70,12 +70,19 @@ export async function POST(request: Request) {
          console.log("Se recibió un archivo de imagen vacío, se omitirá.");
        }
 
+        const procesadorDefault = (formData.get('procesadorDefault') as string) || null;
+        const ramDefault = (formData.get('ramDefault') as string) || null;
+        const almacenamientoDefault = (formData.get('almacenamientoDefault') as string) || null;
+
         const nuevoModelo = await prisma.modeloDispositivo.create({
             data: {
                 nombre,
                 marcaId: finalMarcaId,
                 tipo,
                 img: imageUrl, // Guardar la ruta de la imagen
+                procesadorDefault: procesadorDefault?.trim() || null,
+                ramDefault: ramDefault?.trim() || null,
+                almacenamientoDefault: almacenamientoDefault?.trim() || null,
             },
         });
 

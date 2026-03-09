@@ -127,6 +127,31 @@ export function createComputadorColumns({
             },
         },
         {
+            accessorKey: "host",
+            header: ({ column }) => {
+                const uniqueHosts = Array.from(
+                    new Set(
+                        computadores
+                            .map((c) => c.host)
+                            .filter(Boolean) as string[]
+                    )
+                ).sort();
+
+                return (
+                    <ColumnFilterHeader
+                        label="Host"
+                        column={column}
+                        options={uniqueHosts}
+                        placeholder="Todos los hosts"
+                    />
+                );
+            },
+            cell: ({ row }) => {
+                const host = row.getValue("host") as string | undefined;
+                return <div>{host || "N/A"}</div>;
+            },
+        },
+        {
             id: "tipo",
             accessorFn: (row) => row.modelo?.tipo,
             header: ({ column }) => {

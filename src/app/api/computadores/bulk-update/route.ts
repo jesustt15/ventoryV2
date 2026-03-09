@@ -190,6 +190,7 @@ export async function applyComputadorBulkUpdate(rows: BulkRow[]) {
 
       let warningMsg = '';
       let messageMsg = '';
+      let usuarioAsignadoId: string | null = null;
 
       // Verificamos cambios básicos
       if (row.host !== null && row.host !== undefined && row.host !== existing.host) dataToUpdate.host = row.host;
@@ -206,6 +207,8 @@ export async function applyComputadorBulkUpdate(rows: BulkRow[]) {
         } else if (userIdEnBD !== existing.usuarioId) {
           // Si el usuario existe en BD pero es diferente al que tiene la laptop asignada, lo actualizamos
           dataToUpdate.usuarioId = userIdEnBD;
+          dataToUpdate.estado = 'Asignado';
+          usuarioAsignadoId = userIdEnBD;
           messageMsg = `Usuario reasignado (Antes: ${existing.usuario?.nombre || 'Nadie'} -> Ahora: ${row.usuario}). `;
         }
       }
@@ -226,6 +229,19 @@ export async function applyComputadorBulkUpdate(rows: BulkRow[]) {
         where: { id: existing.id },
         data: dataToUpdate,
       });
+
+      // Registramos en la tabla de Asignaciones si hubo asignación de usuario
+      if (usuarioAsignadoId) {
+        await tx.asignaciones.create({
+          data: {
+            actionType: 'Asignación masiva',
+            targetType: 'Usuario',
+            itemType: 'Computador',
+            targetUsuarioId: usuarioAsignadoId,
+            computadorId: existing.id,
+          },
+        });
+      }
 
       results.push({
         serial: row.serial,

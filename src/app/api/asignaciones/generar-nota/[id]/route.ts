@@ -123,9 +123,12 @@ export async function GET(
         worksheet.getCell('E5').value = asignacion.computador?.serial; // Tipo de equipo (Computador o Dispositivo)
         worksheet.getCell('B16').value = asignacion.computador?.nsap || '';
         worksheet.getCell('B14').value = asignacion.computador?.modelo.tipo || ''; // NSAP (si aplica)
-        worksheet.getCell('E6').value = asignacion.computador?.procesador || 'N/A';
-        worksheet.getCell('E7').value = asignacion.computador?.ram || 'N/A';
-        worksheet.getCell('E8').value = asignacion.computador?.almacenamiento || 'N/A';
+        const proc = asignacion.computador?.procesador ?? asignacion.computador?.modelo?.procesadorDefault;
+        const ram = asignacion.computador?.ram ?? asignacion.computador?.modelo?.ramDefault;
+        const almac = asignacion.computador?.almacenamiento ?? asignacion.computador?.modelo?.almacenamientoDefault;
+        worksheet.getCell('E6').value = proc || 'N/A';
+        worksheet.getCell('E7').value = ram || 'N/A';
+        worksheet.getCell('E8').value = almac || 'N/A';
         worksheet.getCell('E9').value = asignacion.serialC || 'N/A';
         worksheet.getCell('E10').value = asignacion.modeloC || 'N/A';
         worksheet.getCell('E13').value = asignacion.computador?.sisOperativo || 'N/A';

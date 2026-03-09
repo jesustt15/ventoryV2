@@ -29,7 +29,9 @@ const fetchDashboardData = async () => {
   if (!response.ok) {
     throw new Error("Error al cargar los datos del dashboard.");
   }
-  return response.json();
+  const datos = await response.json();
+  console.log("dato:", datos);
+  return datos;
 };
 
 // --- Componentes para estados de UI ---
@@ -214,7 +216,18 @@ export default function InventoryDashboard() {
   if (isError) {
     return <ErrorDisplay message={error.message} />;
   }
-  console.log(dashboardData.retiredEquipments, dashboardData.assignedBams);
+
+  const totalComputers = dashboardData.totalComputers ?? 0;
+  const getPercentage = (value: number) =>
+    totalComputers > 0 ? Math.round((value / totalComputers) * 100) : 0;
+
+  const assignedPercentage = getPercentage(dashboardData.assignedLaptopsDesktops);
+  const reservedPercentage = getPercentage(dashboardData.reservedLaptopsDesktops);
+  console.log("asiganado:", assignedPercentage);
+  console.log("reservadoo:", reservedPercentage);
+  
+
+  const assignedCircleDash = (assignedPercentage / 100) * 251.2;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
@@ -323,19 +336,13 @@ export default function InventoryDashboard() {
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm text-slate-400">Asignados</span>
                               <span className="text-sm text-green-400">
-                                {dashboardData.assignedLaptopsDesktops} (
-                                {Math.round((dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100)}%)
+                                {dashboardData.assignedLaptopsDesktops} ({assignedPercentage}%)
                               </span>
                             </div>
-                            <Progress
-                              value={(dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100}
-                              className="h-3 bg-slate-700"
-                            >
+                            <Progress value={assignedPercentage} className="h-3 bg-slate-700">
                               <div
                                 className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
-                                style={{
-                                  width: `${(dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100}%`,
-                                }}
+                                style={{ width: `${assignedPercentage}%` }}
                               />
                             </Progress>
                           </div>
@@ -344,19 +351,13 @@ export default function InventoryDashboard() {
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm text-slate-400">En Resguardo</span>
                               <span className="text-sm text-amber-400">
-                                {dashboardData.reservedLaptopsDesktops} (
-                                {Math.round((dashboardData.reservedLaptopsDesktops / dashboardData.totalComputers) * 100)}%)
+                                {dashboardData.reservedLaptopsDesktops} ({reservedPercentage}%)
                               </span>
                             </div>
-                            <Progress
-                              value={(dashboardData.reservedLaptopsDesktops / dashboardData.totalComputers) * 100}
-                              className="h-3 bg-slate-700"
-                            >
+                            <Progress value={reservedPercentage} className="h-3 bg-slate-700">
                               <div
                                 className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
-                                style={{
-                                  width: `${(dashboardData.reservedLaptopsDesktops / dashboardData.totalComputers) * 100}%`,
-                                }}
+                                style={{ width: `${reservedPercentage}%` }}
                               />
                             </Progress>
                           </div>
@@ -414,7 +415,7 @@ export default function InventoryDashboard() {
                                 stroke="url(#gradient1)"
                                 strokeWidth="8"
                                 fill="none"
-                                strokeDasharray={`${(dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 251.2} 251.2`}
+                                strokeDasharray={`${assignedCircleDash} 251.2`}
                                 strokeLinecap="round"
                               />
                               <defs>
@@ -427,7 +428,7 @@ export default function InventoryDashboard() {
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-slate-100">
-                                  {Math.round((dashboardData.assignedLaptopsDesktops / dashboardData.totalComputers) * 100)}%
+                                  {assignedPercentage}%
                                 </div>
                                 <div className="text-xs text-slate-400">Asignados</div>
                               </div>

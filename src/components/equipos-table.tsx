@@ -6,7 +6,7 @@ import React from "react";
 import {z} from "zod";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon, EyeIcon } from "lucide-react";
+import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon, EyeIcon, DownloadIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -82,6 +82,7 @@ export function DispositivoTable({}: DispositivoTableProps) {
   const isAdmin = useIsAdmin();
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
+  const [isExporting, setIsExporting] = React.useState(false);
 
 const columns: ColumnDef<Dispositivo>[] = [
   {
@@ -583,6 +584,60 @@ React.useEffect(() => {
     }
   }, [table, searchQuery])
 
+  const handleExportToExcel = async () => {
+    setIsExporting(true);
+    try {
+      // Obtener las filas filtradas
+      const filteredRows = table.getFilteredRowModel().rows;
+      
+      // Preparar los datos para exportar
+      const dataToExport = filteredRows.map((row) => {
+        const dispositivo = row.original;
+        return {
+          serial: dispositivo.serial,
+          marca: dispositivo.modelo?.marca?.nombre || "N/A",
+          modelo: dispositivo.modelo?.nombre || "N/A",
+          sede: dispositivo.sede || "N/A",
+          estado: dispositivo.estado,
+          ubicacion: dispositivo.ubicacion || "N/A",
+          nsap: dispositivo.nsap || "N/A",
+          mac: dispositivo.mac || "N/A",
+        };
+      });
+
+      // Enviar los datos al endpoint de exportación
+      const response = await fetch("/api/dispositivos/export", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: dataToExport }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al generar el archivo Excel");
+      }
+
+      // Descargar el archivo
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `dispositivos_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showToast.success(`Excel generado con ${dataToExport.length} registros`);
+    } catch (error: any) {
+      console.error(error);
+      showToast.error(error.message || "Error al exportar a Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
@@ -627,6 +682,14 @@ return (
                     })}
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button
+                variant="outline"
+                onClick={handleExportToExcel}
+                disabled={isExporting || dispositivos.length === 0}
+              >
+                <DownloadIcon className="mr-2 h-4 w-4" />
+                {isExporting ? "Exportando..." : "Exportar Excel"}
+              </Button>
             </div>
                 {isAdmin && (
                 <Button onClick={() => setIsCreateModalOpen(true)}>

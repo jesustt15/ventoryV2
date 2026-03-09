@@ -91,15 +91,15 @@ interface ComputadorDetallado {
     sapVersion?: string | null;
     officeVersion?: string | null; 
     historial: HistorialCombinadoEntry[];  
-    modelo: { // El modelo ahora es un objeto
+    modelo: {
         id: string;
         nombre: string;
         tipo: string;
         img?: string | null;
-        marca: { // La marca está anidada dentro del modelo
-            id: string;
-            nombre: string;
-        };
+        marca: { id: string; nombre: string };
+        procesadorDefault?: string | null;
+        ramDefault?: string | null;
+        almacenamientoDefault?: string | null;
     };
     usuario?: { // El usuario es opcional
         id: string;
@@ -197,8 +197,11 @@ const departamentoTag = (
         );
     }
   
-    const { serial, sisOperativo, procesador, arquitectura, ram, 
-      almacenamiento, sapVersion, officeVersion, estado, macEthernet, macWifi } = equipo;
+    const { serial, sisOperativo, procesador, arquitectura, ram,
+      almacenamiento, sapVersion, officeVersion, estado, macEthernet, macWifi, modelo } = equipo;
+    const efectivoProcesador = procesador ?? modelo?.procesadorDefault;
+    const efectivoRam = ram ?? modelo?.ramDefault;
+    const efectivoAlmacenamiento = almacenamiento ?? modelo?.almacenamientoDefault;
 
     const currentStatus = statusConfig[estado as keyof typeof statusConfig] || {
       label: "Desconocido",
@@ -210,10 +213,10 @@ const departamentoTag = (
   const specs: Record<string, string> = {
     Serial:       serial ?? "—",
     "Sistema Operativo": sisOperativo ?? "—",
-    Procesador:   procesador ?? "—",
+    Procesador:   efectivoProcesador ?? "—",
     Arquitectura: arquitectura ?? "—",
-    RAM:          ram ?? "—",
-    Almacenamiento: almacenamiento ?? "—",
+    RAM:          efectivoRam ?? "—",
+    Almacenamiento: efectivoAlmacenamiento ?? "—",
     macWifi: macWifi ?? "—",
     macEthernet: macEthernet ?? "—",
     "Versión SAP": sapVersion ?? "—",

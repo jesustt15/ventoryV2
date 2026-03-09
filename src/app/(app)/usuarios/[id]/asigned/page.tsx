@@ -6,7 +6,9 @@ import {
   MapPin,
   Building,
   PhoneIcon,
+  Download,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -14,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useParams } from "next/navigation"
 import Loading from "@/utils/loading"
 import { formatDate } from "@/utils/formatDate"
+import { showToast } from "nextjs-toast-notify"
 
 
 interface UserProfileData {
@@ -51,6 +54,7 @@ export default function UserProfile() {
 
   const [userData, setUserData] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -153,6 +157,79 @@ export default function UserProfile() {
     }
   }, []);
 
+  const handleExportToExcel = async () => {
+    if (!userData) return;
+    
+    setIsExporting(true);
+    try {
+      // Preparar datos de computadores
+      const computadoresData = userData.computadores.map((comp) => ({
+        tipo: "Computador",
+        serial: comp.serial,
+        marca: comp.modelo?.marca?.nombre || "N/A",
+        modelo: comp.modelo?.nombre || "N/A",
+        ubicacion: comp.ubicacion || "N/A",
+        fechaAsignacion: formatDate(comp.fechaAsignacion),
+      }));
+
+      // Preparar datos de dispositivos
+      const dispositivosData = userData.dispositivos.map((disp) => ({
+        tipo: "Dispositivo",
+        serial: disp.serial,
+        marca: disp.marca || "N/A",
+        modelo: disp.modelo?.nombre || "N/A",
+        ubicacion: disp.ubicacion || "N/A",
+        fechaAsignacion: formatDate(disp.fechaAsignacion),
+      }));
+
+      // Preparar datos de líneas telefónicas
+      const lineasData = userData.lineasTelefonicas.map((linea) => ({
+        tipo: "Línea Telefónica",
+        serial: linea.numero,
+        marca: "N/A",
+        modelo: linea.tipo || "N/A",
+        ubicacion: "N/A",
+        fechaAsignacion: formatDate(linea.fechaAsignacion),
+      }));
+
+      const allData = [...computadoresData, ...dispositivosData, ...lineasData];
+
+      // Enviar al endpoint
+      const response = await fetch("/api/usuarios/export-asignados", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          data: allData,
+          usuario: `${userData.nombre} ${userData.apellido}`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al generar el archivo Excel");
+      }
+
+      // Descargar el archivo
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${userData.nombre}_${userData.apellido}_asignados_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showToast.success(`Excel generado con ${allData.length} registros`);
+    } catch (error: any) {
+      console.error(error);
+      showToast.error(error.message || "Error al exportar a Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading) {
     return <Loading  />;
   }
@@ -222,20 +299,31 @@ export default function UserProfile() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-slate-800/50 p-1 mb-6">
-            <TabsTrigger
-              value="computers"
-              className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+          <div className="flex items-center justify-between mb-6">
+            <TabsList className="bg-slate-800/50 p-1">
+              <TabsTrigger
+                value="computers"
+                className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+              >
+                Computadores ({userData.computadores.length})
+              </TabsTrigger>
+              <TabsTrigger value="devices" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
+                Dispositivos ({userData.dispositivos.length})
+              </TabsTrigger>
+              <TabsTrigger value="phones" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
+                Líneas Telefónicas ({userData.lineasTelefonicas.length})
+              </TabsTrigger>
+            </TabsList>
+            <Button
+              variant="outline"
+              onClick={handleExportToExcel}
+              disabled={isExporting || userData.estadisticas.totalActivos === 0}
+              className="bg-slate-800/50 border-slate-700 hover:bg-slate-700"
             >
-              Computadores ({userData.computadores.length})
-            </TabsTrigger>
-            <TabsTrigger value="devices" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
-              Dispositivos ({userData.dispositivos.length})
-            </TabsTrigger>
-            <TabsTrigger value="phones" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
-              Líneas Telefónicas ({userData.lineasTelefonicas.length})
-            </TabsTrigger>
-          </TabsList>
+              <Download className="mr-2 h-4 w-4" />
+              {isExporting ? "Exportando..." : "Exportar Todo a Excel"}
+            </Button>
+          </div>
 
           <TabsContent value="computers" className="mt-0">
             <div className="grid gap-6">
