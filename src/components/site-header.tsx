@@ -6,6 +6,7 @@ import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { UserSearch } from "@/components/user-search"
 
 export function SiteHeader() {
   const { theme, setTheme } = useTheme()
@@ -15,6 +16,12 @@ export function SiteHeader() {
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
+        
+        {/* Buscador de usuarios */}
+        <div className="flex-1 flex justify-center px-4">
+          <UserSearch />
+        </div>
+
         <div className="ml-auto">
           <Button
             variant="ghost"

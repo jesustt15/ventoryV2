@@ -17,21 +17,67 @@ export async function GET(
        computadores: { 
           include: { 
             modelo: { include: { marca: true } },
-            usuario: true, // <-- AÑADIDO: Trae el usuario si está asignado directamente
+            usuario: true,
+            asignaciones: {
+              where: {
+                targetDepartamentoId: id,
+                itemType: 'Computador',
+              },
+              orderBy: {
+                date: 'desc',
+              },
+              take: 1,
+            },
           } 
         },
         dispositivos: { 
           include: { 
             modelo: { include: { marca: true } },
-            usuario: true, // <-- AÑADIDO: Trae el usuario si está asignado directamente
+            usuario: true,
+            asignaciones: {
+              where: {
+                targetDepartamentoId: id,
+                itemType: 'Dispositivo',
+              },
+              orderBy: {
+                date: 'desc',
+              },
+              take: 1,
+            },
           } 
         },
 
         // Usuarios del departamento Y los activos de CADA usuario
         usuarios: {
           include: {
-            computadores: { include: { modelo: { include: { marca: true } } } },
-            dispositivos: { include: { modelo: { include: { marca: true } } } },
+            computadores: { 
+              include: { 
+                modelo: { include: { marca: true } },
+                asignaciones: {
+                  where: {
+                    itemType: 'Computador',
+                  },
+                  orderBy: {
+                    date: 'desc',
+                  },
+                  take: 1,
+                },
+              } 
+            },
+            dispositivos: { 
+              include: { 
+                modelo: { include: { marca: true } },
+                asignaciones: {
+                  where: {
+                    itemType: 'Dispositivo',
+                  },
+                  orderBy: {
+                    date: 'desc',
+                  },
+                  take: 1,
+                },
+              } 
+            },
           },
         },
       },
@@ -58,35 +104,52 @@ export async function GET(
       include: {
         lineaTelefonica: true,
       },
+      orderBy: {
+        date: 'desc',
+      },
     });
     
-    // Extraemos solo los objetos de LineaTelefonica
+    // Extraemos los objetos de LineaTelefonica con su fecha de asignación
     const lineasTelefonicas = lineasAsignadas
-        .map(a => a.lineaTelefonica)
+        .map(a => ({
+          ...a.lineaTelefonica,
+          fechaAsignacion: a.date,
+        }))
         .filter((l): l is NonNullable<typeof l> => l !== null);
 
 
-    // --- PASO 3: COMBINAR Y CONTAR TODOS LOS ACTIVOS ---
+    // --- PASO 3: COMBINAR Y CONTAR TODOS LOS ACTIVOS CON FECHAS ---
     
-    // Combinar computadores (los del depto + los de cada usuario)
-        const todosLosComputadores = [
-      ...departamento.computadores,
+    // Combinar computadores (los del depto + los de cada usuario) con fechas
+    const todosLosComputadores = [
+      ...departamento.computadores.map(comp => ({
+        ...comp,
+        fechaAsignacion: comp.asignaciones[0]?.date || null,
+        asignaciones: undefined,
+      })),
       ...departamento.usuarios.flatMap(usuario => 
-        // Para cada computador de este usuario, le añadimos el objeto 'usuario' para consistencia
         usuario.computadores.map(comp => ({
             ...comp,
-            usuario: usuario
+            usuario: usuario,
+            fechaAsignacion: comp.asignaciones[0]?.date || null,
+            asignaciones: undefined,
         }))
       )
     ];
 
-    // Combinar dispositivos (los del depto + los de cada usuario)
+    // Combinar dispositivos (los del depto + los de cada usuario) con fechas
     const todosLosDispositivos = [
-        ...departamento.dispositivos,
+        ...departamento.dispositivos.map(disp => ({
+          ...disp,
+          fechaAsignacion: disp.asignaciones[0]?.date || null,
+          asignaciones: undefined,
+        })),
         ...departamento.usuarios.flatMap(usuario => 
             usuario.dispositivos.map(disp => ({
                 ...disp,
-                usuario: usuario
+                usuario: usuario,
+                fechaAsignacion: disp.asignaciones[0]?.date || null,
+                asignaciones: undefined,
             }))
         )
     ];

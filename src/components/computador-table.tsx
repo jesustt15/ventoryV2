@@ -33,6 +33,8 @@ import { createComputadorColumns } from "@/lib/table/computador-columns";
 import { TableToolbar } from "@/components/table/table-toolbar";
 import { TablePagination } from "@/components/table/table-pagination";
 import { ImageModal } from "@/components/table/image-modal";
+import { BulkUpdateResultModal } from "@/components/bulk-update-result-modal";
+import { BulkUpdateResult } from "@/types/bulk-update";
 
 interface ComputadorTableProps {
   data: Computador[];
@@ -53,6 +55,8 @@ export function ComputadorTable({ }: ComputadorTableProps) {
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [isExporting, setIsExporting] = React.useState(false);
+  const [bulkUpdateResult, setBulkUpdateResult] = React.useState<BulkUpdateResult | null>(null);
+  const [isBulkResultModalOpen, setIsBulkResultModalOpen] = React.useState(false);
 
   const handleDelete = async ({ id }: { id: string }) => {
     setIsLoading(true);
@@ -155,12 +159,25 @@ export function ComputadorTable({ }: ComputadorTableProps) {
         throw new Error(data?.message || "Error al procesar el archivo.");
       }
 
+      // Guardar el resultado completo y abrir el modal
+      setBulkUpdateResult(data);
+      setIsBulkResultModalOpen(true);
+
       const updated = data?.summary?.updated ?? 0;
       const notFound = data?.summary?.notFound ?? 0;
+      const usuariosNoEncontrados = data?.summary?.usuariosNoEncontrados ?? 0;
+      const incongruencias = data?.summary?.incongruenciasUsuarios ?? 0;
 
-      showToast.success(
-        `Actualización completada. Actualizados: ${updated}, No encontrados: ${notFound}`
-      );
+      // Toast con resumen básico
+      if (usuariosNoEncontrados > 0 || incongruencias > 0) {
+        showToast.warning(
+          `Actualización completada con advertencias. Actualizados: ${updated}. Revisa el reporte detallado.`
+        );
+      } else {
+        showToast.success(
+          `Actualización completada. Actualizados: ${updated}, No encontrados: ${notFound}`
+        );
+      }
 
       await fetchAllData();
     } catch (error: any) {
@@ -389,6 +406,11 @@ export function ComputadorTable({ }: ComputadorTableProps) {
         onClose={() => setIsImageModalOpen(false)}
         imageUrl={currentImage}
         title="Imagen del Modelo"
+      />
+      <BulkUpdateResultModal
+        isOpen={isBulkResultModalOpen}
+        onClose={() => setIsBulkResultModalOpen(false)}
+        result={bulkUpdateResult}
       />
     </Card>
   );

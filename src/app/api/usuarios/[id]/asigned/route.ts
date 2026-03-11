@@ -28,10 +28,10 @@ export async function GET(
         computadores, 
         dispositivos, 
         lineasAsignadas,
-        totalComputadores, // <-- NUEVO
-        totalDispositivos, // <-- NUEVO
+        totalComputadores,
+        totalDispositivos,
     ] = await Promise.all([
-      // Buscar computadores directamente asignados al usuario
+      // Buscar computadores directamente asignados al usuario con su fecha de asignación
       prisma.computador.findMany({
         where: { usuarioId: id },
         include: {
@@ -40,9 +40,19 @@ export async function GET(
               marca: true,
             },
           },
+          asignaciones: {
+            where: {
+              targetUsuarioId: id,
+              itemType: 'Computador',
+            },
+            orderBy: {
+              date: 'desc',
+            },
+            take: 1,
+          },
         },
       }),
-      // Buscar dispositivos directamente asignados al usuario
+      // Buscar dispositivos directamente asignados al usuario con su fecha de asignación
       prisma.dispositivo.findMany({
         where: { usuarioId: id },
         include: {
@@ -50,6 +60,16 @@ export async function GET(
             include: {
               marca: true,
             },
+          },
+          asignaciones: {
+            where: {
+              targetUsuarioId: id,
+              itemType: 'Dispositivo',
+            },
+            orderBy: {
+              date: 'desc',
+            },
+            take: 1,
           },
         },
       }),
@@ -63,20 +83,39 @@ export async function GET(
         include: {
           lineaTelefonica: true,
         },
+        orderBy: {
+          date: 'desc',
+        },
       }),
-      // --- NUEVAS CONSULTAS DE CONTEO ---
+      // --- CONSULTAS DE CONTEO ---
       prisma.computador.count({ where: { usuarioId: id } }),
       prisma.dispositivo.count({ where: { usuarioId: id } }),
     ]);
 
-    // Paso 3: Extraer y limpiar los datos de las líneas telefónicas.
+    // Paso 3: Mapear computadores y dispositivos con su fecha de asignación
+    const computadoresConFecha = computadores.map((comp) => ({
+      ...comp,
+      fechaAsignacion: comp.asignaciones[0]?.date || null,
+      asignaciones: undefined, // Removemos el array de asignaciones del resultado
+    }));
+
+    const dispositivosConFecha = dispositivos.map((disp) => ({
+      ...disp,
+      fechaAsignacion: disp.asignaciones[0]?.date || null,
+      asignaciones: undefined, // Removemos el array de asignaciones del resultado
+    }));
+
+    // Paso 4: Extraer y limpiar los datos de las líneas telefónicas con su fecha
     const lineasTelefonicas = lineasAsignadas
-      .map(asignacion => asignacion.lineaTelefonica)
+      .map(asignacion => ({
+        ...asignacion.lineaTelefonica,
+        fechaAsignacion: asignacion.date,
+      }))
       .filter(linea => linea !== null);
       
     const totalLineas = lineasTelefonicas.length;
 
-    // Paso 4: Construir el objeto de respuesta final, incluyendo las estadísticas.
+    // Paso 5: Construir el objeto de respuesta final, incluyendo las estadísticas.
     const responseData = {
       id: usuario.id,
       nombre: usuario.nombre,
@@ -84,10 +123,10 @@ export async function GET(
       cargo: usuario.cargo,
       departamento: usuario.departamento.nombre,
       gerencia: usuario.departamento.gerencia.nombre,
-      computadores,
-      dispositivos,
+      computadores: computadoresConFecha,
+      dispositivos: dispositivosConFecha,
       lineasTelefonicas,
-      // --- NUEVO OBJETO DE ESTADÍSTICAS ---
+      // --- OBJETO DE ESTADÍSTICAS ---
       estadisticas: {
         totalComputadores: totalComputadores,
         totalDispositivos: totalDispositivos,

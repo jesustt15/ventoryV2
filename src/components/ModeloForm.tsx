@@ -219,6 +219,7 @@ const ModeloForm: React.FC<ModeloFormProps> = ({
                                 <SelectContent>
                                     <SelectItem value="Telefono IP">Teléfono IP</SelectItem>
                                     <SelectItem value="Switch">Switch</SelectItem>
+                                    <SelectItem value="Adaptador">Adaptador de Red</SelectItem>
                                     <SelectItem value="Mouse">Mouse</SelectItem>
                                     <SelectItem value="Teclado">Teclado</SelectItem>
                                     <SelectItem value="Impresora">Impresora</SelectItem>

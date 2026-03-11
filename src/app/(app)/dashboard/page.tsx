@@ -36,7 +36,7 @@ const fetchDashboardData = async () => {
 
 // --- Componentes para estados de UI ---
 const LoadingSkeleton = () => (
-  <div className="flex items-center justify-center min-h-screen bg-black text-cyan-400">
+  <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
     <div className="text-center">
       <Cpu className="h-12 w-12 mx-auto animate-pulse" />
       <p className="mt-4 text-lg">Cargando estadísticas del sistema...</p>
@@ -45,7 +45,7 @@ const LoadingSkeleton = () => (
 );
 
 const ErrorDisplay = ({ message }: { message: string }) => (
-  <div className="flex items-center justify-center min-h-screen bg-black text-red-500">
+  <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
     <div className="text-center">
       <p className="text-lg font-bold">¡Oops! Algo salió mal.</p>
       <p className="mt-2">{message}</p>
@@ -186,15 +186,15 @@ export default function InventoryDashboard() {
   const getActivityColor = (type: string) => {
     switch (type) {
       case "registration":
-        return "text-green-500"
+        return "text-green-600 dark:text-green-500"
       case "assignment":
-        return "text-blue-500"
+        return "text-blue-600 dark:text-blue-500"
       case "maintenance":
-        return "text-amber-500"
+        return "text-amber-600 dark:text-amber-500"
       case "user":
-        return "text-purple-500"
+        return "text-purple-600 dark:text-purple-500"
       default:
-        return "text-slate-500"
+        return "text-muted-foreground/70"
     }
   }
 
@@ -230,9 +230,9 @@ export default function InventoryDashboard() {
   const assignedCircleDash = (assignedPercentage / 100) * 251.2;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-background/95 dark:bg-background text-foreground relative overflow-hidden">
       {/* Background particle effect */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-20" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-0 dark:opacity-20" />
 
       <div className="container mx-auto p-4 relative z-10">
         {/* Main Stats Cards */}
@@ -292,28 +292,28 @@ export default function InventoryDashboard() {
           {/* Left Column - Charts and Analytics */}
           <div className="col-span-12 lg:col-span-8">
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="bg-slate-800/50 p-1 mb-6">
+              <TabsList className="bg-muted/60 dark:bg-muted p-1 mb-6 border border-border/30">
                 <TabsTrigger
                   value="overview"
-                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                  className="data-[state=active]:bg-background dark:data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   Resumen
                 </TabsTrigger>
                 <TabsTrigger
                   value="departments"
-                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                  className="data-[state=active]:bg-background dark:data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   Departamentos
                 </TabsTrigger>
                 <TabsTrigger
                   value="gerencia"
-                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                  className="data-[state=active]:bg-background dark:data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   Gerencia
                 </TabsTrigger>
                 <TabsTrigger
                   value="sociedad"
-                  className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                  className="data-[state=active]:bg-background dark:data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   Sociedad
                 </TabsTrigger>
@@ -322,10 +322,10 @@ export default function InventoryDashboard() {
               <TabsContent value="overview" className="mt-0">
                 <div className="grid gap-6">
                   {/* Assignment Overview */}
-                  <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                    <CardHeader className="border-b border-slate-700/50 pb-3">
-                      <CardTitle className="text-slate-100 flex items-center">
-                        <PieChart className="mr-2 h-5 w-5 text-cyan-500" />
+                  <Card className="bg-card border-border/50 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="border-b border-border/50 pb-3 bg-muted/30 dark:bg-transparent">
+                      <CardTitle className="text-card-foreground flex items-center text-lg">
+                        <PieChart className="mr-2 h-5 w-5 text-primary" />
                         Estado de Laptops/Desktops
                       </CardTitle>
                     </CardHeader>
@@ -334,14 +334,14 @@ export default function InventoryDashboard() {
                         <div className="space-y-6">
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-slate-400">Asignados</span>
-                              <span className="text-sm text-green-400">
+                              <span className="text-sm font-medium text-foreground/70">Asignados</span>
+                              <span className="text-sm font-semibold text-green-600 dark:text-green-500">
                                 {dashboardData.assignedLaptopsDesktops} ({assignedPercentage}%)
                               </span>
                             </div>
-                            <Progress value={assignedPercentage} className="h-3 bg-slate-700">
+                            <Progress value={assignedPercentage} className="h-3 bg-muted/50">
                               <div
-                                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
+                                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all"
                                 style={{ width: `${assignedPercentage}%` }}
                               />
                             </Progress>
@@ -349,14 +349,14 @@ export default function InventoryDashboard() {
 
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-slate-400">En Resguardo</span>
-                              <span className="text-sm text-amber-400">
+                              <span className="text-sm font-medium text-foreground/70">En Resguardo</span>
+                              <span className="text-sm font-semibold text-amber-600 dark:text-amber-500">
                                 {dashboardData.reservedLaptopsDesktops} ({reservedPercentage}%)
                               </span>
                             </div>
-                            <Progress value={reservedPercentage} className="h-3 bg-slate-700">
+                            <Progress value={reservedPercentage} className="h-3 bg-muted/50">
                               <div
-                                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+                                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all"
                                 style={{ width: `${reservedPercentage}%` }}
                               />
                             </Progress>
@@ -364,39 +364,39 @@ export default function InventoryDashboard() {
 
                           {/* Quick Actions - Moved here */}
                           <div className="pt-4">
-                            <h3 className="text-sm font-semibold text-cyan-400 mb-3">Acciones Rápidas</h3>
+                            <h3 className="text-sm font-semibold text-foreground/80 mb-3">Acciones Rápidas</h3>
                             {isAdmin && (
                               <div className="grid grid-cols-2 gap-2">
                                 <Link
                                   href="/dispositivos"
-                                  className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                                  className="h-auto py-3 px-3 border border-border/50 bg-background/50 hover:bg-muted/80 flex flex-col items-center space-y-1 rounded-lg transition-colors"
                                 >
-                                  <Monitor className="h-4 w-4 text-cyan-500" />
-                                  <span className="text-xs text-white">Nuevo Dispositivo</span>
+                                  <Monitor className="h-4 w-4 text-blue-600 dark:text-primary" />
+                                  <span className="text-xs text-foreground/80 font-medium">Nuevo Dispositivo</span>
                                 </Link>
 
                                 <Link
                                   href="/usuarios"
-                                  className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1"
+                                  className="h-auto py-3 px-3 border border-border/50 bg-background/50 hover:bg-muted/80 flex flex-col items-center space-y-1 rounded-lg transition-colors"
                                 >
-                                  <Users className="h-4 w-4 text-blue-500" />
-                                  <span className="text-xs text-white">Nuevo Usuario</span>
+                                  <Users className="h-4 w-4 text-blue-600 dark:text-blue-500" />
+                                  <span className="text-xs text-foreground/80 font-medium">Nuevo Usuario</span>
                                 </Link>
 
                                 <Link
                                   href="/asignaciones/new"
-                                  className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1 rounded-md"
+                                  className="h-auto py-3 px-3 border border-border/50 bg-background/50 hover:bg-muted/80 flex flex-col items-center space-y-1 rounded-lg transition-colors"
                                 >
-                                  <UserCheck className="h-4 w-4 text-green-500" />
-                                  <span className="text-xs text-white">Asignar</span>
+                                  <UserCheck className="h-4 w-4 text-green-600 dark:text-green-500" />
+                                  <span className="text-xs text-foreground/80 font-medium">Asignar</span>
                                 </Link>
 
                                 <Link
                                   href="/computadores"
-                                  className="h-auto py-2 px-2 border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 flex flex-col items-center space-y-1 rounded-md"
+                                  className="h-auto py-3 px-3 border border-border/50 bg-background/50 hover:bg-muted/80 flex flex-col items-center space-y-1 rounded-lg transition-colors"
                                 >
-                                  <Cpu className="h-4 w-4 text-purple-500" />
-                                  <span className="text-xs text-white">Nuevo Computador</span>
+                                  <Cpu className="h-4 w-4 text-purple-600 dark:text-purple-500" />
+                                  <span className="text-xs text-foreground/80 font-medium">Nuevo Computador</span>
                                 </Link>
                               </div>
                             )}
@@ -427,10 +427,10 @@ export default function InventoryDashboard() {
                             </svg>
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="text-center">
-                                <div className="text-2xl font-bold text-slate-100">
+                                <div className="text-2xl font-bold text-foreground">
                                   {assignedPercentage}%
                                 </div>
-                                <div className="text-xs text-slate-400">Asignados</div>
+                                <div className="text-xs text-muted-foreground/70">Asignados</div>
                               </div>
                             </div>
                           </div>
@@ -440,14 +440,14 @@ export default function InventoryDashboard() {
                   </Card>
 
                   {/* Recent Activity - Horizontal layout */}
-                  <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                    <CardHeader className="border-b border-slate-700/50 pb-3">
-                      <CardTitle className="text-slate-100 text-base flex items-center justify-between">
+                  <Card className="bg-card border-border/50 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="border-b border-border/50 pb-3 bg-muted/20 dark:bg-transparent">
+                      <CardTitle className="text-card-foreground text-base flex items-center justify-between">
                         <div className="flex items-center">
-                          <Activity className="mr-2 h-4 w-4 text-cyan-500" />
+                          <Activity className="mr-2 h-4 w-4 text-blue-600 dark:text-primary" />
                           Actividad Reciente
                         </div>
-                        <Badge variant="outline" className="bg-slate-800/50 text-cyan-400 border-cyan-500/50">
+                        <Badge variant="outline" className="bg-blue-50 dark:bg-muted text-blue-700 dark:text-primary border-blue-200 dark:border-cyan-500/50">
                           {dashboardData.recentActivity.length} Nuevas
                         </Badge>
                       </CardTitle>
@@ -468,20 +468,20 @@ export default function InventoryDashboard() {
                           return (
                             <div
                               key={activity.id}
-                              className="flex flex-col space-y-2 p-3 bg-slate-800/30 rounded-md border border-slate-700/30"
+                              className="flex flex-col space-y-2 p-3 bg-background/60 dark:bg-muted/30 rounded-lg border border-border/40 shadow-sm"
                             >
                               <div className="flex items-start">
-                                <div className={`mt-0.5 p-1 rounded-full bg-slate-800 border border-slate-700`}>
+                                <div className={`mt-0.5 p-1.5 rounded-full bg-muted/50 dark:bg-muted border border-border/50`}>
                                   <ActivityIcon className={`h-3 w-3 ${activityColor}`} />
                                 </div>
                                 <div className="flex-1 min-w-0 ml-2">
-                                  <p className="text-xs font-medium text-slate-200">{activity.action}</p>
-                                  <p className="text-xs text-slate-400">{activity.device}</p>
+                                  <p className="text-xs font-medium text-foreground/90">{activity.action}</p>
+                                  <p className="text-xs text-muted-foreground/80">{activity.device}</p>
                                 </div>
                               </div>
                               <div className="flex items-center justify-between">
-                                <p className="text-xs text-slate-500">{activity.user}</p>
-                                <p className="text-xs text-slate-500">{activity.time}</p>
+                                <p className="text-xs text-muted-foreground/70">{activity.user}</p>
+                                <p className="text-xs text-muted-foreground/70">{activity.time}</p>
                               </div>
                             </div>
                           )
@@ -492,10 +492,10 @@ export default function InventoryDashboard() {
                 </div>
               </TabsContent>
               <TabsContent value="departments" className="mt-0">
-                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                  <CardHeader className="border-b border-slate-700/50 pb-3">
-                    <CardTitle className="text-slate-100 flex items-center">
-                      <Building className="mr-2 h-5 w-5 text-cyan-500" />
+                <Card className="bg-card border-border/50 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="border-b border-border/50 pb-3 bg-muted/20 dark:bg-transparent">
+                    <CardTitle className="text-card-foreground flex items-center">
+                      <Building className="mr-2 h-5 w-5 text-blue-600 dark:text-primary" />
                       Distribución por Departamentos (Laptops/Desktops)
                     </CardTitle>
                   </CardHeader>
@@ -504,17 +504,17 @@ export default function InventoryDashboard() {
                       {dashboardData.departmentStats.map((dept: any) => (
                         <div key={dept.name} className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-slate-300 font-medium">{dept.name}</span>
-                            <span className="text-cyan-400 font-mono">{dept.percentage}%</span>
+                            <span className="text-foreground/90 font-medium">{dept.name}</span>
+                            <span className="text-blue-600 dark:text-primary font-mono font-semibold">{dept.percentage}%</span>
                           </div>
                           <div className="flex items-center space-x-4">
-                            <div className="w-full bg-slate-700 rounded-full h-2.5">
+                            <div className="w-full bg-muted/60 rounded-full h-2.5">
                               <div
-                                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full"
+                                className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2.5 rounded-full transition-all"
                                 style={{ width: `${dept.percentage}%` }}
                               ></div>
                             </div>
-                            <div className="flex space-x-4 text-xs text-slate-400">
+                            <div className="flex space-x-4 text-xs text-muted-foreground/80">
                               <span>{dept.computers} comp.</span>
                             </div>
                           </div>
@@ -525,10 +525,10 @@ export default function InventoryDashboard() {
                 </Card>
               </TabsContent>
               <TabsContent value="gerencia" className="mt-0">
-                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                  <CardHeader className="border-b border-slate-700/50 pb-3">
-                    <CardTitle className="text-slate-100 flex items-center">
-                      <Building className="mr-2 h-5 w-5 text-purple-500" />
+                <Card className="bg-card border-border/50 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="border-b border-border/50 pb-3 bg-muted/20 dark:bg-transparent">
+                    <CardTitle className="text-card-foreground flex items-center">
+                      <Building className="mr-2 h-5 w-5 text-purple-600 dark:text-purple-500" />
                       Distribución por Gerencia (Laptops/Desktops)
                     </CardTitle>
                   </CardHeader>
@@ -540,17 +540,17 @@ export default function InventoryDashboard() {
                         return (
                           <div key={gerencia.name} className="space-y-2">
                             <div className="flex justify-between">
-                              <span className="text-slate-300 font-medium">{gerencia.name}</span>
-                              <span className="text-purple-400 font-mono">{percentage}%</span>
+                              <span className="text-foreground/90 font-medium">{gerencia.name}</span>
+                              <span className="text-purple-600 dark:text-purple-500 font-mono font-semibold">{percentage}%</span>
                             </div>
                             <div className="flex items-center space-x-4">
-                              <div className="w-full bg-slate-700 rounded-full h-2.5">
+                              <div className="w-full bg-muted/60 rounded-full h-2.5">
                                 <div
-                                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full"
+                                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full transition-all"
                                   style={{ width: `${percentage}%` }}
                                 ></div>
                               </div>
-                              <div className="flex space-x-4 text-xs text-slate-400">
+                              <div className="flex space-x-4 text-xs text-muted-foreground/80">
                                 <span>{gerencia.count} comp.</span>
                               </div>
                             </div>
@@ -562,10 +562,10 @@ export default function InventoryDashboard() {
                 </Card>
               </TabsContent>
               <TabsContent value="sociedad" className="mt-0">
-                <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                  <CardHeader className="border-b border-slate-700/50 pb-3">
-                    <CardTitle className="text-slate-100 flex items-center">
-                      <Building className="mr-2 h-5 w-5 text-green-500" />
+                <Card className="bg-card border-border/50 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="border-b border-border/50 pb-3 bg-muted/20 dark:bg-transparent">
+                    <CardTitle className="text-card-foreground flex items-center">
+                      <Building className="mr-2 h-5 w-5 text-green-600 dark:text-green-500" />
                       Distribución por Sociedad (Laptops/Desktops)
                     </CardTitle>
                   </CardHeader>
@@ -577,17 +577,17 @@ export default function InventoryDashboard() {
                         return (
                           <div key={soc.name} className="space-y-2">
                             <div className="flex justify-between">
-                              <span className="text-slate-300 font-medium">{soc.name}</span>
-                              <span className="text-green-400 font-mono">{percentage}%</span>
+                              <span className="text-foreground/90 font-medium">{soc.name}</span>
+                              <span className="text-green-600 dark:text-green-500 font-mono font-semibold">{percentage}%</span>
                             </div>
                             <div className="flex items-center space-x-4">
-                              <div className="w-full bg-slate-700 rounded-full h-2.5">
+                              <div className="w-full bg-muted/60 rounded-full h-2.5">
                                 <div
-                                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full"
+                                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all"
                                   style={{ width: `${percentage}%` }}
                                 ></div>
                               </div>
-                              <div className="flex space-x-4 text-xs text-slate-400">
+                              <div className="flex space-x-4 text-xs text-muted-foreground/80">
                                 <span>{soc.count} comp.</span>
                               </div>
                             </div>
@@ -605,26 +605,26 @@ export default function InventoryDashboard() {
           <div className="col-span-12 lg:col-span-4">
             <div className="space-y-6">
               {/* System Time */}
-              <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm overflow-hidden">
+              <Card className="bg-card border-border/50 backdrop-blur-sm overflow-hidden shadow-sm">
                 <CardContent className="p-0">
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 border-b border-slate-700/50">
+                  <div className="bg-gradient-to-br from-muted/40 to-muted/60 dark:from-muted dark:to-card p-6 border-b border-border/50">
                     <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-1 font-mono">TIEMPO DEL SISTEMA</div>
-                      <div className="text-2xl font-mono text-cyan-400 mb-1">{formatTime(currentTime)}</div>
-                      <div className="text-sm text-slate-400">{formatDate(currentTime)}</div>
+                      <div className="text-xs text-muted-foreground/70 mb-1 font-mono">TIEMPO DEL SISTEMA</div>
+                      <div className="text-2xl font-mono text-blue-600 dark:text-primary mb-1">{formatTime(currentTime)}</div>
+                      <div className="text-sm text-muted-foreground/80">{formatDate(currentTime)}</div>
                     </div>
                   </div>
                   <div className="p-4">
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-800/50 rounded-md p-3 border border-slate-700/50">
-                        <div className="text-xs text-slate-500 mb-1">Última Actualización</div>
-                        <div className="text-sm font-mono text-slate-200">Hace 2 min</div>
+                      <div className="bg-background/60 dark:bg-muted rounded-md p-3 border border-border/40">
+                        <div className="text-xs text-muted-foreground/70 mb-1">Última Actualización</div>
+                        <div className="text-sm font-mono text-foreground/90">Hace 2 min</div>
                       </div>
-                      <div className="bg-slate-800/50 rounded-md p-3 border border-slate-700/50">
-                        <div className="text-xs text-slate-500 mb-1">Estado</div>
+                      <div className="bg-background/60 dark:bg-muted rounded-md p-3 border border-border/40">
+                        <div className="text-xs text-muted-foreground/70 mb-1">Estado</div>
                         <div className="flex items-center">
                           <div className="h-2 w-2 rounded-full bg-green-500 mr-1 animate-pulse"></div>
-                          <div className="text-sm font-mono text-slate-200">Online</div>
+                          <div className="text-sm font-mono text-foreground/90">Online</div>
                         </div>
                       </div>
                     </div>
@@ -633,10 +633,10 @@ export default function InventoryDashboard() {
               </Card>
 
               {/* Department Stats Summary */}
-              <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
-                <CardHeader className="border-b border-slate-700/50 pb-3">
-                  <CardTitle className="text-slate-100 flex items-center">
-                    <Users className="mr-2 h-5 w-5 text-cyan-500" />
+              <Card className="bg-card border-border/50 backdrop-blur-sm shadow-sm">
+                <CardHeader className="border-b border-border/50 pb-3 bg-muted/20 dark:bg-transparent">
+                  <CardTitle className="text-card-foreground flex items-center">
+                    <Users className="mr-2 h-5 w-5 text-blue-600 dark:text-primary" />
                     Resumen Departamentos
                   </CardTitle>
                 </CardHeader>
@@ -645,17 +645,17 @@ export default function InventoryDashboard() {
                     {dashboardData.departmentStats.slice(0, 3).map((dept: any, index: number) => (
                       <div key={index} className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-sm font-medium text-slate-200">{dept.name}</h3>
-                          <p className="text-xs text-slate-400">
+                          <h3 className="text-sm font-medium text-foreground/90">{dept.name}</h3>
+                          <p className="text-xs text-muted-foreground/70">
                             {dept.users} usuarios • {dept.computers} computadores
                           </p>
                         </div>
-                        <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+                        <Badge className="bg-blue-50 dark:bg-cyan-500/20 text-blue-700 dark:text-primary border-blue-200 dark:border-cyan-500/50">
                           {dept.percentage}%
                         </Badge>
                       </div>
                     ))}
-                    <Button variant="link" className="text-cyan-400 p-0 text-xs">
+                    <Button variant="link" className="text-blue-600 dark:text-primary p-0 text-xs hover:text-blue-700 dark:hover:text-primary/80">
                       Ver todos los departamentos →
                     </Button>
                   </div>
@@ -688,37 +688,39 @@ function StatCard({
   const getColorClasses = () => {
     switch (color) {
       case "cyan":
-        return "from-cyan-500 to-blue-500 border-cyan-500/30 text-cyan-500"
+        return "from-cyan-500 to-blue-500 border-cyan-500/30 text-blue-600 dark:text-primary"
       case "blue":
-        return "from-blue-500 to-indigo-500 border-blue-500/30 text-blue-500"
+        return "from-blue-500 to-indigo-500 border-blue-500/30 text-blue-600 dark:text-blue-500"
       case "purple":
-        return "from-purple-500 to-pink-500 border-purple-500/30 text-purple-500"
+        return "from-purple-500 to-pink-500 border-purple-500/30 text-purple-600 dark:text-purple-500"
       case "green":
-        return "from-green-500 to-emerald-500 border-green-500/30 text-green-500"
+        return "from-green-500 to-emerald-500 border-green-500/30 text-green-600 dark:text-green-500"
       case "amber":
-        return "from-amber-500 to-orange-500 border-amber-500/30 text-amber-500"
+        return "from-amber-500 to-orange-500 border-amber-500/30 text-amber-600 dark:text-amber-500"
+      case "orange":
+        return "from-orange-500 to-red-500 border-orange-500/30 text-orange-600 dark:text-orange-500"
       case "red":
-        return "from-red-500 to-rose-500 border-red-500/30 text-red-500"
+        return "from-red-500 to-rose-500 border-red-500/30 text-red-600 dark:text-red-500"
       default:
-        return "from-cyan-500 to-blue-500 border-cyan-500/30 text-cyan-500"
+        return "from-cyan-500 to-blue-500 border-cyan-500/30 text-blue-600 dark:text-primary"
     }
   }
 
   const colorClasses = getColorClasses()
 
   return (
-    <Card className={`bg-slate-900/50 border-slate-700/50 backdrop-blur-sm overflow-hidden relative`}>
+    <Card className={`bg-card border-border/50 backdrop-blur-sm overflow-hidden relative shadow-sm hover:shadow-md transition-shadow`}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="text-sm text-slate-400">{title}</div>
-          <Icon className={`h-5 w-5 ${colorClasses.split(" ")[2]}`} />
+          <div className="text-sm font-medium text-muted-foreground/80">{title}</div>
+          <Icon className={`h-5 w-5 ${colorClasses.split(" ")[2]} ${colorClasses.split(" ")[3] || ''}`} />
         </div>
 
         <div className="space-y-2">
-          <div className="text-3xl font-bold text-slate-100">{value.toLocaleString()}</div>
+          <div className="text-3xl font-bold text-foreground">{value.toLocaleString()}</div>
           <div className="flex items-center justify-between">
-            <div className="text-xs text-slate-500">{description}</div>
-            <div className={`flex items-center text-xs ${trend >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <div className="text-xs text-muted-foreground/70">{description}</div>
+            <div className={`flex items-center text-xs ${trend >= 0 ? "text-green-600 dark:text-green-500" : "text-red-600 dark:text-red-500"}`}>
               {trend >= 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
               {Math.abs(trend)}%
             </div>
@@ -726,7 +728,7 @@ function StatCard({
         </div>
 
         <div
-          className={`absolute -bottom-6 -right-6 h-16 w-16 rounded-full bg-gradient-to-r opacity-10 blur-xl ${colorClasses.split(" ")[0]} ${colorClasses.split(" ")[1]}`}
+          className={`absolute -bottom-6 -right-6 h-16 w-16 rounded-full bg-gradient-to-r opacity-5 dark:opacity-10 blur-xl ${colorClasses.split(" ")[0]} ${colorClasses.split(" ")[1]}`}
         ></div>
       </CardContent>
     </Card>

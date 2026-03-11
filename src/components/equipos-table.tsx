@@ -6,7 +6,7 @@ import React from "react";
 import {z} from "zod";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon, EyeIcon, DownloadIcon } from "lucide-react";
+import { ArchiveRestore, CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, ColumnsIcon, ImageIcon, MoreHorizontalIcon, PlusIcon, User2Icon, WrenchIcon, XCircleIcon, EyeIcon, DownloadIcon, UploadIcon } from "lucide-react";
 import { showToast } from "nextjs-toast-notify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import TableRowSkeleton from "@/utils/loading";
 import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
+import { BulkUpdateResultModal } from "@/components/bulk-update-result-modal";
+import { BulkUpdateResult } from "@/types/bulk-update";
 
 
 export const dispositivoSchema = z.object({
@@ -83,6 +85,9 @@ export function DispositivoTable({}: DispositivoTableProps) {
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [bulkUpdateResult, setBulkUpdateResult] = React.useState<any>(null);
+  const [isBulkResultModalOpen, setIsBulkResultModalOpen] = React.useState(false);
 
 const columns: ColumnDef<Dispositivo>[] = [
   {
@@ -510,6 +515,60 @@ const columns: ColumnDef<Dispositivo>[] = [
     React.useEffect(() => {
       fetchAllData();
     }, []);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/dispositivos/bulk-update", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Error al procesar el archivo.");
+      }
+
+      // Guardar el resultado completo y abrir el modal
+      setBulkUpdateResult(data);
+      setIsBulkResultModalOpen(true);
+
+      const updated = data?.summary?.updated ?? 0;
+      const created = data?.summary?.created ?? 0;
+      const notFound = data?.summary?.notFound ?? 0;
+      const usuariosNoEncontrados = data?.summary?.usuariosNoEncontrados ?? 0;
+      const incongruencias = data?.summary?.incongruenciasUsuarios ?? 0;
+      const marcasCreadas = data?.summary?.marcasCreadas ?? 0;
+      const modelosCreados = data?.summary?.modelosCreados ?? 0;
+
+      // Toast con resumen básico
+      if (usuariosNoEncontrados > 0 || incongruencias > 0) {
+        showToast.warning(
+          `Actualización completada con advertencias. Actualizados: ${updated}, Creados: ${created}. Revisa el reporte detallado.`
+        );
+      } else {
+        showToast.success(
+          `Actualización completada. Actualizados: ${updated}, Creados: ${created}, No encontrados: ${notFound}${marcasCreadas > 0 ? `, Marcas creadas: ${marcasCreadas}` : ''}${modelosCreados > 0 ? `, Modelos creados: ${modelosCreados}` : ''}`
+        );
+      }
+
+      await fetchAllData();
+    } catch (error: any) {
+      console.error(error);
+      showToast.error(error.message || "Error al actualizar desde Excel.");
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
+    }
+  };
   
     const handleOpenEditModal = (dispositivos: Dispositivo) => {
     setEditingDispositivo(dispositivos);
@@ -642,7 +701,37 @@ return (
     <Card className="border-none shadow-md">
       <CardHeader className="bg-primary/5 rounded-t-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-2xl font-bold">Dispositivos</CardTitle>
+          <div className="flex flex-col gap-2">
+            <CardTitle className="text-2xl font-bold">Dispositivos</CardTitle>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>Actualización masiva:</span>
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    document
+                      .querySelector<HTMLInputElement>(
+                        'input[type="file"][accept=".xlsx,.xls"]'
+                      )
+                      ?.click()
+                  }
+                  disabled={isUploading}
+                >
+                  <UploadIcon className="mr-1 h-3 w-3" />
+                  {isUploading ? "Subiendo..." : "Subir Excel"}
+                </Button>
+              </label>
+            </div>
+          </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <Input
@@ -815,6 +904,13 @@ return (
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Modal para mostrar resultados de carga masiva */}
+      <BulkUpdateResultModal
+        isOpen={isBulkResultModalOpen}
+        onClose={() => setIsBulkResultModalOpen(false)}
+        result={bulkUpdateResult}
+      />
     </Card>
   )
 

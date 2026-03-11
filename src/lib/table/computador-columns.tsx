@@ -107,10 +107,18 @@ export function createComputadorColumns({
         },
         {
             accessorKey: "modelo.nombre",
-            header: ({ column }) => {
+            header: ({ column, table }) => {
+                // Obtener la marca seleccionada del filtro de marca
+                const marcaFilter = table.getColumn("marcaNombre")?.getFilterValue() as string | undefined;
+                
+                // Filtrar modelos según la marca seleccionada
+                const modelosFiltrados = marcaFilter
+                    ? computadores.filter((c) => c.modelo?.marca?.nombre === marcaFilter)
+                    : computadores;
+
                 const uniqueModelos = Array.from(
                     new Set(
-                        computadores
+                        modelosFiltrados
                             .map((c) => c.modelo?.nombre)
                             .filter(Boolean) as string[]
                     )
@@ -121,7 +129,7 @@ export function createComputadorColumns({
                         label="Modelo"
                         column={column}
                         options={uniqueModelos}
-                        placeholder="Todos los modelos"
+                        placeholder={marcaFilter ? `Modelos de ${marcaFilter}` : "Todos los modelos"}
                     />
                 );
             },
