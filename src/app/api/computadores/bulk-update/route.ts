@@ -1,10 +1,5 @@
-import ExcelJS from 'exceljs';
-import prisma from '@/lib/prisma'; // O la ruta correcta a tu instancia de Prisma
-import type { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { parseExcel, applyComputadorBulkUpdate } from '@/lib/computadorBulkUpdate';
-
-
 
 // Handler HTTP para Next.js App Router
 export async function POST(req: NextRequest) {

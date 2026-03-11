@@ -2,34 +2,34 @@ import ExcelJS from 'exceljs';
 import prisma from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
 
-export type BulkRow = {
+export type BulkDispositivoRow = {
   serial: string;
-  host?: string | null;
+  marca?: string | null;
+  modelo?: string | null;
+  tipo?: string | null;
   ubicacion?: string | null;
   estado?: string | null;
   sede?: string | null;
   usuario?: string | null;
-  sisOperativo?: string | null;
-  ram?: string | null;
-  almacenamiento?: string | null;
   nsap?: string | null;
-  procesador?: string | null;
-  macWifi?: string | null;
-  macEthernet?: string | null;
+  imei?: string | null;
 };
 
-export type BulkResultItem = {
+export type BulkDispositivoResultItem = {
   serial: string;
   found: boolean;
   updated: boolean;
+  created: boolean;
   message?: string;
   warning?: string;
-  usuarioExcel?: string | null; // Usuario que venía en el Excel
-  usuarioActual?: string | null; // Usuario actualmente asignado en BD
-  usuarioExiste?: boolean; // Si el usuario del Excel existe en BD
+  usuarioExcel?: string | null;
+  usuarioActual?: string | null;
+  usuarioExiste?: boolean;
+  marcaCreada?: boolean;
+  modeloCreado?: boolean;
 };
 
-export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<BulkRow[]> {
+export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<BulkDispositivoRow[]> {
   const workbook = new ExcelJS.Workbook();
   const input = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   await workbook.xlsx.load(input as any);
@@ -47,8 +47,12 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
 
     if (['serial', 'n° serie', 'no serie', 'serie'].includes(key)) {
       headers.serial = colNumber;
-    } else if (['host', 'hostname', 'nombre host', 'nombre de host'].includes(key)) {
-      headers.host = colNumber;
+    } else if (['marca', 'brand'].includes(key)) {
+      headers.marca = colNumber;
+    } else if (['modelo', 'model'].includes(key)) {
+      headers.modelo = colNumber;
+    } else if (['tipo', 'type', 'categoria'].includes(key)) {
+      headers.tipo = colNumber;
     } else if (['ubicacion', 'ubicación', 'location'].includes(key)) {
       headers.ubicacion = colNumber;
     } else if (['estado', 'status'].includes(key)) {
@@ -57,20 +61,10 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
       headers.sede = colNumber;
     } else if (['usuario', 'responsable', 'email', 'correo'].includes(key)) {
       headers.usuario = colNumber;
-    } else if (['sistema operativo', 'so', 'os', 'sisoperativo'].includes(key)) {
-      headers.sisOperativo = colNumber;
-    } else if (['ram', 'memoria'].includes(key)) {
-      headers.ram = colNumber;
-    } else if (['almacenamiento', 'disco', 'storage', 'hdd', 'ssd'].includes(key)) {
-      headers.almacenamiento = colNumber;
     } else if (['nsap', 'sap', 'n° sap', 'numero sap'].includes(key)) {
       headers.nsap = colNumber;
-    } else if (['procesador', 'cpu', 'processor'].includes(key)) {
-      headers.procesador = colNumber;
-    } else if (['mac wifi', 'macwifi', 'mac wi-fi', 'wifi'].includes(key)) {
-      headers.macWifi = colNumber;
-    } else if (['mac ethernet', 'macethernet', 'mac lan', 'ethernet'].includes(key)) {
-      headers.macEthernet = colNumber;
+    } else if (['imei'].includes(key)) {
+      headers.imei = colNumber;
     }
   });
 
@@ -78,7 +72,7 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
     throw new Error('El archivo debe tener una columna de serial (serial / n° serie / no serie / serie).');
   }
 
-  const rows: BulkRow[] = [];
+  const rows: BulkDispositivoRow[] = [];
 
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
@@ -91,47 +85,45 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
 
     rows.push({
       serial,
-      host: toText(headers.host),
+      marca: toText(headers.marca),
+      modelo: toText(headers.modelo),
+      tipo: toText(headers.tipo),
       ubicacion: toText(headers.ubicacion),
       estado: toText(headers.estado),
       sede: toText(headers.sede),
       usuario: toText(headers.usuario),
-      sisOperativo: toText(headers.sisOperativo),
-      ram: toText(headers.ram),
-      almacenamiento: toText(headers.almacenamiento),
       nsap: toText(headers.nsap),
-      procesador: toText(headers.procesador),
-      macWifi: toText(headers.macWifi),
-      macEthernet: toText(headers.macEthernet),
+      imei: toText(headers.imei),
     });
   });
 
   return rows;
 }
 
-export async function applyComputadorBulkUpdate(rows: BulkRow[]) {
-  
-if (rows.length === 0) {
+export async function applyDispositivoBulkUpdate(rows: BulkDispositivoRow[]) {
+  if (rows.length === 0) {
     return {
       summary: {
         totalRows: 0,
         totalSerialesUnicos: 0,
         found: 0,
         updated: 0,
+        created: 0,
         notFound: 0,
         serialesNoEncontrados: [],
         usuariosNoEncontrados: 0,
         incongruenciasUsuarios: 0,
+        marcasCreadas: 0,
+        modelosCreados: 0,
       },
-      results: [] as BulkResultItem[],
+      results: [] as BulkDispositivoResultItem[],
     };
   }
 
   const seriales = [...new Set(rows.map((r) => r.serial))];
-
-  // 1. Extraemos los nombres de usuario del Excel para buscarlos en la BD
   const normalizarNombre = (valor: string) => valor.trim().toLowerCase();
 
+  // Extraer usuarios del Excel
   const usuariosExcel = [
     ...new Set(
       rows
@@ -141,14 +133,14 @@ if (rows.length === 0) {
     ),
   ];
 
-  // 2. Buscamos los Computadores (Incluyendo al usuario actual para comparar)
-  const computadores = await prisma.computador.findMany({
+  // Buscar dispositivos existentes
+  const dispositivos = await prisma.dispositivo.findMany({
     where: { serial: { in: seriales } },
-    include: { usuario: true },
+    include: { usuario: true, modelo: { include: { marca: true } } },
   });
-  const computadorMap = new Map(computadores.map((c) => [c.serial, c]));
+  const dispositivoMap = new Map(dispositivos.map((d) => [d.serial, d]));
 
-  // 3. Buscamos los Usuarios en la BD usando nombre y apellido
+  // Buscar usuarios en BD
   const condicionesUsuarios =
     usuariosExcel.length === 0
       ? []
@@ -201,45 +193,121 @@ if (rows.length === 0) {
     usuarioMap.set(normalizarNombre(u.nombre), { id: u.id, nombre: u.nombre, apellido: u.apellido });
   }
 
-  const results: BulkResultItem[] = [];
+  const results: BulkDispositivoResultItem[] = [];
+  let marcasCreadas = 0;
+  let modelosCreados = 0;
 
   await prisma.$transaction(async (tx) => {
     for (const row of rows) {
-      const existing = computadorMap.get(row.serial);
+      const existing = dispositivoMap.get(row.serial);
+      let marcaCreada = false;
+      let modeloCreado = false;
 
-      // --- CASO 1: EL COMPUTADOR NO EXISTE ---
+      // --- CASO 1: EL DISPOSITIVO NO EXISTE - CREAR SI HAY MARCA Y MODELO ---
       if (!existing) {
+        if (!row.marca || !row.modelo) {
+          results.push({
+            serial: row.serial,
+            found: false,
+            updated: false,
+            created: false,
+            message: 'No existe en BD. Para crearlo, debe proporcionar marca y modelo en el Excel.',
+            usuarioExcel: row.usuario,
+            usuarioActual: null,
+            usuarioExiste: row.usuario ? !!usuarioMap.get(normalizarNombre(row.usuario)) : undefined,
+          });
+          continue;
+        }
+
+        // Buscar o crear marca
+        let marca = await tx.marca.findFirst({
+          where: { nombre: { equals: row.marca, mode: 'insensitive' } },
+        });
+
+        if (!marca) {
+          marca = await tx.marca.create({
+            data: { nombre: row.marca },
+          });
+          marcaCreada = true;
+          marcasCreadas++;
+        }
+
+        // Buscar o crear modelo
+        let modelo = await tx.modeloDispositivo.findFirst({
+          where: {
+            nombre: { equals: row.modelo, mode: 'insensitive' },
+            marcaId: marca.id,
+          },
+        });
+
+        if (!modelo) {
+          modelo = await tx.modeloDispositivo.create({
+            data: {
+              nombre: row.modelo,
+              marcaId: marca.id,
+              tipo: row.tipo || 'Otro',
+            },
+          });
+          modeloCreado = true;
+          modelosCreados++;
+        }
+
+        // Crear el dispositivo
+        await tx.dispositivo.create({
+          data: {
+            serial: row.serial,
+            modeloId: modelo.id,
+            ubicacion: row.ubicacion,
+            estado: row.estado || 'Resguardo',
+            sede: row.sede,
+            nsap: row.nsap,
+            mac: row.imei, // IMEI se guarda en el campo mac
+          },
+        });
+
+        let warningMsg = '';
+        let usuarioExiste: boolean | undefined = undefined;
+
+        if (row.usuario) {
+          const userDataEnBD = usuarioMap.get(normalizarNombre(row.usuario));
+          if (!userDataEnBD) {
+            usuarioExiste = false;
+            warningMsg = `El usuario '${row.usuario}' no existe en la base de datos. Dispositivo creado sin asignar.`;
+          } else {
+            usuarioExiste = true;
+            warningMsg = `Dispositivo creado. Usuario '${row.usuario}' debe asignarse manualmente.`;
+          }
+        }
+
         results.push({
           serial: row.serial,
           found: false,
           updated: false,
-          message: 'No existe un computador con este serial en la Base de Datos.',
+          created: true,
+          message: `Dispositivo creado exitosamente.${marcaCreada ? ' Marca creada.' : ''}${modeloCreado ? ' Modelo creado.' : ''}`,
+          warning: warningMsg || undefined,
           usuarioExcel: row.usuario,
           usuarioActual: null,
-          usuarioExiste: row.usuario ? !!usuarioMap.get(normalizarNombre(row.usuario)) : undefined,
+          usuarioExiste,
+          marcaCreada,
+          modeloCreado,
         });
         continue;
       }
 
-      // --- CASO 2: EL COMPUTADOR EXISTE, REVISAMOS CAMBIOS ---
-      const dataToUpdate: Prisma.ComputadorUncheckedUpdateInput = {};
+      // --- CASO 2: EL DISPOSITIVO EXISTE, REVISAMOS CAMBIOS ---
+      const dataToUpdate: Prisma.DispositivoUncheckedUpdateInput = {};
 
       let warningMsg = '';
       const usuarioActualNombre = existing.usuario ? `${existing.usuario.nombre} ${existing.usuario.apellido}` : null;
 
-      // Verificamos cambios básicos (sin tocar usuarioId)
-      if (row.host !== null && row.host !== undefined && row.host !== existing.host) dataToUpdate.host = row.host;
+      // Verificamos cambios básicos
       if (row.ubicacion !== null && row.ubicacion !== undefined && row.ubicacion !== existing.ubicacion) dataToUpdate.ubicacion = row.ubicacion;
       if (row.sede !== null && row.sede !== undefined && row.sede !== existing.sede) dataToUpdate.sede = row.sede;
-      if (row.sisOperativo !== null && row.sisOperativo !== undefined && row.sisOperativo !== existing.sisOperativo) dataToUpdate.sisOperativo = row.sisOperativo;
-      if (row.ram !== null && row.ram !== undefined && row.ram !== existing.ram) dataToUpdate.ram = row.ram;
-      if (row.almacenamiento !== null && row.almacenamiento !== undefined && row.almacenamiento !== existing.almacenamiento) dataToUpdate.almacenamiento = row.almacenamiento;
       if (row.nsap !== null && row.nsap !== undefined && row.nsap !== existing.nsap) dataToUpdate.nsap = row.nsap;
-      if (row.procesador !== null && row.procesador !== undefined && row.procesador !== existing.procesador) dataToUpdate.procesador = row.procesador;
-      if (row.macWifi !== null && row.macWifi !== undefined && row.macWifi !== existing.macWifi) dataToUpdate.macWifi = row.macWifi;
-      if (row.macEthernet !== null && row.macEthernet !== undefined && row.macEthernet !== existing.macEthernet) dataToUpdate.macEthernet = row.macEthernet;
+      if (row.imei !== null && row.imei !== undefined && row.imei !== existing.mac) dataToUpdate.mac = row.imei;
 
-      // Solo actualizamos estado si NO viene usuario en el Excel (para no interferir con asignaciones manuales)
+      // Solo actualizamos estado si NO viene usuario en el Excel
       if (!row.usuario && row.estado !== null && row.estado !== undefined && row.estado !== existing.estado) {
         dataToUpdate.estado = row.estado;
       }
@@ -255,7 +323,7 @@ if (rows.length === 0) {
         } else {
           usuarioExiste = true;
           if (userDataEnBD.id !== existing.usuarioId) {
-            warningMsg = `Incongruencia: Excel indica '${row.usuario}' pero el equipo está asignado a '${usuarioActualNombre || 'Nadie'}'. Debe reasignar manualmente.`;
+            warningMsg = `Incongruencia: Excel indica '${row.usuario}' pero el dispositivo está asignado a '${usuarioActualNombre || 'Nadie'}'. Debe reasignar manualmente.`;
           }
         }
       }
@@ -265,6 +333,7 @@ if (rows.length === 0) {
           serial: row.serial,
           found: true,
           updated: false,
+          created: false,
           message: 'Sin cambios en los datos básicos.',
           warning: warningMsg || undefined,
           usuarioExcel: row.usuario,
@@ -274,8 +343,8 @@ if (rows.length === 0) {
         continue;
       }
 
-      // Ejecutamos la actualización (solo datos básicos, NO usuario)
-      await tx.computador.update({
+      // Ejecutamos la actualización
+      await tx.dispositivo.update({
         where: { id: existing.id },
         data: dataToUpdate,
       });
@@ -284,6 +353,7 @@ if (rows.length === 0) {
         serial: row.serial,
         found: true,
         updated: true,
+        created: false,
         message: 'Datos básicos actualizados correctamente.',
         warning: warningMsg || undefined,
         usuarioExcel: row.usuario,
@@ -294,7 +364,7 @@ if (rows.length === 0) {
   });
 
   // --- GENERACIÓN DEL REPORTE FINAL ---
-  const serialesNoEncontrados = results.filter((r) => !r.found).map((r) => r.serial);
+  const serialesNoEncontrados = results.filter((r) => !r.found && !r.created).map((r) => r.serial);
   const usuariosNoEncontrados = results.filter((r) => r.usuarioExiste === false).length;
   const incongruenciasUsuarios = results.filter(
     (r) => r.found && r.usuarioExcel && r.usuarioExiste && r.warning?.includes('Incongruencia')
@@ -305,13 +375,14 @@ if (rows.length === 0) {
     totalSerialesUnicos: seriales.length,
     found: results.filter((r) => r.found).length,
     updated: results.filter((r) => r.updated).length,
+    created: results.filter((r) => r.created).length,
     notFound: serialesNoEncontrados.length,
     serialesFaltantes: serialesNoEncontrados,
     usuariosNoEncontrados,
     incongruenciasUsuarios,
+    marcasCreadas,
+    modelosCreados,
   };
 
   return { summary, results };
-
 }
-

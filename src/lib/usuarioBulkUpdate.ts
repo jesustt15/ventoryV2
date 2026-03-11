@@ -20,9 +20,10 @@ export type UsuarioBulkResultItem = {
   warning?: string;
 };
 
-export async function parseUsuarioExcel(buffer: Buffer): Promise<UsuarioBulkRow[]> {
+export async function parseUsuarioExcel(buffer: ArrayBuffer | Uint8Array): Promise<UsuarioBulkRow[]> {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
+  const input = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  await workbook.xlsx.load(input as any);
 
   const worksheet = workbook.worksheets[0];
   if (!worksheet) return [];
