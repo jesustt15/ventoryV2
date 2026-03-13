@@ -2,9 +2,14 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import path from 'path';
 import { stat, mkdir, writeFile } from 'fs/promises';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 export async function POST(request: Request) {
-    try {
+  // Solo admin puede crear modelos
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
+  try {
         const formData = await request.formData();
         const nombre = formData.get('nombre') as string;
         const tipo = formData.get('tipo') as string;
@@ -96,6 +101,10 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
+  // Solo usuarios autenticados pueden ver modelos
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     const modelos = await prisma.modeloDispositivo.findMany({
       include: {

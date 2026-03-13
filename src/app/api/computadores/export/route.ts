@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
+import { requireAuth } from "@/lib/api-auth";
 
 export async function POST(request: NextRequest) {
+  // Solo usuarios autenticados pueden exportar
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     const { data } = await request.json();
 

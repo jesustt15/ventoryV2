@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 
 export async function GET(request: NextRequest) {
+  // Solo usuarios autenticados pueden ver detalles
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];
@@ -29,7 +34,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    await Promise.resolve();
+  // Solo admin puede modificar usuarios
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
+  await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];
     try {
         const body = await request.json();
@@ -70,6 +79,10 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Solo admin puede eliminar usuarios
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];

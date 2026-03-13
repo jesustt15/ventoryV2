@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseUsuarioExcel, applyUsuarioBulkUpdate } from '@/lib/usuarioBulkUpdate';
+import { requireAdmin } from '@/lib/api-auth';
 
 export async function POST(req: NextRequest) {
+  // Solo admin puede hacer bulk update de usuarios
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const formData = await req.formData();
     const file = formData.get('file');

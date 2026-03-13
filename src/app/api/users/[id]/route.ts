@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma'; // Adjust the import path as necessary
-
-
+import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
+  // Verificar que sea admin
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];
@@ -23,6 +26,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // Verificar que sea admin
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];
@@ -41,6 +48,10 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Verificar que sea admin
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];

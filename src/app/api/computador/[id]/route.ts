@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { Prisma, HistorialModificaciones } from '@prisma/client';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 
 export async function GET(request: NextRequest) {
+  // Solo usuarios autenticados pueden ver computadores
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   const { searchParams } = new URL(request.url);
   const asignado = searchParams.get('asignado');
 
@@ -106,6 +111,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // Solo admin puede modificar computadores
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const id = request.nextUrl.pathname.split('/')[3];
     const body = await request.json();
@@ -181,6 +190,10 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Solo admin puede eliminar computadores
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     await Promise.resolve();
     const id = request.nextUrl.pathname.split('/')[3];

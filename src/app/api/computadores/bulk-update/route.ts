@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseExcel, applyComputadorBulkUpdate } from '@/lib/computadorBulkUpdate';
+import { requireAdmin } from '@/lib/api-auth';
 
 // Handler HTTP para Next.js App Router
 export async function POST(req: NextRequest) {
+  // Solo admin puede hacer bulk update
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const formData = await req.formData();
     const file = formData.get('file');

@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 export async function GET() {
+  // Solo usuarios autenticados pueden ver gerencias
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     const gerencias = await prisma.gerencia.findMany();
     return NextResponse.json(gerencias, { status: 200 });
@@ -12,6 +17,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // Solo admin puede crear gerencias
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const body = await request.json();
     const newGerencia = await prisma.gerencia.create({

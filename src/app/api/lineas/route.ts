@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 export async function GET() {
+  // Solo usuarios autenticados pueden ver líneas
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
      const lineas = await prisma.lineaTelefonica.findMany({
     include: {
@@ -33,6 +38,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // Solo admin puede crear líneas telefónicas
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     // Ya no es FormData, ahora es JSON simple
     const body = await request.json();

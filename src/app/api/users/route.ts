@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
+import { requireAdmin } from '@/lib/api-auth';
 
 export async function GET() {
+  // Verificar que sea admin
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const users = await prisma.user.findMany();
     return NextResponse.json(users, { status: 200 });
@@ -13,6 +18,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // Verificar que sea admin
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const body = await request.json();
 

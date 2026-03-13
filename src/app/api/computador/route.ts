@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
-import  prisma  from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 export async function GET(request: Request) {
-
+  // Solo usuarios autenticados pueden ver computadores
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   const { searchParams } = new URL(request.url);
   const asignado = searchParams.get('asignado'); // 'true' o 'false'
   let where: Prisma.ComputadorWhereInput = {};
@@ -47,6 +51,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // Solo admin puede crear computadores
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const body = await request.json();
 

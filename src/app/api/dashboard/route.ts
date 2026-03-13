@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // Asegúrate que la ruta a prisma sea correcta
+import prisma from "@/lib/prisma";
+import { requireAuth } from "@/lib/api-auth";
 
 /**
  * GET /api/dashboard/stats
@@ -7,6 +8,10 @@ import prisma from "@/lib/prisma"; // Asegúrate que la ruta a prisma sea correc
  * Endpoint unificado para obtener todas las estadísticas necesarias para el dashboard de inventario.
  */
 export async function GET() {
+  // Solo usuarios autenticados pueden ver el dashboard
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     // --- 1. CONTEOS ESPECÍFICOS (NUEVAS TARJETAS) ---
     const [

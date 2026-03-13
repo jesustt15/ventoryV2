@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 export async function POST(request: Request) {
+  // Solo admin puede crear marcas
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     const nombre = await request.json();
     console.log(nombre);
@@ -22,6 +27,10 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
+  // Solo usuarios autenticados pueden ver marcas
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     const marcas = await prisma.marca.findMany({
       orderBy:{

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { getGerente } from '@/utils/getGerente';
+import { requireAuth } from '@/lib/api-auth';
 
 const asignacionSchema = z.object({
   action: z.enum(['asignar', 'desvincular']),
@@ -21,6 +22,10 @@ const asignacionSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  // Solo usuarios autenticados pueden ver asignaciones
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     const asignaciones = await prisma.asignaciones.findMany({
       orderBy: { date: 'desc' },
@@ -115,6 +120,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Solo usuarios autenticados pueden crear asignaciones
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   try {
     const body = await request.json();
     console.log('[API/ASIGNACIONES] Body recibido:', body);

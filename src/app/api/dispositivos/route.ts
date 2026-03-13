@@ -3,10 +3,14 @@ import prisma from '@/lib/prisma'
 import path from 'path';
 import { stat, mkdir, writeFile } from 'fs/promises';
 import { Prisma } from '@prisma/client';
+import { requireAuth, requireAdmin } from '@/lib/api-auth';
 
 
 export async function GET(request: Request) {
-
+  // Solo usuarios autenticados pueden ver dispositivos
+  const authError = await requireAuth();
+  if (authError) return authError;
+  
   const { searchParams } = new URL(request.url);
   const asignado = searchParams.get('asignado');
   let where: Prisma.DispositivoWhereInput = {};
@@ -49,6 +53,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // Solo admin puede crear dispositivos
+  const authError = await requireAdmin();
+  if (authError) return authError;
+  
   try {
     // Ya no es FormData, ahora es JSON simple
     const body = await request.json();
