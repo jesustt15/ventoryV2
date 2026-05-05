@@ -1,6 +1,6 @@
-DATABASE_URL="postgresql://postgres:Admin2024@db:5432/ventorydb?schema=public"
+DATABASE_URL="postgresql://example:example@db:5432/ventorydb?schema=public"
 JWT_SECRET_KEY = "depanaquesmuysecreto"
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=Admin2024
-POSTGRES_DB=ventorydb
+POSTGRES_USER=example
+POSTGRES_PASSWORD=example
+POSTGRES_DB=example
 NEXT_PUBLIC_URL=http://localhost:3000
