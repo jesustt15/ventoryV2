@@ -8,7 +8,21 @@ export async function GET() {
   if (authError) return authError;
   
   try {
-    const gerencias = await prisma.gerencia.findMany();
+    const gerencias = await prisma.gerencia.findMany({
+      include: {
+        gerente: {
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            cargo: true,
+          },
+        },
+      },
+      orderBy: {
+        nombre: 'asc',
+      },
+    });
     return NextResponse.json(gerencias, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -23,8 +37,28 @@ export async function POST(request: Request) {
   
   try {
     const body = await request.json();
+    const nombre = String(body?.nombre ?? '').trim();
+    const gerenteId = body?.gerenteId ? String(body.gerenteId) : null;
+
+    if (!nombre) {
+      return NextResponse.json({ message: 'El nombre es requerido' }, { status: 400 });
+    }
+
     const newGerencia = await prisma.gerencia.create({
-      data: body,
+      data: {
+        nombre,
+        gerenteId,
+      },
+      include: {
+        gerente: {
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            cargo: true,
+          },
+        },
+      },
     });
     return NextResponse.json(newGerencia, { status: 201 });
   } catch (error) {

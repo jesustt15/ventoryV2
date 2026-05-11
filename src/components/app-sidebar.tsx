@@ -5,7 +5,7 @@ import { Sidebar, SidebarHeader, SidebarMenu, SidebarMenuItem,
          SidebarMenuButton, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { LayoutDashboardIcon, Printer, Tag, Laptop, Factory, 
          UsersIcon, ClipboardListIcon,
-          ArrowUpCircleIcon, CardSim
+          ArrowUpCircleIcon, CardSim, BriefcaseBusiness
 } from 'lucide-react';
 import Link from 'next/link';
 import { NavMain } from './nav-main';
@@ -25,6 +25,7 @@ const navData = {
     { title: "Computadores", url: "/computadores", icon: Laptop },
     { title: "Líneas Telefónicas", url: "/lineas", icon: CardSim },
     { title: "Departamentos", url: "/departamentos", icon: Factory },
+    { title: "Gerencias", url: "/gerencias", icon: BriefcaseBusiness },
     { title: "Usuarios", url: "/usuarios", icon: UsersIcon },
     { title: "Asignaciones", url: "/asignaciones", icon: ClipboardListIcon },
   ],
@@ -49,6 +50,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       case 'Modelos':
       case 'Usuarios':
       case 'Departamentos':
+      case 'Gerencias':
         return false;
       default:
         return true;

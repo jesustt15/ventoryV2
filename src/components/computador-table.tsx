@@ -44,7 +44,9 @@ export function ComputadorTable({ }: ComputadorTableProps) {
   const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+    sociedad: false,
+  });
   const [rowSelection, setRowSelection] = React.useState({});
   const [searchQuery, setSearchQuery] = React.useState("");
   const [computadores, setComputadores] = React.useState<Computador[]>([]);
@@ -226,6 +228,10 @@ export function ComputadorTable({ }: ComputadorTableProps) {
           nsap: computador.nsap || "N/A",
           macWifi: computador.macWifi || "N/A",
           macEthernet: computador.macEthernet || "N/A",
+          sociedad:
+            computador.departamento?.sociedad ||
+            computador.usuario?.departamento?.sociedad ||
+            "N/A",
         };
       });
 
@@ -271,6 +277,7 @@ export function ComputadorTable({ }: ComputadorTableProps) {
     marcaNombre: "Marca",
     tipo: "Tipo",
     sede: "Sede",
+    sociedad: "Sociedad",
     "modelo.img": "Imagen",
   };
 

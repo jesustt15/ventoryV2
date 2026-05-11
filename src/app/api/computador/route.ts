@@ -34,7 +34,11 @@ export async function GET(request: Request) {
             marca: true,
           },
         },
-        usuario: true, // Incluimos esto para saber a quién está asignado
+        usuario: {
+          include: {
+            departamento: true,
+          },
+        }, // Incluimos departamento del usuario para obtener sociedad
         departamento: true, // Y a qué depto
       },
       orderBy: {

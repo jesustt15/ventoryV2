@@ -223,7 +223,7 @@ const columns: ColumnDef<Modelo>[] = [
                 <DropdownMenuItem onClick={() => handleOpenEditModal(modelo)}
                 >Editar modelo</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">Eliminar modelo</DropdownMenuItem>
+                <DropdownMenuItem  onClick={() => handleDelete(modelo)} className="text-destructive">Eliminar modelo</DropdownMenuItem>
               </>      
               )}
           </DropdownMenuContent>

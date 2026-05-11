@@ -210,6 +210,43 @@ export function createComputadorColumns({
             },
         },
         {
+            id: "sociedad",
+            accessorFn: (row) =>
+                row.departamento?.sociedad ||
+                row.usuario?.departamento?.sociedad ||
+                "Sin sociedad",
+            header: ({ column }) => {
+                const uniqueSociedades = Array.from(
+                    new Set(
+                        computadores
+                            .map(
+                                (c) =>
+                                    c.departamento?.sociedad ||
+                                    c.usuario?.departamento?.sociedad ||
+                                    "Sin sociedad"
+                            )
+                            .filter(Boolean) as string[]
+                    )
+                ).sort();
+
+                return (
+                    <ColumnFilterHeader
+                        label="Sociedad"
+                        column={column}
+                        options={uniqueSociedades}
+                        placeholder="Todas"
+                    />
+                );
+            },
+            cell: ({ row }) => {
+                const sociedad =
+                    row.original.departamento?.sociedad ||
+                    row.original.usuario?.departamento?.sociedad ||
+                    "Sin sociedad";
+                return <div>{sociedad}</div>;
+            },
+        },
+        {
             id: "modelo.img",
             header: "Imagen",
             accessorFn: (row) => row.modelo?.img,

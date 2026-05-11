@@ -49,6 +49,21 @@ export interface Dispositivo {
   sede?: string;
   mac?: string; // Optional, as it might not be present in all devices
   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Added img and marca properties
+  usuario?: {
+    id: string;
+    nombre: string;
+    apellido?: string;
+    departamento?: {
+      id: string;
+      nombre: string;
+      sociedad?: string | null;
+    } | null;
+  } | null;
+  departamento?: {
+    id: string;
+    nombre: string;
+    sociedad?: string | null;
+  } | null;
 }
 
 export interface DispositivoFormProps {
@@ -72,7 +87,9 @@ interface DispositivoTableProps {
 export function DispositivoTable({}: DispositivoTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+    sociedad: false,
+  })
   const [rowSelection, setRowSelection] = React.useState({})
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -265,6 +282,69 @@ const columns: ColumnDef<Dispositivo>[] = [
   },
   filterFn: (row, id, value) => {
     return value.includes(row.getValue(id));
+  },
+},
+{
+  id: "sociedad",
+  accessorFn: (row) =>
+    row.departamento?.sociedad ||
+    row.usuario?.departamento?.sociedad ||
+    "Sin sociedad",
+  header: ({ column }) => {
+    const isFilterActive = !!column.getFilterValue();
+    const sociedadesUnicas = Array.from(
+      new Set(
+        dispositivos
+          .map(
+            (d) =>
+              d.departamento?.sociedad ||
+              d.usuario?.departamento?.sociedad ||
+              "Sin sociedad"
+          )
+          .filter(Boolean) as string[]
+      )
+    ).sort();
+
+    return (
+      <div className="flex items-center">
+        <span>Sociedad</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-5 w-5 p-0 ml-1 ${isFilterActive ? "text-[#00FFFF]" : "text-muted-foreground"}`}
+            >
+              <FilterIcon className="h-3 w-3" />
+              {isFilterActive && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00FFFF]"></span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-44 p-2">
+            <select
+              value={(column.getFilterValue() as string) ?? ""}
+              onChange={(e) => column.setFilterValue(e.target.value)}
+              className="h-8 w-full border rounded text-sm px-2 py-1"
+            >
+              <option value="">Todas</option>
+              {sociedadesUnicas.map((sociedad) => (
+                <option key={sociedad} value={sociedad}>
+                  {sociedad}
+                </option>
+              ))}
+            </select>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  },
+  cell: ({ row }) => {
+    const sociedad =
+      row.original.departamento?.sociedad ||
+      row.original.usuario?.departamento?.sociedad ||
+      "Sin sociedad";
+    return <div>{sociedad}</div>;
   },
 },
   {
@@ -661,6 +741,10 @@ React.useEffect(() => {
           ubicacion: dispositivo.ubicacion || "N/A",
           nsap: dispositivo.nsap || "N/A",
           mac: dispositivo.mac || "N/A",
+          sociedad:
+            dispositivo.departamento?.sociedad ||
+            dispositivo.usuario?.departamento?.sociedad ||
+            "N/A",
         };
       });
 

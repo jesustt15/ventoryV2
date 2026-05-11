@@ -30,7 +30,6 @@ const fetchDashboardData = async () => {
     throw new Error("Error al cargar los datos del dashboard.");
   }
   const datos = await response.json();
-  console.log("dato:", datos);
   return datos;
 };
 
@@ -223,10 +222,6 @@ export default function InventoryDashboard() {
 
   const assignedPercentage = getPercentage(dashboardData.assignedLaptopsDesktops);
   const reservedPercentage = getPercentage(dashboardData.reservedLaptopsDesktops);
-  console.log("asiganado:", assignedPercentage);
-  console.log("reservadoo:", reservedPercentage);
-  
-
   const assignedCircleDash = (assignedPercentage / 100) * 251.2;
 
   return (

@@ -36,7 +36,11 @@ export async function GET(request: Request) {
             marca: true, // Incluye la marca del modelo
           }
         },
-        usuario: true, // Incluye el usuario asignado (si existe)
+        usuario: {
+          include: {
+            departamento: true,
+          },
+        }, // Incluye departamento del usuario para obtener sociedad
         departamento: true, // Incluye el departamento asignado (si existe)
       },
       orderBy: {
