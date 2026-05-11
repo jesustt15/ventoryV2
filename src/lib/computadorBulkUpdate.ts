@@ -1,9 +1,12 @@
 import ExcelJS from 'exceljs';
 import prisma from '@/lib/prisma';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
+/** Serial tal como viene en Excel (trazabilidad en reportes). */
 export type BulkRow = {
   serial: string;
+  /** Fila en el Excel (1 = encabezado); la primera fila de datos es 2. */
+  excelRow: number;
   host?: string | null;
   ubicacion?: string | null;
   estado?: string | null;
@@ -20,19 +23,160 @@ export type BulkRow = {
 
 export type BulkResultItem = {
   serial: string;
+  excelRow?: number;
   found: boolean;
   updated: boolean;
   message?: string;
   warning?: string;
-  usuarioExcel?: string | null; // Usuario que venía en el Excel
-  usuarioActual?: string | null; // Usuario actualmente asignado en BD
-  usuarioExiste?: boolean; // Si el usuario del Excel existe en BD
+  usuarioExcel?: string | null;
+  usuarioActual?: string | null;
+  usuarioExiste?: boolean;
 };
+
+const SERIAL_HEADER_KEYS = new Set([
+  'serial',
+  'n° serie',
+  'no serie',
+  'nº serie',
+  'número de serie',
+  'numero de serie',
+  'serie',
+  's/n',
+  'sn',
+  'asset tag',
+  'tag',
+  'service tag',
+]);
+
+const HOST_HEADER_KEYS = new Set(['host', 'hostname', 'nombre host', 'nombre de host', 'equipo']);
+const UBICACION_HEADER_KEYS = new Set(['ubicacion', 'ubicación', 'location']);
+const ESTADO_HEADER_KEYS = new Set(['estado', 'status']);
+const SEDE_HEADER_KEYS = new Set(['sede', 'site']);
+const USUARIO_HEADER_KEYS = new Set(['usuario', 'responsable', 'email', 'correo', 'asignado', 'asignado a']);
+const SO_HEADER_KEYS = new Set(['sistema operativo', 'so', 'os', 'sisoperativo']);
+const RAM_HEADER_KEYS = new Set(['ram', 'memoria']);
+const STORAGE_HEADER_KEYS = new Set(['almacenamiento', 'disco', 'storage', 'hdd', 'ssd']);
+const NSAP_HEADER_KEYS = new Set(['nsap', 'sap', 'n° sap', 'numero sap', 'número sap']);
+const CPU_HEADER_KEYS = new Set(['procesador', 'cpu', 'processor']);
+const MAC_WIFI_HEADER_KEYS = new Set(['mac wifi', 'macwifi', 'mac wi-fi', 'wifi']);
+const MAC_ETH_HEADER_KEYS = new Set(['mac ethernet', 'macethernet', 'mac lan', 'ethernet']);
+
+/** Quita acentos para reconocer encabezados aunque Excel use otra ortografía. */
+function normalizeHeaderKey(raw: string): string {
+  return raw
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .trim();
+}
+
+/**
+ * Clave de serial alineada con la expresión SQL de búsqueda secundaria
+ * (espacios extremos, NBSP, caracteres de ancho cero, BOM).
+ */
+export function canonicalSerial(serial: string): string {
+  return serial
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\u00A0/g, ' ')
+    .trim();
+}
+
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+/** Convierte el valor de una celda Excel a texto estable (evita notación científica en seriales numéricos). */
+function readCellText(cell: ExcelJS.Cell): string {
+  const val = cell.value;
+
+  if (val == null || val === '') return '';
+
+  if (typeof val === 'number') {
+    if (Number.isInteger(val) && Math.abs(val) <= Number.MAX_SAFE_INTEGER) {
+      return String(Math.trunc(val));
+    }
+    return String(val);
+  }
+
+  if (typeof val === 'boolean') return val ? 'true' : 'false';
+  if (typeof val === 'string') return val;
+  if (val instanceof Date) return val.toISOString();
+
+  if (typeof val === 'object') {
+    const o = val as Record<string, unknown>;
+
+    if ('result' in o && o.result != null && !('richText' in o)) {
+      const r = o.result;
+      if (typeof r === 'number' && Number.isInteger(r) && Math.abs(r) <= Number.MAX_SAFE_INTEGER) {
+        return String(Math.trunc(r));
+      }
+      if (typeof r === 'string') return r;
+      if (typeof r === 'number') return String(r);
+      if (typeof r === 'boolean') return r ? 'true' : 'false';
+    }
+
+    if (Array.isArray(o.richText)) {
+      return (o.richText as { text: string }[]).map((t) => t.text).join('');
+    }
+
+    if ('text' in o && typeof o.text === 'string') return o.text;
+    if ('hyperlink' in o && o.hyperlink && typeof (o as { text?: string }).text === 'string') {
+      return (o as { text: string }).text;
+    }
+  }
+
+  return String(val);
+}
+
+function readCellTrimmed(worksheet: ExcelJS.Worksheet, rowNumber: number, colNumber?: number): string {
+  if (!colNumber) return '';
+  const cell = worksheet.getRow(rowNumber).getCell(colNumber);
+  return readCellText(cell).trim();
+}
+
+/**
+ * Expresión SQL equivalente a `canonicalSerial` para coincidir con filas ya guardadas con espacios raros.
+ * Usa translate para quitar ZW* / BOM y NBSP, luego trim.
+ */
+function sqlSerialCanonicalColumn(): Prisma.Sql {
+  return Prisma.sql`
+    btrim(translate(translate(serial,
+      chr(8203) || chr(8204) || chr(8205) || chr(65279), ''),
+      chr(160), ' '))
+  `;
+}
+
+async function findComputadoresByCanonicalSerials(
+  canonicals: string[],
+): Promise<Array<{ id: string; serial: string }>> {
+  if (canonicals.length === 0) return [];
+
+  const out: Array<{ id: string; serial: string }> = [];
+  const seenId = new Set<string>();
+
+  for (const ch of chunkArray(canonicals, 600)) {
+    const rows = await prisma.$queryRaw<Array<{ id: string; serial: string }>>`
+      SELECT id, serial FROM "Computador"
+      WHERE ${sqlSerialCanonicalColumn()} IN (${Prisma.join(ch.map((c) => Prisma.sql`${c}`))})
+    `;
+    for (const r of rows) {
+      if (!seenId.has(r.id)) {
+        seenId.add(r.id);
+        out.push(r);
+      }
+    }
+  }
+
+  return out;
+}
 
 export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<BulkRow[]> {
   const workbook = new ExcelJS.Workbook();
   const input = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-  await workbook.xlsx.load(input as any);
+  await workbook.xlsx.load(input as unknown as ExcelJS.Buffer);
 
   const worksheet = workbook.worksheets[0];
   if (!worksheet) return [];
@@ -40,42 +184,44 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
   const headerRow = worksheet.getRow(1);
   const headers: Record<string, number> = {};
 
-  headerRow.eachCell((cell, colNumber) => {
-    const key = String(cell.value ?? '').toLowerCase().trim();
+  headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    const key = normalizeHeaderKey(String(cell.value ?? ''));
 
     if (!key) return;
 
-    if (['serial', 'n° serie', 'no serie', 'serie'].includes(key)) {
+    if (SERIAL_HEADER_KEYS.has(key)) {
       headers.serial = colNumber;
-    } else if (['host', 'hostname', 'nombre host', 'nombre de host'].includes(key)) {
+    } else if (HOST_HEADER_KEYS.has(key)) {
       headers.host = colNumber;
-    } else if (['ubicacion', 'ubicación', 'location'].includes(key)) {
+    } else if (UBICACION_HEADER_KEYS.has(key)) {
       headers.ubicacion = colNumber;
-    } else if (['estado', 'status'].includes(key)) {
+    } else if (ESTADO_HEADER_KEYS.has(key)) {
       headers.estado = colNumber;
-    } else if (['sede', 'site'].includes(key)) {
+    } else if (SEDE_HEADER_KEYS.has(key)) {
       headers.sede = colNumber;
-    } else if (['usuario', 'responsable', 'email', 'correo'].includes(key)) {
+    } else if (USUARIO_HEADER_KEYS.has(key)) {
       headers.usuario = colNumber;
-    } else if (['sistema operativo', 'so', 'os', 'sisoperativo'].includes(key)) {
+    } else if (SO_HEADER_KEYS.has(key)) {
       headers.sisOperativo = colNumber;
-    } else if (['ram', 'memoria'].includes(key)) {
+    } else if (RAM_HEADER_KEYS.has(key)) {
       headers.ram = colNumber;
-    } else if (['almacenamiento', 'disco', 'storage', 'hdd', 'ssd'].includes(key)) {
+    } else if (STORAGE_HEADER_KEYS.has(key)) {
       headers.almacenamiento = colNumber;
-    } else if (['nsap', 'sap', 'n° sap', 'numero sap'].includes(key)) {
+    } else if (NSAP_HEADER_KEYS.has(key)) {
       headers.nsap = colNumber;
-    } else if (['procesador', 'cpu', 'processor'].includes(key)) {
+    } else if (CPU_HEADER_KEYS.has(key)) {
       headers.procesador = colNumber;
-    } else if (['mac wifi', 'macwifi', 'mac wi-fi', 'wifi'].includes(key)) {
+    } else if (MAC_WIFI_HEADER_KEYS.has(key)) {
       headers.macWifi = colNumber;
-    } else if (['mac ethernet', 'macethernet', 'mac lan', 'ethernet'].includes(key)) {
+    } else if (MAC_ETH_HEADER_KEYS.has(key)) {
       headers.macEthernet = colNumber;
     }
   });
 
   if (!headers.serial) {
-    throw new Error('El archivo debe tener una columna de serial (serial / n° serie / no serie / serie).');
+    throw new Error(
+      'El archivo debe incluir una columna de serial reconocible (serial, serie, s/n, número de serie, service tag, etc.).',
+    );
   }
 
   const rows: BulkRow[] = [];
@@ -83,14 +229,20 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
 
-    const serial = String(row.getCell(headers.serial).value ?? '').trim();
+    const serialRaw = readCellTrimmed(worksheet, rowNumber, headers.serial);
+    if (!serialRaw) return;
+
+    const serial = canonicalSerial(serialRaw);
     if (!serial) return;
 
-    const toText = (idx?: number) =>
-      idx ? String(row.getCell(idx).value ?? '').trim() || null : null;
+    const toText = (idx?: number) => {
+      const t = readCellTrimmed(worksheet, rowNumber, idx);
+      return t || null;
+    };
 
     rows.push({
       serial,
+      excelRow: rowNumber,
       host: toText(headers.host),
       ubicacion: toText(headers.ubicacion),
       estado: toText(headers.estado),
@@ -110,16 +262,17 @@ export async function parseExcel(buffer: ArrayBuffer | Uint8Array): Promise<Bulk
 }
 
 export async function applyComputadorBulkUpdate(rows: BulkRow[]) {
-  
-if (rows.length === 0) {
+  if (rows.length === 0) {
     return {
       summary: {
         totalRows: 0,
         totalSerialesUnicos: 0,
         found: 0,
         updated: 0,
+        unchanged: 0,
         notFound: 0,
-        serialesNoEncontrados: [],
+        notFoundRows: 0,
+        serialesFaltantes: [] as string[],
         usuariosNoEncontrados: 0,
         incongruenciasUsuarios: 0,
       },
@@ -127,9 +280,35 @@ if (rows.length === 0) {
     };
   }
 
-  const seriales = [...new Set(rows.map((r) => r.serial))];
+  const serialesExactFromExcel = [...new Set(rows.map((r) => r.serial))];
 
-  // 1. Extraemos los nombres de usuario del Excel para buscarlos en la BD
+  const computadoresExact = await prisma.computador.findMany({
+    where: { serial: { in: serialesExactFromExcel } },
+    include: { usuario: true },
+  });
+
+  const byCanonical = new Map<string, (typeof computadoresExact)[0]>();
+  for (const c of computadoresExact) {
+    byCanonical.set(canonicalSerial(c.serial), c);
+  }
+
+  const canonFromRows = [...new Set(rows.map((r) => canonicalSerial(r.serial)))];
+  const missingCanon = canonFromRows.filter((c) => !byCanonical.has(c));
+
+  if (missingCanon.length > 0) {
+    const foundLoose = await findComputadoresByCanonicalSerials(missingCanon);
+    if (foundLoose.length > 0) {
+      const full = await prisma.computador.findMany({
+        where: { id: { in: foundLoose.map((f) => f.id) } },
+        include: { usuario: true },
+      });
+      for (const c of full) {
+        const k = canonicalSerial(c.serial);
+        if (!byCanonical.has(k)) byCanonical.set(k, c);
+      }
+    }
+  }
+
   const normalizarNombre = (valor: string) => valor.trim().toLowerCase();
 
   const usuariosExcel = [
@@ -141,14 +320,6 @@ if (rows.length === 0) {
     ),
   ];
 
-  // 2. Buscamos los Computadores (Incluyendo al usuario actual para comparar)
-  const computadores = await prisma.computador.findMany({
-    where: { serial: { in: seriales } },
-    include: { usuario: true },
-  });
-  const computadorMap = new Map(computadores.map((c) => [c.serial, c]));
-
-  // 3. Buscamos los Usuarios en la BD usando nombre y apellido
   const condicionesUsuarios =
     usuariosExcel.length === 0
       ? []
@@ -205,15 +376,17 @@ if (rows.length === 0) {
 
   await prisma.$transaction(async (tx) => {
     for (const row of rows) {
-      const existing = computadorMap.get(row.serial);
+      const canon = canonicalSerial(row.serial);
+      const existing = byCanonical.get(canon);
 
-      // --- CASO 1: EL COMPUTADOR NO EXISTE ---
       if (!existing) {
         results.push({
           serial: row.serial,
+          excelRow: row.excelRow,
           found: false,
           updated: false,
-          message: 'No existe un computador con este serial en la Base de Datos.',
+          message:
+            'No hay un computador con este serial en la base de datos (tras normalizar espacios y formato). Comprueba el serial en el inventario o crea el equipo antes de la carga masiva.',
           usuarioExcel: row.usuario,
           usuarioActual: null,
           usuarioExiste: row.usuario ? !!usuarioMap.get(normalizarNombre(row.usuario)) : undefined,
@@ -221,30 +394,40 @@ if (rows.length === 0) {
         continue;
       }
 
-      // --- CASO 2: EL COMPUTADOR EXISTE, REVISAMOS CAMBIOS ---
       const dataToUpdate: Prisma.ComputadorUncheckedUpdateInput = {};
 
       let warningMsg = '';
-      const usuarioActualNombre = existing.usuario ? `${existing.usuario.nombre} ${existing.usuario.apellido}` : null;
+      const usuarioActualNombre = existing.usuario
+        ? `${existing.usuario.nombre} ${existing.usuario.apellido}`
+        : null;
 
-      // Verificamos cambios básicos (sin tocar usuarioId)
       if (row.host !== null && row.host !== undefined && row.host !== existing.host) dataToUpdate.host = row.host;
-      if (row.ubicacion !== null && row.ubicacion !== undefined && row.ubicacion !== existing.ubicacion) dataToUpdate.ubicacion = row.ubicacion;
+      if (row.ubicacion !== null && row.ubicacion !== undefined && row.ubicacion !== existing.ubicacion) {
+        dataToUpdate.ubicacion = row.ubicacion;
+      }
       if (row.sede !== null && row.sede !== undefined && row.sede !== existing.sede) dataToUpdate.sede = row.sede;
-      if (row.sisOperativo !== null && row.sisOperativo !== undefined && row.sisOperativo !== existing.sisOperativo) dataToUpdate.sisOperativo = row.sisOperativo;
+      if (row.sisOperativo !== null && row.sisOperativo !== undefined && row.sisOperativo !== existing.sisOperativo) {
+        dataToUpdate.sisOperativo = row.sisOperativo;
+      }
       if (row.ram !== null && row.ram !== undefined && row.ram !== existing.ram) dataToUpdate.ram = row.ram;
-      if (row.almacenamiento !== null && row.almacenamiento !== undefined && row.almacenamiento !== existing.almacenamiento) dataToUpdate.almacenamiento = row.almacenamiento;
+      if (row.almacenamiento !== null && row.almacenamiento !== undefined && row.almacenamiento !== existing.almacenamiento) {
+        dataToUpdate.almacenamiento = row.almacenamiento;
+      }
       if (row.nsap !== null && row.nsap !== undefined && row.nsap !== existing.nsap) dataToUpdate.nsap = row.nsap;
-      if (row.procesador !== null && row.procesador !== undefined && row.procesador !== existing.procesador) dataToUpdate.procesador = row.procesador;
-      if (row.macWifi !== null && row.macWifi !== undefined && row.macWifi !== existing.macWifi) dataToUpdate.macWifi = row.macWifi;
-      if (row.macEthernet !== null && row.macEthernet !== undefined && row.macEthernet !== existing.macEthernet) dataToUpdate.macEthernet = row.macEthernet;
+      if (row.procesador !== null && row.procesador !== undefined && row.procesador !== existing.procesador) {
+        dataToUpdate.procesador = row.procesador;
+      }
+      if (row.macWifi !== null && row.macWifi !== undefined && row.macWifi !== existing.macWifi) {
+        dataToUpdate.macWifi = row.macWifi;
+      }
+      if (row.macEthernet !== null && row.macEthernet !== undefined && row.macEthernet !== existing.macEthernet) {
+        dataToUpdate.macEthernet = row.macEthernet;
+      }
 
-      // Solo actualizamos estado si NO viene usuario en el Excel (para no interferir con asignaciones manuales)
       if (!row.usuario && row.estado !== null && row.estado !== undefined && row.estado !== existing.estado) {
         dataToUpdate.estado = row.estado;
       }
 
-      // Verificamos el Usuario (solo para reportar, NO para actualizar)
       let usuarioExiste: boolean | undefined = undefined;
       if (row.usuario) {
         const userDataEnBD = usuarioMap.get(normalizarNombre(row.usuario));
@@ -263,9 +446,10 @@ if (rows.length === 0) {
       if (Object.keys(dataToUpdate).length === 0) {
         results.push({
           serial: row.serial,
+          excelRow: row.excelRow,
           found: true,
           updated: false,
-          message: 'Sin cambios en los datos básicos.',
+          message: 'Sin cambios en los datos básicos respecto a la base de datos.',
           warning: warningMsg || undefined,
           usuarioExcel: row.usuario,
           usuarioActual: usuarioActualNombre,
@@ -274,7 +458,6 @@ if (rows.length === 0) {
         continue;
       }
 
-      // Ejecutamos la actualización (solo datos básicos, NO usuario)
       await tx.computador.update({
         where: { id: existing.id },
         data: dataToUpdate,
@@ -282,6 +465,7 @@ if (rows.length === 0) {
 
       results.push({
         serial: row.serial,
+        excelRow: row.excelRow,
         found: true,
         updated: true,
         message: 'Datos básicos actualizados correctamente.',
@@ -293,25 +477,26 @@ if (rows.length === 0) {
     }
   });
 
-  // --- GENERACIÓN DEL REPORTE FINAL ---
-  const serialesNoEncontrados = results.filter((r) => !r.found).map((r) => r.serial);
+  const notFoundItems = results.filter((r) => !r.found);
+  const serialesFaltantesUnicos = [...new Set(notFoundItems.map((r) => r.serial))];
+
   const usuariosNoEncontrados = results.filter((r) => r.usuarioExiste === false).length;
   const incongruenciasUsuarios = results.filter(
-    (r) => r.found && r.usuarioExcel && r.usuarioExiste && r.warning?.includes('Incongruencia')
+    (r) => r.found && r.usuarioExcel && r.usuarioExiste && r.warning?.includes('Incongruencia'),
   ).length;
 
   const summary = {
     totalRows: rows.length,
-    totalSerialesUnicos: seriales.length,
+    totalSerialesUnicos: serialesExactFromExcel.length,
     found: results.filter((r) => r.found).length,
     updated: results.filter((r) => r.updated).length,
-    notFound: serialesNoEncontrados.length,
-    serialesFaltantes: serialesNoEncontrados,
+    unchanged: results.filter((r) => r.found && !r.updated).length,
+    notFound: serialesFaltantesUnicos.length,
+    notFoundRows: notFoundItems.length,
+    serialesFaltantes: serialesFaltantesUnicos,
     usuariosNoEncontrados,
     incongruenciasUsuarios,
   };
 
   return { summary, results };
-
 }
-

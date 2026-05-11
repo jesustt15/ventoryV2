@@ -15,6 +15,7 @@ import { FilterIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DispositivoForm from "./EquipoForm";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import TableRowSkeleton from "@/utils/loading";
@@ -87,6 +88,7 @@ interface DispositivoTableProps {
 }
 
 export function DispositivoTable({}: DispositivoTableProps) {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
@@ -116,6 +118,7 @@ const columns: ColumnDef<Dispositivo>[] = [
         checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Seleccionar todo"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     cell: ({ row }) => (
@@ -123,6 +126,7 @@ const columns: ColumnDef<Dispositivo>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Seleccionar fila"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -361,7 +365,8 @@ const columns: ColumnDef<Dispositivo>[] = [
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setCurrentImage(imageUrl);
                 setIsImageModalOpen(true);
               }}
@@ -445,7 +450,11 @@ const columns: ColumnDef<Dispositivo>[] = [
         <AlertDialog>
           <DropdownMenu>
 <DropdownMenuTrigger asChild>
-  <Button variant="ghost" className="h-8 w-8 p-0">
+  <Button
+    variant="ghost"
+    className="h-8 w-8 p-0"
+    onClick={(e) => e.stopPropagation()}
+  >
     <span className="sr-only">Abrir menú</span>
     <MoreHorizontalIcon className="h-4 w-4" />
   </Button>
@@ -903,7 +912,15 @@ return (
                     ) : table.getRowModel().rows?.length ? (
                         // Mostrar datos cuando están cargados
                         table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                        <TableRow
+                          key={row.id}
+                          data-state={row.getIsSelected() && "selected"}
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => {
+                            const id = row.original.id;
+                            if (id) router.push(`/dispositivos/${id}/details`);
+                          }}
+                        >
                             {row.getVisibleCells().map((cell) => (
                             <TableCell key={cell.id}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

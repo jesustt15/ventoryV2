@@ -158,7 +158,9 @@ export function ComputadorTable({ }: ComputadorTableProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.message || "Error al procesar el archivo.");
+        throw new Error(
+          data?.detail || data?.error || data?.message || "Error al procesar el archivo.",
+        );
       }
 
       // Guardar el resultado completo y abrir el modal
@@ -167,17 +169,22 @@ export function ComputadorTable({ }: ComputadorTableProps) {
 
       const updated = data?.summary?.updated ?? 0;
       const notFound = data?.summary?.notFound ?? 0;
+      const notFoundRows = data?.summary?.notFoundRows ?? notFound;
+      const unchanged = data?.summary?.unchanged ?? 0;
       const usuariosNoEncontrados = data?.summary?.usuariosNoEncontrados ?? 0;
       const incongruencias = data?.summary?.incongruenciasUsuarios ?? 0;
 
-      // Toast con resumen básico
       if (usuariosNoEncontrados > 0 || incongruencias > 0) {
         showToast.warning(
-          `Actualización completada con advertencias. Actualizados: ${updated}. Revisa el reporte detallado.`
+          `Carga masiva terminada con advertencias. Actualizados: ${updated}. Abre el reporte para ver filas y seriales.`,
+        );
+      } else if (notFound > 0 || notFoundRows > 0) {
+        showToast.warning(
+          `Carga masiva terminada. Actualizados: ${updated}, sin cambios: ${unchanged}, seriales no resueltos (únicos): ${notFound}${notFoundRows !== notFound ? ` (${notFoundRows} filas en Excel)` : ""}.`,
         );
       } else {
         showToast.success(
-          `Actualización completada. Actualizados: ${updated}, No encontrados: ${notFound}`
+          `Carga masiva correcta. Actualizados: ${updated}${unchanged > 0 ? `, sin cambios: ${unchanged}` : ""}.`,
         );
       }
 
@@ -380,6 +387,9 @@ export function ComputadorTable({ }: ComputadorTableProps) {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => {
+                      router.push(`/computadores/${row.original.id}/details`);
+                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

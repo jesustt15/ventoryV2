@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await (file as File).arrayBuffer();
     const rows = await parseExcel(arrayBuffer);
     const result = await applyComputadorBulkUpdate(rows);
-    console.log(result);
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {
