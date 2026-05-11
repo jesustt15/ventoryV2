@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const modificaciones: Prisma.HistorialModificacionesCreateManyInput[] = [];
-    const camposAComparar: Array<keyof typeof computadorActual> = [
+    const camposAComparar: (keyof typeof normalizedData)[] = [
       'ram', 'almacenamiento', 'procesador', 'estado', 'nsap',
       'host', 'ubicacion', 'sisOperativo', 'arquitectura', 'sapVersion', 'officeVersion','sede',
       'macWifi', 'macEthernet'

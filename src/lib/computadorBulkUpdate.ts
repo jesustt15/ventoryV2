@@ -106,7 +106,7 @@ function readCellText(cell: ExcelJS.Cell): string {
   if (val instanceof Date) return val.toISOString();
 
   if (typeof val === 'object') {
-    const o = val as Record<string, unknown>;
+    const o = val as unknown as Record<string, unknown>;
 
     if ('result' in o && o.result != null && !('richText' in o)) {
       const r = o.result;
