@@ -43,6 +43,7 @@ export interface ComputadorFormData {
     sede?: string;
     macEthernet?: string;
     officeVersion?: string;
+    observacion?: string;
 }
 
 interface ComputadorFormProps {
@@ -74,7 +75,8 @@ const initialState: ComputadorFormData = {
     ubicacion: '',
     sede: '',
     macEthernet: '',
-    macWifi: ''
+    macWifi: '',
+    observacion: ''
 };
 
 const ComputadorForm: React.FC<ComputadorFormProps> = ({
@@ -138,7 +140,7 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
 
 
     // --- Handlers para los cambios en los inputs ---
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData(prev => ({ ...prev, [e.target.id]: e.target.value }));
     };
 
@@ -372,6 +374,17 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
                             <option value="De Baja">De Baja</option>
                             <option value="En Reparación">En Reparación</option>
                         </select>
+                    </div>
+                    <div className="grid gap-2 mt-4">
+                        <Label htmlFor="observacion">Observaciones</Label>
+                        <textarea
+                            id="observacion"
+                            rows={3}
+                            className="w-full border rounded-md px-3 py-2 bg-[hsl(var(--background))] border-[hsl(var(--input))] focus:ring-1 focus:ring-[hsl(var(--ring))] focus:outline-none resize-y"
+                            value={formData.observacion || ''}
+                            onChange={handleInputChange}
+                            placeholder="Notas, comentarios o información adicional sobre el equipo..."
+                        />
                     </div>
                 </div>
             </div>

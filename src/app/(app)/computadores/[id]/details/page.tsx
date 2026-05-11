@@ -82,6 +82,7 @@ interface ComputadorDetallado {
     ubicacion?: string | null;
     sisOperativo?: string | null;
     arquitectura?: string | null;
+    observacion?: string | null;
     ram?: string | null;
     almacenamiento?: string | null;
     macWifi?: string | null;
@@ -427,6 +428,13 @@ const departamentoTag = (
                           </div>
                         </div>
                       </div>
+
+                      {equipo.observacion && (
+                        <div className="mt-4 pt-4 border-t border-border">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Observaciones</p>
+                          <p className="text-sm text-foreground whitespace-pre-wrap">{equipo.observacion}</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 

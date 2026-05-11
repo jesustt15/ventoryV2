@@ -348,6 +348,13 @@ const departamentoTag = (
                           </div>
                         </div>
                       </div>
+
+                      {(equipo as any).observacion && (
+                        <div className="mt-4 pt-4 border-t border-border">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Observaciones</p>
+                          <p className="text-sm text-foreground whitespace-pre-wrap">{(equipo as any).observacion}</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 

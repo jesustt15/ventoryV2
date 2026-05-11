@@ -51,6 +51,7 @@ const [formData, setFormData] = useState<DispositivoFormData>({
   mac: null,
   sede: null,
   ubicacion: null,
+  observacion: null,
 });
 
   // ==================================================================
@@ -70,6 +71,7 @@ const [formData, setFormData] = useState<DispositivoFormData>({
         sede: initialData.sede || null,
         mac: initialData.mac || null,
         ubicacion: initialData.ubicacion || null,
+        observacion: initialData.observacion || null,
       });
     } else {
       // Resetea el formulario para creación (importante incluir el 'id' como undefined)
@@ -82,12 +84,13 @@ const [formData, setFormData] = useState<DispositivoFormData>({
         mac: null,
         ubicacion: null,
         sede: null,
+        observacion: null,
       });
     }
   }
 }, [initialData, isOpen]); // Depende de initialData e isOpen
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
@@ -191,6 +194,17 @@ const [formData, setFormData] = useState<DispositivoFormData>({
           <div className="grid gap-2">
             <Label htmlFor="nsap">Ficha SAP (Opcional)</Label>
             <Input id="nsap" value={formData.nsap || ''} onChange={handleInputChange} placeholder="N° de Ficha SAP" />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="observacion">Observaciones</Label>
+            <textarea
+              id="observacion"
+              rows={3}
+              className="w-full border rounded-md px-3 py-2 bg-background border-input focus:ring-1 focus:ring-ring focus:outline-none resize-y"
+              value={formData.observacion || ''}
+              onChange={handleInputChange}
+              placeholder="Notas o comentarios sobre el dispositivo..."
+            />
           </div>
           
           <DialogFooter>

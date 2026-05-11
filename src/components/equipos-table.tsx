@@ -31,7 +31,8 @@ export const dispositivoSchema = z.object({
   nsap: z.string().nullable(),
   sede: z.string().nullable(),
   ubicacion: z.string().nullable(),
-  mac: z.string().nullable()
+  mac: z.string().nullable(),
+  observacion: z.string().nullable(),
 });
 
 export type DispositivoFormData = z.infer<typeof dispositivoSchema>;
@@ -47,7 +48,8 @@ export interface Dispositivo {
   nsap?: string;
   ubicacion?: string;
   sede?: string;
-  mac?: string; // Optional, as it might not be present in all devices
+  mac?: string;
+  observacion?: string | null;
   modelo: { id: string; nombre: string; img?: string; marca?: { nombre?: string } }; // Added img and marca properties
   usuario?: {
     id: string;
@@ -678,6 +680,7 @@ const columns: ColumnDef<Dispositivo>[] = [
       ubicacion: data.ubicacion,
       mac: data.mac,
       sede: data.sede,
+      observacion: data.observacion,
     };
 
     try {
@@ -964,6 +967,7 @@ return (
           nsap: editingDispositivo.nsap ?? null,
           sede: editingDispositivo.sede ?? null,
           mac: editingDispositivo.mac ?? null,
+          observacion: editingDispositivo.observacion ?? null,
         } : null}
         modelos={modelos} 
         // La key es importante para que React reinicie el estado del formulario al cambiar de un dispositivo a otro

@@ -118,6 +118,33 @@ export async function PUT(request: NextRequest) {
   try {
     const id = request.nextUrl.pathname.split('/')[3];
     const body = await request.json();
+    const normalizeOptionalString = (value: unknown): string | null => {
+      if (value === undefined || value === null) return null;
+      const str = String(value).trim();
+      return str === '' ? null : str;
+    };
+
+    const normalizedData = {
+      serial: body.serial,
+      estado: body.estado,
+      modeloId: body.modeloId,
+      usuarioId: body.usuarioId,
+      departamentoId: body.departamentoId,
+      nsap: normalizeOptionalString(body.nsap),
+      host: normalizeOptionalString(body.host),
+      ubicacion: normalizeOptionalString(body.ubicacion),
+      sisOperativo: normalizeOptionalString(body.sisOperativo),
+      arquitectura: normalizeOptionalString(body.arquitectura),
+      ram: normalizeOptionalString(body.ram),
+      almacenamiento: normalizeOptionalString(body.almacenamiento),
+      procesador: normalizeOptionalString(body.procesador),
+      sapVersion: normalizeOptionalString(body.sapVersion),
+      officeVersion: normalizeOptionalString(body.officeVersion),
+      sede: normalizeOptionalString(body.sede),
+      macWifi: normalizeOptionalString(body.macWifi),
+      macEthernet: normalizeOptionalString(body.macEthernet),
+      observacion: normalizeOptionalString(body.observacion),
+    };
 
     // --- PASO 1: OBTENER EL ESTADO ACTUAL DEL COMPUTADOR ---
     const computadorActual = await prisma.computador.findUnique({
@@ -131,17 +158,18 @@ export async function PUT(request: NextRequest) {
     const modificaciones: Prisma.HistorialModificacionesCreateManyInput[] = [];
     const camposAComparar: Array<keyof typeof computadorActual> = [
       'ram', 'almacenamiento', 'procesador', 'estado', 'nsap',
-      'host', 'ubicacion', 'sisOperativo', 'arquitectura', 'sapVersion', 'officeVersion','sede'
+      'host', 'ubicacion', 'sisOperativo', 'arquitectura', 'sapVersion', 'officeVersion','sede',
+      'macWifi', 'macEthernet'
     ];
 
     // --- PASO 2: COMPARAR VALORES Y PREPARAR HISTORIAL ---
     for (const campo of camposAComparar) {
-      if (body[campo] !== undefined && computadorActual[campo] !== body[campo]) {
+      if (normalizedData[campo] !== undefined && computadorActual[campo] !== normalizedData[campo]) {
         modificaciones.push({
           computadorId: id,
           campo: campo,
           valorAnterior: computadorActual[campo] || "N/A",
-          valorNuevo: body[campo],
+          valorNuevo: normalizedData[campo] || "N/A",
         });
       }
     }
@@ -159,22 +187,25 @@ export async function PUT(request: NextRequest) {
       const equipoActualizado = await tx.computador.update({
         where: { id },
         data: {
-            serial: body.serial,
-            estado: body.estado,
-            nsap: body.nsap,
-            host: body.host,
-            ubicacion: body.ubicacion,
-            sisOperativo: body.sisOperativo,
-            arquitectura: body.arquitectura,
-            ram: body.ram,
-            almacenamiento: body.almacenamiento,
-            procesador: body.procesador,
-            sapVersion: body.sapVersion,
-            sede: body.sede,
-            officeVersion: body.officeVersion,
-            modelo: body.modeloId ? { connect: { id: body.modeloId } } : undefined,
-            usuario: body.usuarioId ? { connect: { id: body.usuarioId } } : { disconnect: true },
-            departamento: body.departamentoId ? { connect: { id: body.departamentoId } } : undefined, // Ajusta según tu lógica si puede ser null
+            serial: normalizedData.serial,
+            estado: normalizedData.estado,
+            nsap: normalizedData.nsap,
+            host: normalizedData.host,
+            ubicacion: normalizedData.ubicacion,
+            sisOperativo: normalizedData.sisOperativo,
+            arquitectura: normalizedData.arquitectura,
+            ram: normalizedData.ram,
+            almacenamiento: normalizedData.almacenamiento,
+            procesador: normalizedData.procesador,
+            sapVersion: normalizedData.sapVersion,
+            sede: normalizedData.sede,
+            officeVersion: normalizedData.officeVersion,
+            macWifi: normalizedData.macWifi,
+            macEthernet: normalizedData.macEthernet,
+            observacion: normalizedData.observacion,
+            modelo: normalizedData.modeloId ? { connect: { id: normalizedData.modeloId } } : undefined,
+            usuario: normalizedData.usuarioId ? { connect: { id: normalizedData.usuarioId } } : { disconnect: true },
+            departamento: normalizedData.departamentoId ? { connect: { id: normalizedData.departamentoId } } : undefined, // Ajusta según tu lógica si puede ser null
         },
       });
 

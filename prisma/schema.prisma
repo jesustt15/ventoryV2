@@ -100,6 +100,7 @@ model Computador {
   procesador String?    // Override: si null, se usa modelo.procesadorDefault
   sapVersion String?
   officeVersion String?
+  observacion String?
   asignaciones Asignaciones[]
   historialModificaciones HistorialModificaciones[]
 }
@@ -134,6 +135,7 @@ model Dispositivo {
   ip             String?
   departamento   Departamento?   @relation(fields: [departamentoId], references: [id])
   nsap String?
+  observacion String?
   asignaciones Asignaciones[]
 }
 

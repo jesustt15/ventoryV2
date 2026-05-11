@@ -125,7 +125,7 @@ export async function PUT(request: NextRequest) {
 
         const body = await request.json();
           
-        const { serial, nsap, estado, ubicacion, mac, sede } = body;
+        const { serial, nsap, estado, ubicacion, mac, sede, observacion } = body;
 
         const updatedEquipo = await prisma.dispositivo.update({
             where: { id },
@@ -135,7 +135,8 @@ export async function PUT(request: NextRequest) {
                 estado,
                 mac,
                 ubicacion,
-                sede
+                sede,
+                observacion,
             }, // Cuidado con 'as any', valida y tipa los datos.
         });
 
