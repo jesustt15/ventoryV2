@@ -60,12 +60,14 @@ export interface Dispositivo {
       id: string;
       nombre: string;
       sociedad?: string | null;
+      gerencia?: { nombre: string } | null;
     } | null;
   } | null;
   departamento?: {
     id: string;
     nombre: string;
     sociedad?: string | null;
+    gerencia?: { nombre: string } | null;
   } | null;
 }
 
@@ -753,6 +755,8 @@ React.useEffect(() => {
           ubicacion: dispositivo.ubicacion || "N/A",
           nsap: dispositivo.nsap || "N/A",
           mac: dispositivo.mac || "N/A",
+          departamento: dispositivo.departamento?.nombre || dispositivo.usuario?.departamento?.nombre || "N/A",
+          gerencia: dispositivo.departamento?.gerencia?.nombre || dispositivo.usuario?.departamento?.gerencia?.nombre || "N/A",
           sociedad:
             dispositivo.departamento?.sociedad ||
             dispositivo.usuario?.departamento?.sociedad ||

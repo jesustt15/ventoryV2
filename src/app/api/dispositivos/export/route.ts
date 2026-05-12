@@ -26,6 +26,9 @@ export async function POST(request: NextRequest) {
       { header: "Ubicación", key: "ubicacion", width: 30 },
       { header: "NSAP", key: "nsap", width: 15 },
       { header: "MAC", key: "mac", width: 20 },
+      { header: "Sociedad", key: "sociedad", width: 25 },
+      { header: "Gerencia", key: "gerencia", width: 30 },
+      { header: "Departamento", key: "departamento", width: 30 },
     ];
 
     // Estilizar el encabezado

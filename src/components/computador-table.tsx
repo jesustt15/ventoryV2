@@ -235,6 +235,8 @@ export function ComputadorTable({ }: ComputadorTableProps) {
           nsap: computador.nsap || "N/A",
           macWifi: computador.macWifi || "N/A",
           macEthernet: computador.macEthernet || "N/A",
+          departamento: computador.departamento?.nombre || computador.usuario?.departamento?.nombre || "N/A",
+          gerencia: computador.departamento?.gerencia?.nombre || computador.usuario?.departamento?.gerencia?.nombre || "N/A",
           sociedad:
             computador.departamento?.sociedad ||
             computador.usuario?.departamento?.sociedad ||

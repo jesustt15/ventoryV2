@@ -58,11 +58,13 @@ export interface Computador {
             id: string;
             nombre: string;
             sociedad?: string | null;
+            gerencia?: { nombre: string } | null;
         } | null;
     } | null;
     departamento?: {
         id: string;
         nombre: string;
         sociedad?: string | null;
+        gerencia?: { nombre: string } | null;
     } | null;
 }

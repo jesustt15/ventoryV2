@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import {
   ArrowLeft,
   Monitor,
@@ -68,7 +68,7 @@ const statusConfig = {
 
 export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("computers")
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+
   const router = useRouter();
   const params = useParams();
   const deptoId = params.id; // Obtiene el ID del usuario desde la URL
@@ -98,85 +98,7 @@ export default function UserProfile() {
     }
   }, [deptoId]);
 
-   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
 
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    canvas.width = canvas.offsetWidth
-    canvas.height = canvas.offsetHeight
-
-    const particles: Particle[] = []
-    const particleCount = 60
-
-    class Particle {
-      x: number
-      y: number
-      size: number
-      speedX: number
-      speedY: number
-      color: string
-
-      constructor() {
-        this.x = Math.random() * canvas!.width
-        this.y = Math.random() * canvas!.height
-        this.size = Math.random() * 2 + 0.5
-        this.speedX = (Math.random() - 0.5) * 0.3
-        this.speedY = (Math.random() - 0.5) * 0.3
-        this.color = `rgba(${Math.floor(Math.random() * 100) + 100}, ${Math.floor(Math.random() * 100) + 150}, ${Math.floor(Math.random() * 55) + 200}, ${Math.random() * 0.3 + 0.1})`
-      }
-
-      update() {
-        this.x += this.speedX
-        this.y += this.speedY
-
-        if (this.x > canvas!.width) this.x = 0
-        if (this.x < 0) this.x = canvas!.width
-        if (this.y > canvas!.height) this.y = 0
-        if (this.y < 0) this.y = canvas!.height
-      }
-
-      draw() {
-        if (!ctx) return
-        ctx.fillStyle = this.color
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    }
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle())
-    }
-
-    function animate() {
-      if (!ctx || !canvas) return
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      for (const particle of particles) {
-        particle.update()
-        particle.draw()
-      }
-
-      requestAnimationFrame(animate)
-    }
-
-    animate()
-
-    const handleResize = () => {
-      if (!canvas) return
-      canvas.width = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
-    }
-
-    window.addEventListener("resize", handleResize)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-    }
-  }, []);
 
   const handleExportToExcel = async () => {
     if (!deptoData) return;
@@ -268,29 +190,25 @@ export default function UserProfile() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-slate-900 text-slate-100 relative overflow-hidden">
-      {/* Background particle effect */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-20" />
-
-      <div className="container mx-auto p-4 relative z-10">
+    <div className="space-y-6 p-4">
 
         {/* depto Info Section */}
         <div className="grid grid-cols-12 gap-6 mb-8">
           {/* depto Profile Card */}
           <div className="col-span-12 lg:col-span-4">
-            <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm overflow-hidden">
+            <Card className="overflow-hidden">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 border-b border-slate-700/50">
+                <div className="bg-muted/50 p-6 border-b">
                   <div className="flex flex-col items-center text-center">
-                    <Avatar className="h-24 w-24 mb-4 border-2 border-cyan-500/50">
-                      <AvatarFallback className="bg-slate-700 text-cyan-500 text-2xl">
+                    <Avatar className="h-24 w-24 mb-4 border-2 border-primary/50">
+                      <AvatarFallback className="bg-muted text-primary text-2xl">
                         {deptoData.nombre[0]}
                       </AvatarFallback>
                     </Avatar>
-                    <h2 className="text-xl font-bold text-slate-100 mb-1">
+                    <h2 className="text-xl font-bold text-foreground mb-1">
                       {deptoData.nombre}
                     </h2>
-                    <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">{deptoData.gerencia}</Badge>
+                    <Badge className="bg-primary/10 text-primary border-primary/20">{deptoData.gerencia}</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -314,17 +232,17 @@ export default function UserProfile() {
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-between mb-6">
-            <TabsList className="bg-slate-800/50 p-1">
+            <TabsList className="bg-muted p-1">
               <TabsTrigger
                 value="computers"
-                className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400"
+                className="data-[state=active]:bg-background data-[state=active]:text-foreground"
               >
                 Computadores ({deptoData.computadores.length})
               </TabsTrigger>
-              <TabsTrigger value="devices" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
+              <TabsTrigger value="devices" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
                 Dispositivos ({deptoData.dispositivos.length})
               </TabsTrigger>
-              <TabsTrigger value="phones" className="data-[state=active]:bg-slate-700 data-[state=active]:text-cyan-400">
+              <TabsTrigger value="phones" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
                 Líneas Telefónicas ({deptoData.lineasTelefonicas.length})
               </TabsTrigger>
             </TabsList>
@@ -332,7 +250,7 @@ export default function UserProfile() {
               variant="outline"
               onClick={handleExportToExcel}
               disabled={isExporting || deptoData.estadisticas.totalActivos === 0}
-              className="bg-slate-800/50 border-slate-700 hover:bg-slate-700"
+              
             >
               <Download className="mr-2 h-4 w-4" />
               {isExporting ? "Exportando..." : "Exportar Todo a Excel"}
@@ -342,42 +260,42 @@ export default function UserProfile() {
           <TabsContent value="computers" className="mt-0">
             <div className="grid gap-6">
               {deptoData.computadores.map((computador) => (
-                <Card key={computador.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                <Card key={computador.id}>
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       <div className="lg:col-span-1">
                         <img
                           src={computador.modelo.img || "/placeholder.svg"}
                           alt={computador.modelo.nombre}
-                          className="w-full h-48 object-cover rounded-md border border-slate-700/50"
+                          className="w-full h-48 object-cover rounded-md border"
                         />
                       </div>
                       <div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-4">
                           <div>
-                            <h3 className="text-lg font-semibold text-slate-100">
+                            <h3 className="text-lg font-semibold text-foreground">
                               {computador.modelo.nombre}
                             </h3>
-                            <p className="text-sm text-slate-400">ID: {computador.id}</p>
+                            <p className="text-sm text-muted-foreground">ID: {computador.id}</p>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
-                            <p className="text-xs text-slate-400 mb-1">Número de Serie</p>
-                            <p className="text-sm text-slate-200 font-mono">{computador.serial}</p>
+                            <p className="text-xs text-muted-foreground mb-1">Número de Serie</p>
+                            <p className="text-sm text-foreground font-mono">{computador.serial}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-400 mb-1">Fecha de Asignación</p>
-                            <p className="text-sm text-slate-200">{formatDate(computador.fechaAsignacion)}</p>
+                            <p className="text-xs text-muted-foreground mb-1">Fecha de Asignación</p>
+                            <p className="text-sm text-foreground">{formatDate(computador.fechaAsignacion)}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-400 mb-1">Ubicación</p>
-                            <p className="text-sm text-slate-200">{computador.ubicacion}</p>
+                            <p className="text-xs text-muted-foreground mb-1">Ubicación</p>
+                            <p className="text-sm text-foreground">{computador.ubicacion}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-400 mb-1">Asignado A</p>
-                            <p className="text-sm text-slate-200 font-semibold">
+                            <p className="text-xs text-muted-foreground mb-1">Asignado A</p>
+                            <p className="text-sm text-foreground font-semibold">
                               {/* Lógica condicional para mostrar el asignado */}
                               {computador.usuario 
                                 ? `${computador.usuario.nombre} ${computador.usuario.apellido}`
@@ -400,25 +318,25 @@ export default function UserProfile() {
               {deptoData.dispositivos.map((dispositivo) => {
                 // No DeviceIcon needed
                 return (
-                  <Card key={dispositivo.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <Card key={dispositivo.id}>
                     <CardContent className="p-6">
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-1">
                           <img
                             src={dispositivo.modelo.img || "/placeholder.svg"}
                             alt={dispositivo.modelo.nombre}
-                            className="w-full h-48 object-cover rounded-md border border-slate-700/50"
+                            className="w-full h-48 object-cover rounded-md border"
                           />
                         </div>
                         <div className="lg:col-span-2">
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
-                              <PhoneIcon className="h-6 w-6 text-cyan-500 mr-2" />
+                              <PhoneIcon className="h-6 w-6 text-primary mr-2" />
                               <div>
-                                <h3 className="text-lg font-semibold text-slate-100">
+                                <h3 className="text-lg font-semibold text-foreground">
                                   {dispositivo.marca} {dispositivo.modelo.nombre}
                                 </h3>
-                                <p className="text-sm text-slate-400">
+                                <p className="text-sm text-muted-foreground">
                                   {dispositivo.tipo} • ID: {dispositivo.id}
                                 </p>
                               </div>
@@ -427,20 +345,20 @@ export default function UserProfile() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                              <p className="text-xs text-slate-400 mb-1">Número de Serie</p>
-                              <p className="text-sm text-slate-200 font-mono">{dispositivo.serial}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Número de Serie</p>
+                              <p className="text-sm text-foreground font-mono">{dispositivo.serial}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-400 mb-1">Fecha de Asignación</p>
-                              <p className="text-sm text-slate-200">{formatDate(dispositivo.fechaAsignacion)}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Fecha de Asignación</p>
+                              <p className="text-sm text-foreground">{formatDate(dispositivo.fechaAsignacion)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-400 mb-1">Ubicación</p>
-                              <p className="text-sm text-slate-200">{dispositivo.ubicacion}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Ubicación</p>
+                              <p className="text-sm text-foreground">{dispositivo.ubicacion}</p>
                             </div>
                             <div>
-                            <p className="text-xs text-slate-400 mb-1">Asignado A</p>
-                            <p className="text-sm text-slate-200 font-semibold">
+                            <p className="text-xs text-muted-foreground mb-1">Asignado A</p>
+                            <p className="text-sm text-foreground font-semibold">
                               {dispositivo.usuario 
                                 ? `${dispositivo.usuario.nombre} ${dispositivo.usuario.apellido}`
                                 : dispositivo.departamentoId 
@@ -463,14 +381,14 @@ export default function UserProfile() {
               {deptoData.lineasTelefonicas.map((linea) => {
 
                 return (
-                  <Card key={linea.id} className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+                  <Card key={linea.id}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center">
-                          <PhoneIcon className="h-6 w-6 text-cyan-500 mr-2" />
+                          <PhoneIcon className="h-6 w-6 text-primary mr-2" />
                           <div>
-                            <h3 className="text-lg font-semibold text-slate-100">{linea.numero}</h3>
-                            <p className="text-sm text-slate-400">
+                            <h3 className="text-lg font-semibold text-foreground">{linea.numero}</h3>
+                            <p className="text-sm text-muted-foreground">
                               {linea.tipo} • ID: {linea.id}
                             </p>
                           </div>
@@ -479,8 +397,8 @@ export default function UserProfile() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <p className="text-xs text-slate-400 mb-1">Fecha de Asignación</p>
-                          <p className="text-sm text-slate-200">{formatDate(linea.fechaAsignacion)}</p>
+                          <p className="text-xs text-muted-foreground mb-1">Fecha de Asignación</p>
+                          <p className="text-sm text-foreground">{formatDate(linea.fechaAsignacion)}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -490,7 +408,6 @@ export default function UserProfile() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   )
 }
@@ -512,7 +429,7 @@ function StatCard({
   const getColorClasses = () => {
     switch (color) {
       case "cyan":
-        return "text-cyan-500"
+        return "text-primary"
       case "green":
         return "text-green-500"
       case "purple":
@@ -520,19 +437,19 @@ function StatCard({
       case "amber":
         return "text-amber-500"
       default:
-        return "text-cyan-500"
+        return "text-primary"
     }
   }
 
   return (
-    <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+    <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs text-slate-400">{title}</div>
+          <div className="text-xs text-muted-foreground">{title}</div>
           <Icon className={`h-4 w-4 ${getColorClasses()}`} />
         </div>
-        <div className="text-xl font-bold text-slate-100 mb-1">{value.toLocaleString()}</div>
-        <div className="text-xs text-slate-500">{description}</div>
+        <div className="text-xl font-bold text-foreground mb-1">{value.toLocaleString()}</div>
+        <div className="text-xs text-muted-foreground">{description}</div>
       </CardContent>
     </Card>
   )

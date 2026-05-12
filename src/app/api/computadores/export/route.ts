@@ -38,6 +38,9 @@ export async function POST(request: NextRequest) {
       { header: "NSAP", key: "nsap", width: 15 },
       { header: "MAC WiFi", key: "macWifi", width: 20 },
       { header: "MAC Ethernet", key: "macEthernet", width: 20 },
+      { header: "Sociedad", key: "sociedad", width: 25 },
+      { header: "Gerencia", key: "gerencia", width: 30 },
+      { header: "Departamento", key: "departamento", width: 30 },
     ];
 
     // Estilizar el encabezado

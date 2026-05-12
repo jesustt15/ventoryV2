@@ -38,10 +38,18 @@ export async function GET(request: Request) {
         },
         usuario: {
           include: {
-            departamento: true,
+            departamento: {
+              include: {
+                gerencia: true,
+              },
+            },
           },
         }, // Incluye departamento del usuario para obtener sociedad
-        departamento: true, // Incluye el departamento asignado (si existe)
+        departamento: {
+          include: {
+            gerencia: true,
+          },
+        }, // Incluye el departamento asignado (si existe)
       },
       orderBy: {
         modelo: {
