@@ -389,7 +389,7 @@ export function ComputadorTable({ }: ComputadorTableProps) {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => {
+                    onDoubleClick={() => {
                       router.push(`/computadores/${row.original.id}/details`);
                     }}
                   >

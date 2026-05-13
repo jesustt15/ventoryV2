@@ -171,7 +171,7 @@ export function UsuarioTable({ }: UsuarioTableProps) {
     globalFilterFn: (row, columnId, filterValue) => {
       if (!filterValue) return true;
 
-      const search = filterValue.toLowerCase();
+      const search = filterValue.toLowerCase().trim();
       const nombre = row.getValue("nombre")?.toString().toLowerCase() || "";
       const apellido = row.getValue("apellido")?.toString().toLowerCase() || "";
       const cargo = row.getValue("cargo")?.toString().toLowerCase() || "";

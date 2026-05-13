@@ -31,6 +31,7 @@ import { showToast } from "nextjs-toast-notify";
 import { handleGenerateAndDownloadQR } from "@/utils/qrCode";
 import { Computador } from "@/types/computador";
 import { ColumnFilterHeader } from "@/components/table/column-filter-header";
+import { copyToClipboard } from "@/lib/utils";
 
 interface CreateComputadorColumnsOptions {
     computadores: Computador[];
@@ -344,7 +345,7 @@ export function createComputadorColumns({
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem
                                     onClick={() => {
-                                        navigator.clipboard.writeText(computador.serial.toString());
+                                        copyToClipboard(computador.serial.toString());
                                         showToast.success("¡Serial copiado!", {
                                             progress: false,
                                             position: "bottom-center",

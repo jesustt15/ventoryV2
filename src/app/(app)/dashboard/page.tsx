@@ -530,8 +530,7 @@ export default function InventoryDashboard() {
                   <CardContent className="p-6">
                     <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2">
                       {dashboardData.gerenciaStats.map((gerencia: any) => {
-                        const totalC = dashboardData.assignedLaptopsDesktops + dashboardData.reservedLaptopsDesktops;
-                        const percentage = totalC > 0 ? ((gerencia.count / totalC) * 100).toFixed(1) : "0";
+                        const percentage = totalComputers > 0 ? ((gerencia.count / totalComputers) * 100).toFixed(1) : "0";
                         return (
                           <div key={gerencia.name} className="space-y-2">
                             <div className="flex justify-between">
@@ -567,8 +566,7 @@ export default function InventoryDashboard() {
                   <CardContent className="p-6">
                     <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2">
                       {dashboardData.sociedadStats.map((soc: any) => {
-                        const totalC = dashboardData.assignedLaptopsDesktops + dashboardData.reservedLaptopsDesktops;
-                        const percentage = totalC > 0 ? ((soc.count / totalC) * 100).toFixed(1) : "0";
+                        const percentage = totalComputers > 0 ? ((soc.count / totalComputers) * 100).toFixed(1) : "0";
                         return (
                           <div key={soc.name} className="space-y-2">
                             <div className="flex justify-between">

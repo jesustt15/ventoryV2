@@ -26,12 +26,10 @@ export async function GET() {
     ] = await Promise.all([
       prisma.computador.count({ where: { estado: "De Baja" } }),
       prisma.dispositivo.count({ where: { estado: "De Baja" } }),
-      prisma.dispositivo.count({
+      prisma.lineaTelefonica.count({
         where: {
-          estado: { equals: "Asignado", mode: 'insensitive' },
-          modelo: {
-            tipo: { contains: "BAM", mode: 'insensitive' }
-          }
+          destino: { equals: "BAM", mode: 'insensitive' },
+          usuarioId: { not: null }
         }
       }),
       prisma.computador.count({
@@ -71,78 +69,80 @@ export async function GET() {
     const reservedLaptopsDesktops = reservedLaptops + reservedDesktops;
     const totalComputers = totalComputersCount; // Usar el conteo correcto
 
-    // --- 2. ESTADÍSTICAS POR GERENCIA ---
-    // Obtenemos gerencias y sumamos sus computadores (Laptop/Desktop)
-    const gerenciasRaw = await prisma.gerencia.findMany({
-      include: {
-        departamentos: {
-          select: {
-            _count: {
-              select: {
-                computadores: {
-                  where: { modelo: { tipo: { in: ["Laptop", "Desktop"] } } }
-                }
-              }
-            }
-          }
-        }
-      }
-    });
-
-    const gerenciaStats = gerenciasRaw.map(g => {
-      const total = g.departamentos.reduce((acc, curr) => acc + curr._count.computadores, 0);
-      return { name: g.nombre, count: total };
-    }).filter(g => g.count > 0).sort((a, b) => b.count - a.count);
-
-    // --- 3. ESTADÍSTICAS POR SOCIEDAD ---
-    // Agrupamos por sociedad a través de departamentos
-    const deptosSociedad = await prisma.departamento.findMany({
+    // --- 2, 3, 4: ESTADÍSTICAS POR DEPARTAMENTO, GERENCIA Y SOCIEDAD ---
+    // Se usa el departamento EFECTIVO de cada computador:
+    //   - Si tiene departamentoId directo (asignado a departamento) → ese
+    //   - Si tiene usuario con departamentoId (asignado a usuario) → el del usuario
+    //   - Si no tiene ninguno → no se cuenta en estas stats
+    const allComputers = await prisma.computador.findMany({
+      where: {
+        modelo: { tipo: { in: ["Laptop", "Desktop"] } }
+      },
       select: {
-        sociedad: true,
-        _count: {
-          select: {
-            computadores: {
-              where: { modelo: { tipo: { in: ["Laptop", "Desktop"] } } }
-            }
-          }
+        departamentoId: true,
+        usuario: {
+          select: { departamentoId: true }
         }
       }
     });
 
-    const sociedadStatsMap = deptosSociedad.reduce((acc, curr) => {
-      const soc = curr.sociedad || "Sin Sociedad";
-      acc[soc] = (acc[soc] || 0) + curr._count.computadores;
-      return acc;
-    }, {} as Record<string, number>);
+    // Contar computadores por departamento efectivo
+    const deptCounts: Record<string, number> = {};
+    for (const comp of allComputers) {
+      const effectiveDeptId = comp.departamentoId || comp.usuario?.departamentoId;
+      if (effectiveDeptId) {
+        deptCounts[effectiveDeptId] = (deptCounts[effectiveDeptId] || 0) + 1;
+      }
+    }
 
-    const sociedadStats = Object.entries(sociedadStatsMap)
+    // Obtener todos los departamentos con su gerencia y conteo de usuarios
+    const allDepts = await prisma.departamento.findMany({
+      include: {
+        gerencia: true,
+        _count: { select: { usuarios: true } }
+      }
+    });
+
+    const deptMap = new Map(allDepts.map(d => [d.id, d]));
+
+    // --- DEPARTAMENTO STATS ---
+    const departmentStats = allDepts
+      .map(dept => ({
+        name: dept.nombre,
+        computers: deptCounts[dept.id] || 0,
+        users: dept._count.usuarios,
+        percentage: totalComputers > 0
+          ? parseFloat((((deptCounts[dept.id] || 0) / totalComputers) * 100).toFixed(1))
+          : 0,
+      }))
+      .filter(d => d.computers > 0)
+      .sort((a, b) => b.computers - a.computers);
+
+    // --- GERENCIA STATS ---
+    const gerenciaCounts: Record<string, number> = {};
+    for (const [deptId, count] of Object.entries(deptCounts)) {
+      const dept = deptMap.get(deptId);
+      if (dept) {
+        gerenciaCounts[dept.gerencia.nombre] = (gerenciaCounts[dept.gerencia.nombre] || 0) + count;
+      }
+    }
+    const gerenciaStats = Object.entries(gerenciaCounts)
       .map(([name, count]) => ({ name, count }))
+      .filter(g => g.count > 0)
       .sort((a, b) => b.count - a.count);
 
-
-    // --- 4. ESTADÍSTICAS POR DEPARTAMENTO (MANTENIDO PERO FILTRADO POR LAPTOP/DESKTOP) ---
-    const deptsData = await prisma.departamento.findMany({
-      include: {
-        _count: {
-          select: {
-            usuarios: true,
-            computadores: {
-              where: { modelo: { tipo: { in: ["Laptop", "Desktop"] } } }
-            },
-          },
-        },
-      },
-    });
-
-    const departmentStats = deptsData.map((dept) => ({
-      name: dept.nombre,
-      computers: dept._count.computadores,
-      users: dept._count.usuarios,
-      percentage:
-        totalComputers > 0
-          ? parseFloat(((dept._count.computadores / totalComputers) * 100).toFixed(1))
-          : 0,
-    })).filter(d => d.computers > 0).sort((a, b) => b.computers - a.computers);
+    // --- SOCIEDAD STATS ---
+    const sociedadCounts: Record<string, number> = {};
+    for (const [deptId, count] of Object.entries(deptCounts)) {
+      const dept = deptMap.get(deptId);
+      if (dept) {
+        const soc = dept.sociedad || "Sin Sociedad";
+        sociedadCounts[soc] = (sociedadCounts[soc] || 0) + count;
+      }
+    }
+    const sociedadStats = Object.entries(sociedadCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
 
     // --- 5. ACTIVIDAD RECIENTE (SIN CAMBIOS) ---
     const recentActivityRaw = await prisma.asignaciones.findMany({
@@ -200,9 +200,6 @@ export async function GET() {
       totalComputers,
       trends,
     });
-
-    console.log("datosBackend:", retiredEquipments,  assignedLaptopsDesktops,
-      reservedLaptopsDesktops, totalComputers);
 
   } catch (error) {
     console.error("Error al obtener las estadísticas del dashboard:", error);

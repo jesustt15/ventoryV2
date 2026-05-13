@@ -169,11 +169,12 @@ const ComputadorForm: React.FC<ComputadorFormProps> = ({
             showToast.warning("Modelo, Serial y Estado son obligatorios.", { position: "top-right" });
             return;
         }
+        const usarDefaults = usarValoresModelo && !!mostrarCheckboxEspecificaciones;
         const dataToSubmit: ComputadorFormData = {
             ...formData,
-            procesador: usarValoresModelo ? null : (formData.procesador || null),
-            ram: usarValoresModelo ? null : (formData.ram || null),
-            almacenamiento: usarValoresModelo ? null : (formData.almacenamiento || null),
+            procesador: usarDefaults ? null : (formData.procesador || null),
+            ram: usarDefaults ? null : (formData.ram || null),
+            almacenamiento: usarDefaults ? null : (formData.almacenamiento || null),
         };
         await onSubmit(dataToSubmit);
     };

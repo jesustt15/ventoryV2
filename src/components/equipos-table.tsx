@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { copyToClipboard } from "@/lib/utils";
 import TableRowSkeleton from "@/utils/loading";
 import { handleGenerateAndDownloadQR } from "@/utils/qrCode"
 import { BulkUpdateResultModal } from "@/components/bulk-update-result-modal";
@@ -463,7 +464,7 @@ const columns: ColumnDef<Dispositivo>[] = [
 </DropdownMenuTrigger>
 <DropdownMenuContent align="end">
   <DropdownMenuItem onClick={() => {
-    navigator.clipboard.writeText(dispositivo.serial.toString());
+    copyToClipboard(dispositivo.serial.toString());
     showToast.success("¡Serial copiado!", { 
       progress: false,
       position: "bottom-center",
@@ -920,7 +921,7 @@ return (
                           key={row.id}
                           data-state={row.getIsSelected() && "selected"}
                           className="cursor-pointer hover:bg-muted/50"
-                          onClick={() => {
+                          onDoubleClick={() => {
                             const id = row.original.id;
                             if (id) router.push(`/dispositivos/${id}/details`);
                           }}
